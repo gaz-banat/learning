@@ -1,0 +1,1327 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\fswiss\fcharset0 ArialMT;
+\f3\fswiss\fcharset0 Helvetica-Oblique;\f4\fnil\fcharset0 Monaco;\f5\fnil\fcharset0 Georgia;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red221\green32\blue103;\red25\green25\blue25;
+\red46\green111\blue253;\red217\green11\blue5;\red5\green68\blue254;\red17\green17\blue17;\red255\green255\blue255;
+\red9\green78\blue192;\red252\green39\blue18;\red0\green0\blue0;\red28\green28\blue28;\red242\green242\blue242;
+\red5\green5\blue5;\red0\green0\blue0;\red65\green128\blue255;\red0\green0\blue0;\red31\green31\blue31;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c90234\c23206\c47866;\cssrgb\c12941\c12941\c12941;
+\cssrgb\c22750\c53231\c99501;\cssrgb\c88946\c14202\c0;\cssrgb\c0\c38136\c99824;\cssrgb\c8235\c8235\c8235;\cssrgb\c100000\c100000\c100000;
+\cssrgb\c0\c40000\c80000;\cssrgb\c100000\c25271\c7591;\csgray\c0\c0;\cssrgb\c14510\c14510\c14510;\cssrgb\c96078\c96078\c96078;
+\cssrgb\c1569\c1569\c1569;\cssrgb\c0\c0\c0\c5098;\cssrgb\c31373\c59216\c100000\c18039;\csgray\c0;\cssrgb\c16078\c16078\c16078;
+}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid2\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li1440\lin1440 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid3\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li2160\lin2160 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid4\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li2880\lin2880 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid5\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li3600\lin3600 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid6\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li4320\lin4320 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid7\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li5040\lin5040 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid8\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li5760\lin5760 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid9\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li6480\lin6480 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww33100\viewh17240\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+\
+\
+cloud provider config in openshift-config\
+secret for credentials in kube-system\
+\
+\
+THE CONFIGURATION ELEMENTS OF A CLUSTER\
+\
+NOTE: to get a configuration element - oc get [-n <namespace> ] <custom_resource> <canonical_name> -o yaml | ditch_meta.sh\
+\
+Custom Resource								Canonical Name					\
+\
+APIServer									cluster\
+AlertManager\
+Authentication (config.openshift.io)					cluster\
+Authentication (operator.openshift.io)\
+Build\
+CSISnaspshotController\
+CloudCredential\
+ClusterCSIDriver\
+ClusterVersion								version\
+Config										cluster							\
+Console (config.openshift.io)						cluster\
+Console (operator.openshift.io)\
+DNS (config.openshift.io)\
+DNS (operator.openshift.io)\
+Etcd										cluster\
+FeatureGate\
+Image\
+ImageContentSourcePolicy (operator.openshift.io)\
+ImageContentSourcePolicy (operator.openshift.io)\
+Infrastructure									cluster\
+Ingress\
+IngressController\
+InsightsOperator\
+KubeAPIServer\
+KubeControllerManager\
+KubeScheduler\
+KubeStorageVersionMigrator\
+Network (config.openshift.io)\
+Network (operator.openshift.io)\
+Node\
+OAuth\
+OpenShiftAPIServer\
+OpenShiftControllerManager\
+OperatorHub\
+Project\
+Proxy\
+Scheduler\
+ServiceCA\
+Storage\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \
+\cf3 WHAT IS ON A NODE\cf2 \
+\
+MASTER\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+
+\f1 \cf4 kube-system\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 					csi-smb-node-crbmh\
+openshift-apiserver-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		openshift-apiserver-operator-cc645c549-zg7f5\
+openshift-apiserver\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 				apiserver-84bc999444-8prk6\
+\
+openshift-authentication-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	authentication-operator-5659dc54dd-8r5n7\
+openshift-authentication\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			oauth-openshift-7c66f6c7c7-2ht8p\
+\
+openshift-cloud-controller-manager-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0	cluster-cloud-controller-manager-operator-54d997dcd6-76qb9\
+\
+openshift-cloud-credential-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	cloud-credential-operator-77665df667-6slxd\
+\
+openshift-cluster-csi-drivers\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			vmware-vsphere-csi-driver-controller-57dcfc4c48-g4vqw,  \
+								vmware-vsphere-csi-driver-node-lc5f2\
+								vmware-vsphere-csi-driver-operator-86bd75f596-bjxqd\
+								vmware-vsphere-csi-driver-webhook-6fb67b9fcf-g6kkh\
+openshift-cluster-machine-approver	\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0machine-approver-54746d79f6-rjcfg\
+openshift-cluster-node-tuning-operator\'a0\'a0\'a0	\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0cluster-node-tuning-operator-846c45b7b5-t78mr\
+							\'a0\'a0	tuned-c55zr\
+openshift-cluster-samples-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0		cluster-samples-operator-6ddf5b65db-c6qfh\
+openshift-cluster-storage-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	cluster-storage-operator-79fd5dcb66-drtl4\
+						\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0	csi-snapshot-controller-5b9bb9df9b-wjqh4\
+								csi-snapshot-controller-operator-57b6658987-lc9j8\
+								csi-snapshot-webhook-597486c44f-2h6fg\
+openshift-cluster-storage-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	vsphere-problem-detector-operator-847469748c-c692q\
+\
+openshift-cluster-version\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			cluster-version-operator-5d8f5cc55b-2lz85\
+\
+openshift-config-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			openshift-config-operator-5d55c7fdd8-l8c7n\
+\
+openshift-console-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		console-operator-5d6fbb68f6-x9b82\
+openshift-console\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 				console-676d8c7455-tf6qm\
+								downloads-7d958dc7f-98jxg\
+openshift-controller-manager-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0	openshift-controller-manager-operator-78d667f499-2q7dc\
+openshift-controller-manager\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		controller-manager-566bcfcb7d-4fvl6\
+\
+openshift-dns-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			dns-operator-59f6f4dc79-vmj9d\
+openshift-dns					\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0dns-default-6dkxz\
+								node-resolver-757k7\
+openshift-etcd-operator\'a0					etcd-operator-6f6f764df4-tg9pv\
+openshift-etcd\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 					etcd-guard-ndcses-757cf-master-8pdzk-1\
+								etcd-ndcses-757cf-master-8pdzk-1\
+								revision-pruner-27-ndcses-757cf-master-8pdzk-1\
+openshift-image-registry					cluster-image-registry-operator-868557465-t4f4r\
+								node-ca-5k4g6\
+openshift-ingress-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		ingress-operator-7685d8db5c-vlhw5\
+openshift-insights\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 				insights-operator-59fdb56bf6-j4glp\
+openshift-kube-apiserver-operator			kube-apiserver-operator-784b76789b-vd9l2\
+openshift-kube-apiserver\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			kube-apiserver-guard-ndcses-757cf-master-8pdzk-1\
+								kube-apiserver-ndcses-757cf-master-8pdzk-1\
+								revision-pruner-266-ndcses-757cf-master-8pdzk-1\
+openshift-kube-controller-manager-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0	kube-controller-manager-operator-8447db5549-d8sz8\
+openshift-kube-controller-manager\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	kube-controller-manager-guard-ndcses-757cf-master-8pdzk-1\
+								kube-controller-manager-ndcses-757cf-master-8pdzk-1\
+								revision-pruner-46-ndcses-757cf-master-8pdzk-1\
+openshift-kube-scheduler-operator\'a0			openshift-kube-scheduler-operator-7dc67fb8fb-nm9fr\
+openshift-kube-scheduler\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		openshift-kube-scheduler-guard-ndcses-757cf-master-8pdzk-1\
+								openshift-kube-scheduler-ndcses-757cf-master-8pdzk-1\
+								revision-pruner-42-ndcses-757cf-master-8pdzk-1\
+openshift-kube-storage-version-migrator-operator\'a0\'a0\'a0\'a0\'a0\'a0kube-storage-version-migrator-operator-59dc67c66f-n8jkr\
+openshift-logging\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 				collector-n96gv\
+openshift-machine-api\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			cluster-autoscaler-operator-75b679bc89-6x98j\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							cluster-baremetal-operator-54d7455c6b-w7hbf\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							control-plane-machine-set-operator-c4b5c8d67-fzmd7\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							machine-api-controllers-6c7f8bf799-g7v49\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							machine-api-operator-6bd5bb6f84-sljs5\
+openshift-machine-config-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	machine-config-controller-7b467c798f-2qwx7\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							machine-config-daemon-gxzxq\
+								machine-config-operator-5b74dfc5c-kzf9r\
+								machine-config-server-9tz72\
+openshift-marketplace 					certified-operators-fxqpq\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							community-operators-m2drk\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							marketplace-operator-79978b94bb-xxsvq\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0		 					redhat-marketplace-t4sf5\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							redhat-operators-rxxpf\
+openshift-monitoring\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 				cluster-monitoring-operator-69d7c6494c-kmpr4\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 							node-exporter-45nck\
+openshift-multus						multus-5rn7x\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 						multus-additional-cni-plugins-7lcp8\
+								multus-admission-controller-77f8bf556-f97zq\
+								multus-d7655\
+								network-metrics-daemon-2mhv5\
+openshift-network-diagnostics\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		network-check-target-bw68s\
+openshift-network-operator\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 		network-operator-6b4bfcd8c7-m5d79\
+openshift-oauth-apiserver\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 			apiserver-7f9b9b7956-86rxn\
+openshift-operator-lifecycle-manager			catalog-operator-7cc6779bf8-p7mfm\
+								olm-operator-6dc5869976-c6t4v\
+								package-server-manager-77b764d76f-tqw46\
+								packageserver-7f96cb4556-lsr4m\
+								packageserver-7f96cb4556-rxz5n\
+openshift-route-controller-manager			route-controller-manager-5959c4fc4d-vm6bw\
+openshift-sdn						sdn-9g9sd\
+								sdn-controller-d4bzm\
+openshift-service-ca-operator				service-ca-operator-59db7f5577-s49rl\
+openshift-service-ca\'a0					service-ca-67947bf676-gqlfl\
+openshift-user-workload-monitoring\'a0			prometheus-operator-7bb969c5b-r82kb\
+openshift-vsphere-infra					coredns-ndcses-757cf-master-8pdzk-1\
+								haproxy-ndcses-757cf-master-8pdzk-1\
+								keepalived-ndcses-757cf-master-8pdzk-1\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0 \cf2 \
+INFRA\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+
+\f1 \cf4 kube-system							csi-smb-controller-9d77dc4bf-m744h\
+								csi-smb-node-88z82\
+openshift-cluster-csi-drivers				vmware-vsphere-csi-driver-node-grgd6\
+openshift-cluster-node-tuning-operator\'a0			tuned-ff6cz\
+openshift-console\'a0						downloads-7d958dc7f-j5ds7\
+openshift-dns\'a0						dns-default-44rxb\
+								node-resolver-9qrwp\
+openshift-image-registry\'a0					image-registry-986795c95-ls749\
+								node-ca-kt4s8\
+openshift-ingress-canary					ingress-canary-hpm8x\
+openshift-logging						cluster-logging-operator-5d6fd786b7-65bb2\
+								collector-8rqv8\
+openshift-machine-config-operator\'a0			machine-config-daemon-6gm66\
+openshift-monitoring\'a0					alertmanager-main-0\
+								kube-state-metrics-69fc45f49-z2jvr\
+								node-exporter-5976v\
+openshift-monitoring\'a0					openshift-state-metrics-fd5844c6b-b9l2c\
+								prom2teams-57b6fb5ddc-rmss6\
+								prometheus-adapter-55876cc9fc-4qtnh\
+								prometheus-k8s-0\
+								prometheus-operator-5bb9cdc4d-tqzst\
+								prometheus-operator-admission-webhook-7b4f498f5f-4pb65\
+								thanos-querier-68747985bd-cwnhd\
+openshift-multus						multus-additional-cni-plugins-rlfkh\
+								multus-c5tzz\
+								network-metrics-daemon-gztrz\
+openshift-network-diagnostics\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0		network-check-source-58f79d698f-vdvbr\
+								network-check-target-75pg5\
+openshift-operator-lifecycle-manager\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0	collect-profiles-28651725-vf8w4\
+openshift-sdn						sdn-qn7vg\
+openshift-user-workload-monitoring\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 	prometheus-user-workload-0\
+								thanos-ruler-user-workload-0\
+openshift-vsphere-infra\'a0					coredns-ndcses-757cf-infra-vcs50-47qmn\
+								keepalived-ndcses-757cf-infra-vcs50-47qmn\
+\pard\pardeftab720\partightenfactor0
+
+\fs29\fsmilli14667 \cf4 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 WORKER\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1 \cf4 kube-system\'a0 						csi-smb-node-nv9dr\
+openshift-cluster-csi-drivers\'a0 				vmware-vsphere-csi-driver-node-kvg2q\
+openshift-cluster-node-tuning-operator\'a0 		tuned-wxdg4\
+openshift-dns\'a0 						dns-default-qvffq\
+openshift-dns\'a0 						node-resolver-5nf42\
+openshift-image-registry\'a0 					node-ca-wxr22\
+openshift-ingress-canary\'a0 					ingress-canary-tsk75\
+openshift-ingress\'a0 						router-default-9559655f9-dsjp4\
+openshift-logging\'a0 						collector-x5gxd\
+openshift-machine-config-operator\'a0 			machine-config-daemon-467l5\
+openshift-monitoring\'a0 					node-exporter-z7d9w\
+openshift-multus\'a0 						multus-additional-cni-plugins-z4j57\
+openshift-multus\'a0 						multus-bbtlf\
+openshift-multus\'a0 						network-metrics-daemon-sgdxx\
+openshift-network-diagnostics\'a0 				network-check-target-tr485\
+openshift-sdn\'a0 						sdn-kgnh4\
+openshift-vsphere-infra\'a0 					coredns-ndcses-757cf-worker-vcs50-rl5wf\
+openshift-vsphere-infra\'a0 					keepalived-ndcses-757cf-worker-vcs50-rl5wf
+\f0 \cf0 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\cf3 CONTROL PLANE\cf0 \
+\
+\cf5 Concept\cf0 \
+\
+A control plane is made up of at least the\
+\
+api server\
+a controller manager\
+a scheduler\
+an active actuator that ensures state\
+\
+\cf5 Namespaces
+\fs28 \
+
+\fs24 \cf0 \
+openshift-kube-apiserver						-		pods for th api-server component for kubernetes\
+openshift-kube-apiserver-operator\
+\
+openshift-kube-scheduler						-		pods for the scheduler component of kubernetes\
+openshift-kube-scheduler-operator\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 DATA PLANE\cf2 \
+\
+Concept\
+\
+A data plane is essentially made up of \
+\
+compute\
+storage\
+networking\
+\
+\
+\
+BEFORE YOU CONTINUE\
+\
+\
+These are node roles:\
+control-plane\
+master\
+infra\
+worker\
+\
+This is what should be present on every openshift node:\
+Container runtime		-	systemd service		one of containerd, cri-o, rktlet, docker\
+Kubelet			-	systemd service		responsible for starting containers, maintains state of work and the node server, manages network rules and port forwarding\
+Kube-proxy			-					maintains network traffic between kubernetes resources, ensures that the networking environment is isolated and accessible\
+DNS				-					Cluster DNS is a server which serves DNS records for Kubernetes services. Containers started by Kubernetes automatically include this DNS server in their DNS searches.\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 NODES / MACHINES / MACHINESETS\cf2 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 openshift-machine-api\
+openshift-machine-config-operator\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Concepts\cf2 \
+\
+VM				-	has UUID\
+\
+Machine			-	an abstraction introduced by the Cluster API.\
+					in namespace openshift-machine-api\
+					it is a definition of the host infrastructure required to run your Nodes using the Machine spec\
+\
+\
+MachineSet			-	as replicaset is to pods, machineset is to machines\
+					use this resource to create machines rather than using machines directly\
+\
+\
+Node				-	refers to the abstraction of master/infra/worker \'93Node\'94 in a \'93Cluster\'94. The node abstraction only exists within the boundaries of a running cluster\
+\
+\
+Node Controller\
+\
+Machine Controller\
+\
+\
+\
+Visualization 1:\
+\
+			MACHINESET\
+				 |\
+				 |\
+				V\
+		NODE -- MACHINE -- VM\
+		NODE -- MACHINE -- VM\
+\
+\
+\
+MachineConfig\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb9 It is the source of machine configuration and is used for installation and first-boot, as well as upgrades.\
+it defines OS level configuration if the machine uses RHCOS. \
+Using the ignition config format, you can manage machines configuration elements such as storage, systemd, kernel and so on.\
+MachineConfigs can be \
+	non rendered		-	these are the ones you edit to make updates \
+	rendered		-	these are the ones OpenShift \'91renders\'92 based on the non rendered machineconfigs\
+					one rendered machineconfig can be made from many non rendered machineconfigs\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 \
+MachineConfigPool\
+Just like a rolebinding associates roles to users, the machineconfigpool associates a \'91rendered machineconfig\'92 to nodes\
+It ties a label on the \'91non rendered machineconfig\'92 to a label on a node\
+\
+  These keys appear on a machineconfigpool resource\
+	machineConfigSelector:\
+		matchLabels:\
+			machineconfiguration.openshift.io/role: worker			<--- this label is also on the \'91non redered machineconfig\'92  resource\
+\
+	nodeSelector:\
+		matchLabels:\
+			node-role.kubernetes.io/worker: \'93\'94				<--- this label is also on the node resource\
+\
+There is one machineconfigpool object for each type of node on the cluster\
+\
+\
+\
+Visualization 2:\
+\
+		machine-config-1	machine-config-2	machine-config-3  (non rendered)\
+			|			|			|\
+			|			|			|\
+			-------------	 rendered config 	---------\
+						|\
+					machine-config-pool\
+						I\
+					nodeSelector key\
+						|\
+						|\
+				------------------------------------				\
+				|				|\
+				 node-1,   node-2,   node-3\
+				     |		|	  |\
+				[ machine  machine  machine ]  	<--- MachineSet \
+				    |		|	  |\
+				 VM	        VM	VM\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Operators\cf2 \
+\
+machine-config\
+\
+	what it does				-		cluster level operator, manages the OS, systemd, cri-o, kubelet, kernel, networkmanager, etc. on the nodes\
+\
+	components of machine-config 	-		Machine Config Controller\
+								 - One of the masters gets a machine-config-controller pod - this includes Template/Update/Render/Kubelet Config controllers\
+\pard\pardeftab720\partightenfactor0
+\cf10 \cb9 								\
+								{\field{\*\fldinst{HYPERLINK "https://github.com/openshift/machine-config-operator/blob/master/docs/MachineConfigController.md"}}{\fldrslt Machine Config Controller Goals}}\cf8 :\
+\pard\tx5980\tx6480\pardeftab720\li6480\fi-6480\partightenfactor0
+\ls1\ilvl8\cf8 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8259 	}\expnd0\expndtw0\kerning0
+Coordinate upgrade of machines to the desired configuration defined by a\'a0MachineConfig resource.\cb1 \
+\ls1\ilvl8\cb9 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8259 	}\expnd0\expndtw0\kerning0
+Provide options to control upgrades for sets of machines individually.
+\f2 \cb1 \
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf2 \
+								e.g., in this one the kubelet config is doing the resource that was changed:		\
+								kubeletconfig ---generates/modifies---> machineconfig  <---reads---- machine-config/machine config controller -----produces----> rendered machineconfig (contains all machineconfigs)\
+\
+								subcomponents - template controller, update controller, render controller, kubelet config controller\
+\
+								Machine Config Server\
+								 - each master gets a machine-config-server pod\
+\
+\
+								Machine Config Daemon\
+								- each node (master and worker and infra) gets a machine-config-daemon pod\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Resources\cf2 \
+\
+machineset							-	represents a set of machines (nodes)
+\fs28 \cf5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 									increase the replicas in this resource to add more machines\
+\
+MachineConfigPool\
+\
+MachineConfig\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 CONFIGURATION\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces
+\fs28 \cf2 	
+\fs24 		\
+\
+\
+openshift-config						-	\cf0 \kerning1\expnd0\expndtw0 holding various configuration data for the openshift server, \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 											 e.g. openid-client-secret for OAuth Server with name \'93cluster\'94, the secret that represents an htpasswd file for an htpasswd identity provider, configmaps that are CA bundles to be used by Identity Providers\cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf5 Concepts\cf2 \
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf5 Resources
+\fs24 \cf2 \
+\
+\
+KubeletConfig\
+Infrastructure\
+Network\
+ClusterNetwork\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 SCHEDULING\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Namespaces\cf2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 openshift-kube-scheduler						-		pods for the scheduler component of kubernetes\
+openshift-kube-scheduler-operator\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Concepts\cf2 \
+\
+Scheduling for a pod can be specified by\
+- a scheduler\
+- an annotation on the namespace\
+- on the workload (deployment, dc, sts, etc.) using nodeSelector\
+- on the pod template\
+\
+\
+\cf7 Resources\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+scheduler							-	specifies policies on how the openshift cluster will schedule pods onto nodes\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Commands\cf2 \
+\
+Show the default scheduler for OpenShift\
+oc get scheduler cluster -o yaml \
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf11 IMAGES AND IMAGESTREAMS\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf7 Namespaces\cf2 \
+\
+openshift\
+\
+\
+\cf7 Resources\cf2 \
+\
+\
+\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf6 WORKLOADS\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Resources\cf2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 ReplicationController\
+- number of replicas\
+- supports equality based selector requirements\
+- selector for identifying managed pods\
+- does not perform auto-scaling based on load OR traffic as it does not track either (replica count needs to be adjusted by external auto-scaler)\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 DeploymentConfig\
+- Uses a ReplicationController\
+- triggers for creating a new deployment\
+- strategy for transitioning between deployments\
+- life cycle hooks\
+- deployer pod manages the deployment - scale down old replication controller, scale up new replication controller, run the hooks\
+- previous copy of replication controller is retained to enable rollback if needed\expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+ImageStream\
+- just a set of references (tags) which point to docker images\
+- image stream acts as a pointer to a set of images\
+- images in that set of images can live in the same or different repositories\
+- imagestreams serve as a single pointer to a set of related images\
+- can be used as triggers for build or redeployment when the image being referenced changes\
+\
+\
+\
+ImageTag\
+\
+\
+\
+Secrets\
+- a secret can be linked to a service account for a particulare purpose (this can\'92t be done in Kubernetes), \
+	oc secrets link --for=pull <service_account> <secret_name>				- this allows the service_account to use the secret for pulling images for containers from a registry\
+	oc secrets link --for=mount <service_account> <secret_name>			- this is default if --for=[pull | mount] is not specified\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf11 NETWORKING\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces\cf2 \
+\
+openshift-network-operator\
+openshift-dns\
+openshift-sdn\
+\
+\
+\cf5 Concepts\cf2 \
+\
+	ClusterNetwork			-	the internal network of the cluster										oc get network cluster -n openshift-network -o yaml (OR oc get clusternetwork -n openshift-config -o yaml)		e.g. 172.30.0.0/17\
+		hostPrefix			-	what ip address space should go to each host from the clusteNetwork																					e.g. 23\
+\
+	ServiceNetwork			-	a subsection of the clusterNetwork that is dedicated for IP addresses for services			oc get network cluster -n openshift-network -o yaml (OR oc get clusternetwork -n openshift-config -o yaml)		e.g. 172.30.128.0/17\
+\
+	Node IP addresses			-	the IP address by which each node is visible on the external network				oc get nodes -o wide\
+\
+	Host Subnets			-	One or more external networks that nodes participate in (these are external networks)		oc get hostsubnet\
+ \
+	ExternalIP\
+\
+	Network Type			-	the type of network being run by the cluster								oc get network cluster -n openshift-network -o yaml 										OpenShiftSDN is the most common network type\
+\
+	API IP address			-	the IP address at which the API for the cluster is available						oc get infrastructure cluster -n openshift-config -o yaml (look for apiServerInternalIP)\
+\
+	APPS IP address			-	the default IP at which routes/ingress is available for talking to apps					oc get infrastructure cluster -n openshift-config  -o yaml (look for ingressIP)\
+\
+\
+The network plugin is configured to assign IP addresses to pods\
+The kube-apiserver is configured to assign IP addresses to services\
+The kubelet or cloud-controller-manager is configured to assign IP addresses to Nodes \
+The kubel\
+\
+\cf5 Resources\cf2 \
+\
+Network (openshift-config namespace) \
+- the network resource called cluster has the IP subnet of the internal clusternetwork, the serviceNetwork and the externalIP section\
+\
+\
+\
+NetNamespace\
+\
+\
+HostSubnet\
+\
+\
+\
+\cf5 Commands\cf2 \
+\
+I want to see the internal network that has been assigned to each node\
+oc project openshift-etcd, oc rsh <etcd_pod>, etcdctl get --prefix /kubernetes.io/network.openshift.io/hostsubnets/[node_name]\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 INGRESS/ROUTER\cf2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf5 Namespaces
+\fs28 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\fs24 \cf2 					\
+openshift-ingress					the router pods are running in this namespace		\
+openshift-ingress-operator\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Concepts\cf2 \
+\
+Whitelisting\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf7 Operators\cf2 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Resources\cf2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 IngressController\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+Route\
+\
+-  a route is default built as 
+\f3\i route_name-namespace.app_domain_suffix
+\f0\i0 \
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Commands\cf2 \
+\
+Get the default domain suffix\
+oc get ingress.config/cluster -o jsonpath=\{.spec.domain\} -n openshift-ingress\
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 MONITORING\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces
+\fs28 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 openshift-monitoring\
+openshift-user-workload-monitoring\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf5 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf5 Resources
+\fs28 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 PrometheusRule\
+\
+\
+ServiceMonitor\
+\
+\
+PodMonitor\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 LOGGING\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces
+\fs28 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 openshift-logging				- 	contains the daemonset/fluentd 
+\fs28 \cf5 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf5 Resources\cf2 \
+\
+clusterlogforwarder				- 	determines what namespaces should have their logs forwarded \
+\
+clusterlogging - i think this is the CR the clusterlogging operator works on\
+\
+\cf5 Commands\cf2 \
+\
+Where do container logs go?\
+On each node /var/log/containers/*.log\
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 AUTHENTICATION\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces\cf2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 openshift-authentication						-	 this is where the OpenShift OAuth server lives\cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 openshift-autthentication-operator\
+openshift-apiserver\
+\pard\tx5653\pardeftab720\partightenfactor0
+\cf2 openshift-config	-	the secret that the oauth server will use to talk to sso can live here \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Concepts\cf2 \
+\
+Users:\
+  regular			-		banatg\
+  system			-		system:<user>													allow system components access to a specific resource\
+						e,g. system:admin, system:openshift-registry, system:node:node1.example.com		\
+  service accounts		-		system:serviceaccount:<namespace>:<service account name>						for the use of pods to access resources\
+						e.g. system:serviceaccount:default:deployer, system:serviceaccount:foo:builder\
+\
+Groups:\
+  explicitly defined\
+  system/virtual		-		system:authenticated, system:authenticated:oauth, system:unauthenticated\
+\
+\
+API authentication can be with:\
+1. OAuth access tokens\
+	request from		-		<namespace_route>/oauth/token/request		\
+	get from		-		<namespace_route>/oauth/authorize\
+						<namespace_route>/oauth/token\
+	send as		-		\'93Authorization: Bearer ...\'94 header with a request\
+\
+Note: namespace_route	-	oc get routes -n openshift-authentication or 
+\f4\fs22 \cb12 oc get route oauth-openshift -n openshift-authentication -o json | jq .spec.host
+\f0\fs24 \cb1 \
+\
+\
+2. X.509 client certificate\
+\
+\
+\
+\
+Identity Providers:\
+HTPasswd\
+Keystone\
+LDAP\
+Basic Authentication		-	generic backend integration mechanism, must use https to the identity provider\
+Request Header			-	identify users from request headers, e.g. X-REMOTE-USER. Typically used in combination with an authentication proxy\
+GitHub\
+GitLab\
+Google				-	Google\'92s OpenID Connect integration\
+OpenID Connect			-	\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf13 \cb9 Identity providers use OpenShift Container Platform \cb14 Secret\cb9  objects in the \cb14 openshift-config\cb9  namespace to contain the client secret, client certificates, and keys.\
+Identity providers use OpenShift Container Platform \cb14 ConfigMap\cb9  objects in the \cb14 openshift-config\cb9  namespace to contain the certificate authority bundle.\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Resources
+\fs28 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+OAuth\
+A way of configuring an OAuth server					\
+\'91cluster\'92 is an OAuth resource for the OpenShift cluster itself\
+Contains an identityProvider field in the spec which represents identity providers for the OAuth Server\
+built into OpenShift, gives oauth tokens to users\
+in openshift-authentication namespace\
+To get metadata about the server use the openshift service in the default namespace\
+available internally at 
+\f3\i \cf13 \cb9 https://openshift.default.svc/.well-known/oauth-authorization-server\
+\
+
+\f0\i0 \cf2 \cb1 \
+OAuthClient\
+a resource that represents an app that will make a request to the oauth server in openshift\
+default clients with OpenShift\
+	openshift-browser-client for browser apps			-	oc get oauthclient openshift-browser-client -n openshift-authentication\
+	console app								-	oc get oauthclient console -n openshift-authentication\
+	openshift-challenging-client					-	oc get oauthclient openshift-challenging-client -n openshift-authentication \
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf13 \cb9 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Commands\cf2 \
+\
+Show the ouath server route:\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs22 \cf2 \cb12 oc get route oauth-openshift -n openshift-authentication -o json | jq .spec.host
+\f0\fs24 \cb1 \
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 AUTHORIZATION\cf2 \
+\
+\pard\tx5280\pardeftab720\partightenfactor0
+\cf5 Concepts\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+Admission Controller		-	a kubernetes component that intercepts, monitors and enforces security access-control policies for each API request made by the user\
+\
+Verbs		\
+  creating\
+\pard\pardeftab720\partightenfactor0
+\cf2 	create				-								POST\
+\pard\pardeftab720\partightenfactor0
+\cf2   reading			\
+	get				-	for individual resources				GET, HEAD\
+	list				-	for a collection of resources			GET, HEAD\
+	watch				-	for individual and collection of resources		GET, HEAD\
+  update\
+	update			-								PUT\
+	patch				-								PATCH\
+  deleting\
+	delete 			-	for individual resources				DELETE\
+	deletecollection		-	for collections					DELETE\
+\
+ClusterRoles:\
+  The following are default with OpenShift\
+	admin				-	bind with rolebinding to a project to get an admin for the project (think project manager)\
+	basic-user			-	bind with rolebinding to a project to get a basic user for the project\
+	edit				- 	bind with rolebinding to a project, can modify most objects in project but not view or modify roles or rolebindings\
+	view				-	bind with rolebinding to a project, can view most objects in a project, cannot view or modify roles or rolebindings\
+	self-provisioner		-	a set of permissions to allow a user to create thier own project\
+	cluster-admin		-	super user, can perform any action in any project, bind with rolebinding to a project to get full conrol over quota/rate limit and every action on every resource in the project\
+	cluster-status			-	can get basic cluster status information\
+	cluster-reader\
+\
+	system:deployer\
+	system:image-builder\
+	system:image-puller\
+\
+Roles:\
+  think rules where each rule is \'91verb + resource\'92 (each resource is related to an apiGroup\
+\
+\
+Bindings:\
+  clusterrolebindings			-	exists at cluster level (meaning all projects), not namespaced, can only reference clusterroles,\
+  rolebindings				-	exists at project level, can reference clusterroles and roles (create local roles only if a clusterrole does not provide the set of permissions needed for a situation)\
+\
+\
+\
+Combinations:\
+\
+Role + Rolebinding				-	permissions for the subject in the role for a particular namespace\
+ClusterRole + Rolebinding			-	permissions for the subject in the clusterrole for a particular namespace\
+ClusterRole + ClusterRolebinding		-	permissions for the subject in the clusterrolebinding at the cluster level\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Commands\cf2 \
+\
+What groups does a user belong to\
+oc get groups -o json | jq \'91.items[] | select(.users[] | contains(\'93<username>\'94)) | (.metadata.name)\'92\
+\
+\
+What users and groups can do a particular verb on a resource in a project\
+oc adm policy who-can <verb> <action>\
+e.g. oc adm policy who-can get pods\
+\
+Try to do an action as a user\
+First just as a user 			- oc get pods --as <user> \
+Then as a user part of a group	- oc get pods --as <user> --as-group <group>\
+\
+\
+Show all clusterrolebindings in the cluster\
+oc describe clusterrolebinding.rbac								(this will show every clusterrolebinding)\
+\
+Give a regular user a clusterrole (think \'91a role for all projects\'92)\
+oc adm policy add-cluster-role-to-user <user>\
+\
+Show all rolebindings for a project\
+oc describe rolebinding [-n <namespace]\
+\
+Give a regular user a role for a project\
+oc adm policy add-role-to-user <user> -n <namespace>\
+\
+\
+\
+Show all the clusterrolebindings for a regular user\
+You have to run 3 commands\
+	oc get groups | grep <user>								(note the group name)\
+	oc describe clusterrolebinding | grep -B10 \'91User\\s*<user>\'92\
+	oc describe clusterrolebinding | grep -B10 \'91Group\\s*<group>\'92\
+\
+Show all rolebindings for a project for a regular user\
+You have to run 3 commands\
+	oc get groups | grep <user>								(note the group name)\
+	oc describe rolebinding -n <namespace> | grep -B10 \'91User\\s*<user>\'92\
+	oc describe rolebinding -n <namespace> | grep -B10 \'91Group\\s*<group>\'92\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 What are my roles and role bindings\
+oc get clusterrolebindings -o json | jq \'91.items[] | select(.subjects[].name==\'93gbana001\'94)\'92				-	for the cluster level\
+oc get rolebindings \'97all-namespaces -o json | jq \'91.items[] | select(.subjects[].name==\'93banatg\'94)\'92			-	for the project level\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 OPERATORS\cf2 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Namespaces\cf2 \
+\
+\pard\tx5670\tx7206\tx7928\tx10192\pardeftab720\partightenfactor0
+\cf2 openshift-operators	-	default namespace for installing operators\
+\pard\tx5670\tx7216\tx7928\tx10192\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 openshift-marketplace	-	a project to hold manifests for operators from various catalogs like \
+		\'91Red Hat Operators\'92		-	channel/7.11.x\
+		\'91Certified Operators\'92		-	channel/alpha, \
+		\'91Red Hat Marketplace\'92\
+		\'91Community Operators\'92\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Concepts\cf2 \
+\
+\
+OperatorHub							-		a registry of certified operators in OpenShift\
+\
+Capability Levels for Operators				-		Basic Install, Seamless Upgrades, Full Lifecycle, Deep Insights, Auto Pilot\
+\
+Cluster Operator						-		an operator charged with managing cluster features\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf5 Resources
+\fs28 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\
+CatalogSource						-		 a defintion for the source of a catalog\
+\
+\
+OperatorGroup						- 		a resource that provides multitenant configuration to OLM installed operators\
+										in the resource you specify target namespaces in which to generate required RBAC access for its member operators\
+  										(basically it is tying an operator to a set of namespaces in which the operator can act on CR\'92s)\
+\
+\
+Subscription							- 		a way of getting an operator from a catalog\
+\
+\
+ClusterServiceVersion					-		\cf15 \cb9 represents a particular version of a running operator on a cluster\cf2 \cb1 \
+										\cf15 \cb9 It includes metadata such as name, description, version, repository link, labels, icon, etc.\cf2 \cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7216\pardeftab720\pardirnatural\partightenfactor0
+\cf8 \cb9 													\cf15 It declares\'a0\cb16 owned\cb9 /\cb16 required\cb9 \'a0CRDs, cluster requirements, and install strategy that tells OLM how to create required resources and set up the operator as a\'a0{\field{\*\fldinst{HYPERLINK "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"}}{\fldrslt \cf0 deployment}}.\cf8 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf8 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7192\pardeftab720\pardirnatural\partightenfactor0
+\cf8 InstallPlan									-			Specifies installation parameters for a clusterserviceversion, e.g. is the approval automatic?\
+\
+\
+ClusterOperator							-			a resource that represents an operator, the operator is responsible for some cluster feature\
+\
+\
+Operator									-			a resource that represents an operator, the operator is responsible for managing an application\
+\
+\
+\
+\cf5 Operators:\cf8 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 Cluster Version Operator					-		\cb9 The Cluster Version Operator (CVO)\'a0\cb17 manages the lifecycle of cluster Operators\cb9 , many of which are installed in OpenShift Container Platform by default. \
+										The CVO also checks with the OpenShift Update Service to see the valid updates and update paths based on current component versions and information in the graph.\cf8 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf8 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 Operator Lifecycle Manager				-		An operator that can install and automatically update other operators if their approval strategy is automatic\
+										uses a CatalogSource resource\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb9 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf5 \cb1 Commands:\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+Show cluster operators\
+oc get clusteroperators	\
+\
+Show Application operators\
+oc get operators\
+\
+Applications Operators installed via OLM\
+oc get subscriptions --all-namespaces\
+\
+Show catalog sources available from which operators can be installed:\
+\pard\pardeftab720\partightenfactor0
+\cf18 \kerning1\expnd0\expndtw0 \CocoaLigature0 oc get CatalogSource -n openshift-marketplace\cf2 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+                                             \
+Available operators in market place\
+oc get packagemanifests -n openshift-marketplace\
+\
+Describe an operator in the markteplace\
+oc describe packagemanifests <operator_name> -n openshift-marketplace\
+\
+Installplan and CSV - think of these working together\
+oc get installplan -n <namespace>\
+\
+See the clusterserviceversion of an operator installed by OLM\
+oc get csv <csv_name> -n <namespace>\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 CERTIFICATES\cf2 \
+\
+\
+**Internal CAs\
+\
+Infrastructure CA certificates\
+\
+\
+\
+**Internal Certificates\
+\
+Certificates that exist are for\
+\
+1. The ingress router			\
+2. Web Console\
+3. API server							-	on the apiserver/cluster resource, it proves the identity of the api server, it is a server cert\
+4. Service Serving certificates\
+5. Kubelet (node) certificate\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 Commands:\cf2 \
+\
+Get the default ingress certificate:\
+oc get deployment -n openshift-ingress						get the deployment name\
+oc describe deployment <deployment_name> -n openshift-ingress		note the default-certificate volume secretName\
+oc get secret <secret_name> -n openshift-ingress -o \'91go-template=\{\{index .data \'93tls.crt\'94\}\}\'92 | base64 -d | openssl x509 -subject -issuer -dates -noout\
+\
+Get csr\'92s in the cluster:\
+oc get csr \
+\
+Approve pending csr\'92s\
+oc get csr --no-headers | awk \'91\{print $1\}\'92 | xargs oc adm certificate approve\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 SECURITY CONTEXT CONSTRAINTS\cf2 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf19 \cb9 focuses on permissions that a certain Pod/Container would have on the infrastructure it\'92s interacting with
+\f5\fs40 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \cb1 \
+Types:\
+restricted				- default\
+nonroot\
+anyuid\
+hostmount-anyuid\
+hostnetwork\
+node-exporter\
+hostaccess\
+privileged\
+\
+\
+Applied To:\
+users\
+service accounts\
+groups\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 POD DISRUPTION BUDGET\cf2 \
+\
+a pod disruption budget indicates to OpenShift how many pods need to be available simultaneously during a voluntary disruption\
+\
+it is configured as a yaml resource by itself in a namespace and \
+\
+\
+\
+\cf3 TROUBLESHOOTING\cf2 \
+\
+\
+Commands:\
+\
+Get top style information on nodes\
+oc adm top nodes\
+\
+\
+Get top style information on pods in a namespace\
+oc adm top pods -n <namespace>\
+\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf3 \kerning1\expnd0\expndtw0 GENERAL OC COMMANDS\cf2 \
+\
+New App directly from command line\
+oc new-app\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf2 \CocoaLigature0 The 'oc new-app' command will match arguments to the following types:\
+\
+  1. Images tagged into image streams in the current project or the 'openshift' project\
+     - if you don't specify a tag, we'll add ':latest'\
+  2. Images in the Docker Hub, on remote registries, or on the local Docker engine\
+  3. Templates in the current project or the 'openshift' project\
+  4. Git repository URLs or local paths that point to Git repositories\
+\
+--allow-missing-images can be used to point to an image that does not exist yet.\
+\pard\pardeftab720\partightenfactor0
+\cf2 \CocoaLigature1 \
+\
+\
+ \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf3 SUBSCRIPTIONS\cf2 \
+\
+Types:\
+	Annual									-		provides fixed capacity of resources, pre-purchased from RH\
+	On-demand									-		allows flexible usage and is billed through the RH Marketplace. Clusters must be connected to Telemetry\
+\
+Service Level\
+	Self-support\
+	Standard\
+	Premium\
+\
+Products\
+	RH OpenShift Container Platform\
+		RH OCP <service-level>\
+		RH OCP with Integration\
+		RH OCP Broker/Master Infrastructure for IBM Cloud Pak\
+		RH OCP for IBM Cloud Pak for Data\
+\
+	RH OpenShift Platform Plus\
+\
+	RH OpenShift Kubernetes Engine	\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf3 \kerning1\expnd0\expndtw0 OPENSHIFT ADDITIONS TO KUBERNETES\cf2 \
+ \
+Networking\
+Image Registry\
+ImageStreams\
+Metrics\
+Logging\
+Complex Deployments\
+Application Lifecycle Management\
+Application Services like database and messaging\
+Self-service portal\
+Container Security\expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 Image Streams in a namespace\
+CI/CD enhancements\
+Prometheus\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+\
+QUESTIONS\
+==========\
+\
+1. Where is the trusted certificate authority bundle for the API Server\
+\
+2. Where can I adjust the duration of the OAuth access token issued to a user\
+default is 24 hours\
+in an OAuth resource called \'91cluster\'92 add\
+spec:\
+  tokenConfig\
+    accessTokenMaxAgeSeconds: <number_of_seconds>\
+\
+\
+3. How can I get the list of registries that OpenShift will search for images}

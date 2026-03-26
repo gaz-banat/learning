@@ -1,0 +1,359 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\froman\fcharset0 Times-Roman;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red102\green177\blue50;
+\red102\green0\blue141;\red46\green111\blue253;\red221\green32\blue103;\red217\green11\blue5;\red5\green68\blue254;
+\red0\green0\blue0;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\c90196;\cssrgb\c100000\c100000\c100000;\cssrgb\c46532\c73327\c25364;
+\cssrgb\c48169\c12809\c62212;\cssrgb\c22750\c53231\c99501;\cssrgb\c90234\c23206\c47866;\cssrgb\c88946\c14202\c0;\cssrgb\c0\c38136\c99824;
+\cssrgb\c0\c0\c0;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww31860\viewh16480\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\
+\
+CONFIGURATION\
+\
+system				-	applies to all users, e.g. /etc/gitconfig\
+global				-	applies to all repos for this user, e.g. ~/.gitconfig\
+local					-	applies to this repo for this user, e.g. /path/to/repo/.git/config\
+attributes				-	.gitattributes in the repo folder\
+\
+\
+Credentials\
+\
+.git/config\
+~/.git-credentials\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx9050\tx10186\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0 REPOSITORY\
+\
+  Working Tree\
+\
+	In sync with the local file system\
+\
+\
+  Staging Tree / Index															\cf4 [\'91git ls-files -s\'92 will show the staging tree]\cf0 \
+	\
+	tracks the working tree. keeps a list of files and their hashes							\
+	if working tree changes then staging tree will know by comparing hashes \
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx8456\tx9050\tx9615\tx10186\tx10758\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0    Local Commit Tree:																		\cf4 [references are at ./.git/refs/heads]\cf0 \
+															\cf5 tag = v1.1.3\cf0 	\
+															(merge commit)		\cf6 refs/heads/master\cf0 \
+ 	MASTER				-		56b39...a1cf 	---	2bfaf...cbc0	---	3e72b...e23d	---	938e9...3703\
+															|	|			  |\
+												\cf6 refs/heads/dev\cf0 		|	|			  |\
+	DEV					-		56b39...a1cf	---	8189c....f655	--------	|		    	  |\
+																|		    	  |\
+																|		    	  |	\cf7 HEAD (.git/HEAD)\cf0 	\cf4 [HEAD - locally the hotfix branch is checked out and is at 912ab...67yc5, the latest local commit in this case]\cf0 \
+																|		    	  |	\cf6 refs/heads/hotfix\cf0 \
+	HOTFIX				-									3e72b...e23d	    	  |_______	 912ab...67yc5\
+\
+																			\cf6 refs/heads/feature\cf0 \
+	FEATURE				-						2bfaf...cbc0	---	e2ae2...da1aa	---	911ab....1c1c\
+\
+\
+\
+  Remote Commit Tree: (lets say its called \'91origin\'92 in this case)											\cf4 [references are at ./.git/refs/remotes/origin]\cf0 \
+														\cf8 refs/remotes/origin/HEAD\cf0 \
+														\cf9 refs/remotes/origin/master\cf0 \
+	ORIGIN/MASTER		-		COMMIT1 		COMMIT2		COMMIT3	\
+	\
+								refs/remotes/origin/dev\
+	ORIGIN/DEV			-		56b39...a1cf\
+\
+																	refs/remotes/origin/hotfix\
+	ORIGIN/HOTFIX		-		COMMIT1			COMMIT2		COMMIT3		COMMIT4\
+\
+												refs/remotes/origin/feature\
+	ORIGIN/FEATURE		-		COMMIT1			COMMIT2\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx9050\tx10186\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+\
+ \
+THE .git DIRECTORY\
+\
+.git/\
+	branches/\
+	hooks/\
+	info/\
+	logs/\
+	objects/\
+	refs/\
+		heads/							-		the references for the local commit tree\
+			branch1\
+			branch2\
+			...\
+		remotes/\
+			origin/						-		the name of the remote, can be robert, richard, etc.\
+				HEAD\
+				master\
+		tags/\
+	config\
+	FETCH_HEAD\
+	HEAD\
+	index\
+	ORIG_HEAD\
+	packed-refs\
+\
+\
+\
+CONCEPTS\
+\
+Branch\
+a lightweight movable pointer to a commit, the pointer has a name\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+Objects in git\
+  commit						-	a pointer to the snapshot of data, authors name, authors email, message, pointer to commirt OR pointers to commits that came before this commit \
+  blobs (files)\
+  trees (directories of files)\
+  tags\
+\
+\
+\
+Commit\
+saved changes at a particular point of time\
+\
+What does a commit have:\
+ - unique hash\
+ - metadata \
+	- author\
+	- date\
+	- reference to the parent which is the previous commit\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx9050\tx10186\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+References (refs)\
+a pointer to a commit or to another reference \
+\
+type of references\
+	- local HEAD											-	.git/HEAD\
+	- remote HEAD											-	.git/refs/remote/origin/HEAD			(where your local instance believe that the remote HEAD is pointing to, gets updated with git fetch/pull)\
+	- heads (branch references)\
+			local repo refs are at 								-	./.git/refs/heads\
+			remote repo refs for a remote repo called origin are at 		-	./.git/refs/remotes/origin\
+	- tags\
+\
+\
+\
+\
+The HEAD reference\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0  - a label noting where you are in a commit tree\
+ - a reference to the current commit (latest) on the current branch\
+ - there can only be a single HEAD at any given time (excluding git worktree)\
+\
+Location			-	.git/HEAD\
+reflog			-	shows how the HEAD has been moving in the repository\
+detached HEAD	-	HEAD is not pointing to the latest commit in the commit history, it is pointing to a prior commit\
+					to get out of a detached HEAD state, \
+						run \'91git reflog\'92 make a note of the commit you want to go to \
+						\'91git stash\'92 to stash any work \
+						and then run \'91git reset --hard <commit-id>\'92\
+						\'91git stash pop\'92 to recover stashed work\
+\
+\
+Reference log		-	a listing of commits and information about how the commit came to be\
+\
+\
+\
+revision\
+\pard\pardeftab720\partightenfactor0
+\cf10 \cb3 \expnd0\expndtw0\kerning0
+"revision" refers to an id you can use as a parameter to\'a0reference\'a0an object in git\
+an object could be a commit, blob, tree or tag.\
+there are various ways to spell object names
+\fs30 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf10 \cb1  - <rev>:<path>, e.g. HEAD:README, :README, master:./README
+\f2 \cf0 \
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf0 \kerning1\expnd0\expndtw0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx9050\tx10186\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0 File\
+is a file\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Fork\
+Make a copy of an upstream repo on your GitHub account.\
+Merging your changes with upstream are via a pull request\
+\
+\
+Clone\
+Make a copy of an upstream repo on your local computer\
+updates to upstream are via push if you have write permissions\
+\
+\
+Pull Request\
+a way to check in code to a repo in which you don\'92t have write request. \
+The owner of the repo will review your request and make a decision\
+OR\
+a process to review code in a branch before merging it into another branch\
+\
+\
+\
+\
+\
+\
+ACTIONS\
+\
+\
+Checkout\
+moves HEAD to a commit in a currently active or different branch\
+\
+-b/--track,  will create a new branch from the currently active commit and make that branch active\
+\
+\
+\
+Merge\
+merging is Git\'92s way of putting a forked history back together again.\
+\'91git merge\'92 command lets you take the independent lines of development created by git branch and integrate them into a single branch\
+\
+\
+Reset\
+a way of synchronizing with a commit history\
+reset moves the head reference of your local branch to the commit or reference you tell it to\
+\
+\
+\
+Rebase\
+\
+\
+\
+Fast forward\
+the branch that is the target (could be your local branch) has its head moved to the latest commit in the source branch (could be the remote branch)\
+the history from a commit in the source branch is linear to a commit in the target branch.\
+\
+\
+When is a fast forward not possible?\
+\pard\pardeftab720\partightenfactor0
+\cf10 \cb3 \expnd0\expndtw0\kerning0
+Fast-forwards don\'92t happen in situations where changes have been made in the source branch and the target branch such that their commits are no longer linear.\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+CONFLICTS\
+\
+A conflict means that the branch you are merging into has a newer version of a file than the one your changes are based on\
+\
+When \'91git merge\'92\
+ours 		-	refers to the branch you are merging into \
+thiers	-	refers to the branch you are merging\
+\
+\
+when \'91git rebase\'92\
+\
+\
+\
+\
+\
+COMMANDS\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx22782\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 View tracking branches\
+git branch -vv\
+\
+\
+Get full info on remote\
+git remote show <remote-name>\
+e.g. git remote show origin\
+\
+\
+View local commit logs\
+git log\
+\
+\
+Show files in staging/index\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\tx9050\tx10186\tx11325\tx12485\tx13592\tx14730\tx15888\tx17028\pardirnatural\partightenfactor0
+\cf0 git ls-files -s\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+Diff commands\
+git diff [ -- filename filename .... ]			-	between a/index and b/working tree \
+git diff HEAD [ -- filename filename .... ]		-	between a/last commit and b/working tree \
+git diff --cached	[ -- filename filename .... ]		-	between a/last commit and b/index\
+\
+\
+Show tags in sorted order\
+git tag --sort=v:refname\
+\
+\
+Show information about a tag\
+git show <tag>\
+\
+\
+Show a commit\
+git show <commit_hash>\
+\
+\
+Show the reference log\
+git reflog\
+\
+\
+Revision listing commands\
+git rev-list --all							-	get all the revisions\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf11 \CocoaLigature0 git rev-list --children $(git rev-parse HEAD)	-	get all the children commits of the commit that HEAD is pointing to\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Revision parsiong commands\
+git rev-parse HEAD				-	get the commit that HEAD is pointing to\
+git rev-pars origin/master			-	get the commit that origin/master is pointing to in our local repo\
+git rev-parse HEAD^				-	get the commit one before the commit that HEAD is pointing to\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf11 \CocoaLigature0 git rev-parse HEAD@\{1\}			-	\cf0 \CocoaLigature1 get the commit one before the commit that HEAD is pointing to\cf11 \CocoaLigature0 \
+git rev-parse HEAD@\{2\}			-	\cf0 \CocoaLigature1 get the commit two before the commit that HEAD is pointing to\
+git rev-parse master:./pom.xml		-	this revision is a file, when i ran it i did not get a commit, i think i got a hash of the file, i am not sure \
+git rev-parse --show-toplevel		-	get the absolute path for the top level directory of this git repo\
+\
+\
+Grep for text in all commits\
+git rev-list --all | xargs git grep \'93regexp\'94\
+\
+\
+Find out who changed a line in a file and when\
+git blame -L <lineno>[, <lineno>] <filename>\
+  \
+\
+Show a file from the previous commit\
+git show HEAD~1:<file> \
+\
+\
+\
+\
+SOLUTIONS\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Get out of a detached HEAD state:\
+run \'91git reflog\'92 make a note of the commit you want to go to \
+\'91git stash\'92 to stash any work \
+and then run \'91git reset --hard <commit-id>\'92\
+\'91git stash pop\'92 to recover stashed work\
+}

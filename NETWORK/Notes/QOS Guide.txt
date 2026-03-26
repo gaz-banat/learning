@@ -1,0 +1,309 @@
+
+
+
+Categories of QOS
+=================
+
+ Best Effort
+
+ IntServ
+
+ DiffServ
+
+
+
+
+
+QOS Mechanisms
+=================
+
+
+ Classification
+	by ACL
+	by NBAR
+	by Switch port trust state
+
+	Layer 2 parameters	—	802.1Q Class of Service (CoS) bits, Multiprotocol Label Switching Experimental Values (MPLS EXP)
+	Layer 3 parameters	—	IP Precedence (IPP), Differentiated Services Code Points (DSCP), IP Explicit Congestion Notification (ECN), source/destination IP address
+	Layer 4 parameters	—	L4 protocol (TCP/UDP), source/destination ports
+	Layer 7 parameters	—	application signatures via Network Based Application Recognition (NBAR)
+
+
+ Marking
+	Layer 2 
+		COS (802.1P aka 802.1Q/p)
+		 - Par of the 4 bytes of VLAN tag field
+		 - 3 bits are used, values from 0 (low priority) to 7 (high priority), 6 and 7 are reserved so dont use higher than 5  	{e.g. mark voice at layer 2 with a COS marking of 5}
+		 - Interestingly the frame size goes from 1518 to 1522 (MTU)
+
+	Layer 3
+		IP Precedence
+		 - 3 leftmost bits in IPv4 header TOS byte, values from 0 to 7, 6 and 7 are reserved 					{e.g. mark voice at layer 3 with IP Precedence of 5}
+
+		DSCP
+		 - 6 leftmost bits in IPv4 header TOS byte, 64 potential values from 0 to 63, IETF PHB
+
+		IPECN
+		 - 2 rightmost bits in IPv4 header TOS byte
+		 - first bit indicates support for IPECN, second bit indicates congestion or not
+		 - TCP senders can use this info to adjust TCP window
+		 - WRED can mark IPECN
+
+
+ Policing (Traffic Conditioning)
+	- set a speed limit on specified traffic types
+
+	Policing
+	 - enforces bandwidth to a specified limit
+	 - drops traffic attempting to exceed the configured speed limit
+	 - Markdown involves changing the DSCP value in the IP packet based on flow conditions
+
+
+
+
+ Scheduling 
+
+	Congestion Management/Queuing
+
+		- FIFO
+
+
+		- Priority Queue
+	   		- traffic in the priority queue gets sent first upto a limit
+	   		- oversubscribed traffic will be dropped during time of congestion
+
+
+		- Custom Queue
+
+
+
+		- Weighted Fair Queue
+			- tries to allocate bandwidth proportionally to each flow
+			- takes several parameters and makes a decision based on that - weight (IP Precedence), packet size, scheduling time
+
+
+		- Class-Based Weighted Fair Queue
+	 		- allocate minimum amounts of bandwidth as kbps or percentage for different classes of traffic
+	 		- Classes are defined by match criteria including protocols, acls, input interfaces
+	 		- Classes are characterized by bandwidth, weight, maximum packet limit/queue limit
+
+			- BANDWIDTH COMMAND
+
+		- LLQ
+			- Class-Based Weighted Fair Queue (bandwidth allocation) + one Strict-Priority Queue, CB-WFQ + 1 x PQ = LLQ
+
+			- PRIORITY COMMAND
+
+
+		- Weighted Round Robin
+
+
+		- Shared Round Robin
+
+
+		- Shaped Round Robin
+			SRR is a shaping mechanism that limits egress traffic on a per-queue basis.
+			SRR is configured by assigning a maximum weight to each queue, which is converted to a percentage of link bandwidth.
+			The traffic in each queue is then shaped to that percentage. SRR only allows a queue to use the specific amount of bandwidth that the weight allocates.
+			If you do not enable SRR, weighted round robin (WRR) is used.
+
+
+	Only one allocation mechanism can be used across all application classes of a policy or the policy will not work when the policy-map is applied to an interface
+	Queue depth can be set to ensure traffic bursts can be handled by a queue
+
+
+
+
+	Congestion Avoidance
+
+		- Tail Drop
+			default for CB-WFQ, packets are dropped as they arrive
+
+		- Random Early Detection (RED)
+			Packets are randomly dropped before a queue is full to prevent tail drops
+
+		- Weighted Random Early Detection (WRED)
+			RED with added capability of recognizing prioritized traffic based on its marking
+
+			IPP base WRED will drop lower priority packets first (e.g. IPP 1 before IPP 6)
+			DSCP WRED will drop higher AF values first (e.g. AF23 before AF22 before AF21)
+			Can set IPECN bit to indicate congestion was experienced
+
+		- Class-Based Weighted Random Early Detection (CBWRED)
+			WRED that is employed inside a class-based weighted fair queue
+
+
+
+
+ Link Efficiency
+
+	Shaping
+		- buffers the excess traffic and then transmits when bandwidth becomes available
+		- queuing policies can be assigned to the shaped buffer
+
+	policing attempts to drop traffic but shaping does not
+
+	Compression
+		- compress a packets header or payload
+		- Compressed Real Time Protocol (cRTP)
+
+
+	Link Fragmentation and Interleaving
+		- fragment large packets into smaller packets, interleave smaller latency-sensitive packets among fragmented data packets
+		- Multilink PPP Link Fragmentation and Interleaving (MLP LFI) and Frame Relay Fragmentation
+
+
+	Transmit ring (Tx-Ring) tuning
+
+
+
+
+
+ Hierarchical Policies
+	Create a high level parent policy shaping policy and then associate it with a low-level child policy
+
+
+
+ PHB
+	Expedited Forwarding (EF)
+		- numerical equivalent is 46 in DSCP
+
+	Class Selector (CS)
+		- CS1 to CS7 which map to IP Precedence 1 to 7							{useful where some routers use IP Precedence and others use DiffServ}
+
+	Assured Forwarding (AF)
+		- first number represents Diffserv class/IP Precedence value of the marking
+		- second number after AF represents drop preferance, 3 is high, 2 is medium, 1 is low
+		- recommended for traffic that may need to be marked down
+
+			- AF4
+	  	 		- AF41, AF42, AF43
+			- AF3
+	  			- AF31, AF32, AF33
+			- AF2
+	  			- AF21, AF22, AF23
+			- AF1
+	  			- AF11, AF12, AF13
+
+	Default
+		- DSCP decimal value of 0, for best-effort
+
+
+	DSCP can be expressed in numerical form or PHB keyword (EF is 46, AF31 is 26)
+
+
+
+
+QOS Configuration
+==================
+
+	DiffServ approach to QoS often uses a three-step command-line interface (CLI) configuration process called Modular QoS CLI (MQC):
+
+		Classify traffic into various classes.
+		Define a policy that dictates how the various traffic classes will be treated.
+		Apply the policy (typically to an interface).
+
+	MQC can be used to configure QoS mechanisms such as the following:
+
+		Class-Based Classification
+		Class-Based Marking
+		Class-Based Weighted Fair Queuing (CB-WFQ)
+		Low Latency Queuing (LLQ)
+		Class-Based Weighted Random Early Detection (CB-WRED)
+		Class-Based Policing
+		Class-Based Shaping
+		Class-Based Header Compression
+
+
+
+
+ROUTERS
+========
+
+
+	- interface has 2 types of egress queues (queueing algorithms can be used to determine the order in which packets will be emptied from the queue)
+		- L3 queue, processed, service-policy applies
+		- Hardware queue, queueing mechanism is FIFO, transmit-ring/transmit queue/tx-ring/tx-queue
+
+	- routers provide priority queue via software, LLQ
+
+
+
+
+SWITCHES
+========
+
+ Cisco access switches implement QOS features in hardware
+ Catalyst switches provide priority queuing via hardware
+
+ Think about this 	- how much memory should be allocated to a queue (buffers), 
+			- how much b/w should be dedicated to a queue (shaping) 
+			- and how often a queue should be serviced/what share of bandwidth should a queue get (sharing)
+
+
+
+ Ingress
+	Classify 	- identify a path for the packet by assoiciating it with a QoS label (using CoS or DSCP info from the packet)
+	Police		- determine whether a packet is in or out of profile | pass the result to the marker
+	Mark		- use policer and config info and take an action when packet is out of profile | limits bandwidth consumed by a flow of traffic
+	Queue		- determine into which of 2 ingress queues to put the packet
+	Schedule	- service the queues based on their configured shaped round robin weights | one of the queues is priority
+
+
+ Input Queues
+	- There are 2 queues
+
+
+
+ Egress
+	Queue		- evaluates the QOS packet label and selects which of the 4 egress queues to use
+	Schedule	- service the 4 egress queues based on their configured SRR share or shape weights | one of the queue is expedited queue which is serviced until empty
+
+
+ 
+ Output Queues
+	- There are 4 queues numbered "0 to 3" OR "1 to 4" depending on the context 
+	- There are 3 thresholds per queue
+	- So this combination is produced
+		1-1 1-2 1-3
+		2-1 2-2 2-3
+		3-1 3-2 3-3
+		4-1 4-2 4-3
+	- COS/IP Pre/DSCP values map to these queue-threshold pairs (show mls qos maps <map> will show the mapping)
+
+
+ Queue Set
+	- a configuration of the buffer size and threshold value for the four egress queues
+	- all ports are in queue-set 1 by default
+	- I have only come across 2 queue-sets
+	- queue-sets are used to adjust the buffers available to the queues
+	
+		buffers		- areas in memory
+		threshold1
+		threshold2
+		reserved
+		maximum
+
+
+ Schedule (Sharing/Shaping)
+	- Both sharing and shaping will apply to a port
+
+	- Shaping
+		- specified by weights
+		- the inverse ratio of the weights (1/weight) controls the shaping bandwidth of each queue
+		- when configuring, a weight of 0 means the corresponding queue operates in shared mode
+
+	- Sharing
+		- specified by weights
+		- the weight represents a percentage of the total configured weights (wieght1/(weight1 + weight2 + weight3 + weight4))
+		- in non-congestion time a queue can eat into the bandwidth of non-shaped queues
+
+
+Links
+=========
+
+
+http://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/91862-cat3750-qos-config.html#topic3
+http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_52_se/configuration/guide/3750scg/swqos.html#wp1284809
+http://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/WAN_and_MAN/QoS_SRND/QoS-SRND-Book/QoSIntro.html
+http://www.informit.com/library/content.aspx?b=CCNP_Studies_Switching&seqNum=78

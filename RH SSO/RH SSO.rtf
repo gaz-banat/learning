@@ -1,0 +1,259 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww31100\viewh17100\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7919\tx9085\tx10177\tx11342\tx12464\tx13620\tx14718\tx14718\tx15880\tx17028\tx18117\tx19296\pardirnatural\partightenfactor0
+\cf0 \
+\
+OPERATING MODES\
+\
+Standalone Operating Mode			-		one and only one instance\
+										caches are non-distributed and local\
+										configuration file - /standalone/configuration/standalone.xml (NON OPENSHIFT)\
+\
+Standalone Clustered Mode			-		an instance of RH SSO on each machine you want to run a server instance\
+										specific infrastructure settings networking, databases, caches, and disvocery\
+										requires a shared database, load balancer in front of the cluster, \
+										configuration file - /standalone/configuration/standalone-ha.xml (NON OPENSHIFT)\
+\
+Domain Clustered Mode				-		centrally manage and publish configuration\
+										configuraiton file - /standalone/configuration/domain.xml\
+\
+\
+\
+CONFIGURATION\
+\
+Configuration file:\
+OpenShift							-		/opt/eap/standalone/configuration/standalone-openshift.xml\
+Server on Linux						-		pick one from the operating modes above\
+\
+\
+\
+Keycloak Subsystem\
+the \'91server/profile/subsystem keycloak\'92 is the section that needs to be configured\
+\
+\
+Ways of changing the. configuration:\
+edit the configuration file by hand\
+use the ../bin/jboss-cli.sh utility to change the configuration\
+\
+\
+\
+DATABASE\
+\
+Concept of RHSSO connecting with a database:\
+\
+Top Layer			-	HIbernate JPA - maps Java Objects to relational data\
+Bottom Layer 		-	JDBC API.   -------   JDBC Driver -------- RDBMS				(This is the one that requires configuration, if at all)\
+\
+NOTE: JDBC Driver is a module from a JAR at the modules location\
+\
+\
+\
+MODULES\
+\
+To make a module work with RH-SSO:	(This might actually be a JBOSS EAP thing)\
+\
+Copy a jar and module.xml file into the proper location\
+OpenShift path		-	/opt/eap/modules/system/layers/openshift/	followed by a directory structure in the format of the java package name - then .jar file and module.xml file\
+Server on Linux		-	../modules							followed by a directory structure in the format of the java package name - then .jar file and module.xml file\
+\
+Configure the configuration file\
+For example for postgresql jdbc driver update the subsystem/datasources and add driver in drivers\
+\
+\
+\
+\
+COMPONENTS\
+\
+\
+Realm\
+\
+	Configure\
+\
+		Realm Settings\
+		\
+		Clients\
+			Settings\
+			Credentials\
+			Roles\
+			Client Scopes\
+			Mappers\
+			Scope\
+			Revocation\
+			Sessions\
+			Offline Access\
+			Clustering\
+			Installation						-	formats are Keycloak OIDC JBoss Subsystem CLI, Keycloak OIDC Subsystem XML, Keycloak OIDC JSON\
+			Service Account Roles\
+\
+		Client Scopes\
+\
+		Roles\
+\
+		Identity Providers\
+\
+		User Federation\
+\
+			\{ from here examples begin \}\
+			ldap								- 	LDAP user federation\
+				Mappers						-	creates a mapping between \
+					first name					-	maps firstName (User module attribute) to givenName (LDAP attribute)\
+					email					-	maps email (User module attribute) to mail (LDAP attribute)\
+\
+		Authentication\
+\
+\
+	Manage		\
+\
+		Groups\
+\
+		Users\
+\
+			Role Mappings\
+\
+				Realm Roles						-	what can the user do in this realm\
+\
+				Client Roles						-	what can the user do in the realm of a given client\
+\
+					e.g. dev-realm					-	manage-realm 	(client dev-realm has the manage-realm role, this allows the user to manage the dev realm)\
+\
+\
+\
+\
+\
+REALM SETTINGS\
+\
+General\
+Login\
+Keys\
+Email\
+Themes\
+Cache\
+Tokens\
+Client Registration\
+Security Defenses\
+\
+\
+\
+\
+\
+CLIENTS\
+\
+service account 			-		a service account allows a client to obtain an access token from RH SSO\
+\
+\
+direct grant				-		a way for a clien to obtain an access token on behalf of a user via a REST invocation\
+\
+protocol mappers			-		what claims are stored in the OIDC token\
+								what assertion is stored in the SAML assertion\
+\
+\
+\
+\
+\
+GRANT TYPES\
+\
+client_credentials\
+\
+\
+\
+\
+CREDENTIAL TYPES\
+\
+password\
+one-time-passwords\
+digital certificates\
+\
+\
+\
+\
+\
+CLIENT PROTOCOLS\
+\
+openid-connect\
+\
+\
+\
+\
+\
+\
+SPECIAL IN BUILT CLIENTS\
+\
+account\
+account-console						auth/realms/<realm>/account/\
+security-admin-console					auth/admin/master/console\
+\
+\
+\
+\
+\
+\
+OIDC TOKEN\
+\
+Identity Token			-		part of OpenID Connect specification\
+							identity information like username, address, email and other profile data, maybe permission data, \
+\
+Access Token			-		part of OpenID Connect and OAuth 2.0 specification\
+							digitally signed by the realm, contains access information (like user role mappings) \
+							a token that can be provided as part of an HTTP request that grants access to the service being invoked\
+\
+\
+\
+\
+\
+\
+ASSERTION\
+\
+Information about a user as an XML blob\
+included in a SAML authentication response\
+\
+\
+\
+\
+\
+CLIENT ADAPTER\
+\
+plugins that you install into your application environment to be able to communicate and be secured by RHSSO\
+\
+\
+\
+\
+\
+\
+AUTHENTICATION FLOW\
+\
+Browser							-		Browser based authentication\
+\
+direct grant						-		OIDC -  Resource Owner Password Credentials Grant\
+\
+client								-		base authentication for clients\
+\
+\
+\
+login flow\
+\
+registration 						-		used by clients to register a user\
+\
+reset credential						-		used by a client to reset credentials for a user\
+\
+first broker login\
+\
+docker auth\
+\
+http challenge\
+\
+conditional OTP\
+\
+\
+\
+\
+\
+\
+\
+\
+}

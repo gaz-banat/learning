@@ -1,0 +1,199 @@
+
+
+
+ARCHITECTURE
+
+
+JVM/Application ---> Cache Client ----> Server Module -----> 	Cache Manager
+						|			|
+						| 			V
+						 ---------->	Cache [Level 1 Cache (Temporary Data) + Permanently owned data] ------> Persistent Store 
+
+
+
+============================
+
+COMPONENTS
+
+
+Cache Manager
+
+Cache
+	remote
+
+
+===========================
+
+DEPLOYMENT
+
+	Models
+		remote cache			- 	hot rod, binary TCP, REST over HTTP
+		embedded cache			-	in the same jvm as the accessing app 
+		near cache
+
+
+	Platforms
+		Bare Metal/VM
+		OpenShift
+
+
+	In-line caching
+		cache loaders			-	for RO access to persistent storage
+		cache stores			-	for RW access to persistent storage
+		
+	vs
+	 
+	Side caching
+		With side caches, applications control how data is added to Data Grid clusters from persistent storage. When an application requests an entry, the following occurs:
+		The read request goes to Data Grid.
+		If the entry is not in the cache, the application requests it from persistent storage.
+		The application puts the entry in the cache.
+		The application retrieves the entry from Data Grid on the next read.
+	
+	
+	Cache mode
+		Distributed memory/cache	-	replication between cache of each node in the cluster 
+							In normal operating conditions, distributed caches store a number of copies for each key/value entry that is equal to the Number of owners for each entry 
+							During cluster rebalancing operations, some entries have an extra copy, so you should calculate Number of owners + 1 to allow for that scenario.
+	
+		Replicated
+		
+	
+	Session Externalization			-	for apps built from Quarkus, JBOSS EAP, JBOSS WEB SERVER, Spring
+	
+	Cross-site replication 
+	
+	
+	Planning a deployment
+	
+		size of dataset 		-	Normal			: 	Data set size = Number of entries * (Average key size + Average value size + Memory overhead)
+							Distributed Cache	: 	Distributed data set size = Data set size * (Number of owners + 1)
+											Distributed data set size <= Available memory per node * Minimum number of nodes
+		
+		determine type of clustered cache mode
+	
+		understand performance trade off
+		
+
+
+	JVM heap space allocation
+	
+		Cache operations only (read, write, delete)											Allocate 50% of JVM heap space for data storage
+		
+		Cache operations + data processing such as queries and cache event listeners		Allocate 33% of JVM heap space for data storage
+
+		Allocating too much of JVM heap space for data storage can lead to more frequent garbage collection (GC) as well as GC pauses that lead to Data Grid cluster instability and network partitions.
+		
+		off heap storage 
+		
+		
+		
+
+Sizing example:
+
+Data set size = 1_000_000 * 10KB = 10GB
+Distributed data set size = (3 + 1) * 10GB = 40GB
+40GB <= 4GB * Minimum number of nodes
+Minimum number of nodes >= 40GB / 4GB = 10
+Planned nodes = 10 + 3 - 1 = 12
+
+
+		
+==============================
+
+
+OPERATOR
+
+
+	CR/infinispan cluster
+	CR/infinispan cache
+
+
+	Statefulsets
+	Secrets
+
+
+==============================
+
+HELM CHART
+
+
+
+sample values file
+
+#Build configuration
+images:
+  server: registry.redhat.io/datagrid/datagrid-8-rhel8:latest
+  initContainer: registry.access.redhat.com/ubi8-micro
+#Deployment configuration
+deploy:
+  #Add a user with full security authorization.
+  security:
+    batch: "user create admin -p changeme"
+  #Create a cluster with two pods.
+  replicas: 2
+
+
+============================
+	
+
+Authentication
+
+	how will client apps authenticate to datagrid 
+
+
+Network access
+
+	Datagrid console
+	Datagrid cli 
+	REST API
+	Hot Rod endpoint
+	
+
+Monitoring
+
+	Service monitor
+	
+	Prometheus Rule
+	
+
+Dashboard
+
+	Grafana
+	
+
+Logging 
+
+	elastic
+
+
+Cross site replication
+
+
+Creating caches 
+
+
+Anti affinity
+
+
+Backup and restore
+
+
+
+========================
+
+1. A helm chart for datagrid configured for use in TP
+	https://gitlab.apps.transpower.co.nz/openshift/charts.git
+	
+
+2. A repository to hold configuration values for data grid on a per environment basis
+
+
+3. Documentation for Datagrid that specifies how it is configured, administered
+
+
+
+
+===========================
+
+

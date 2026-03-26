@@ -1,0 +1,193 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2576
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww32120\viewh17160\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+ENCODING\
+\
+\
+Encoding		-	character (\'91a\'92)	\'97>   hexadecimal # (61)  \'97>  binary 0110 0001\
+								decimal # (97)\
+Decoding		-	0110 0001		\'97>.	61				\'97> \'91a\'92\
+								97\
+\
+\
+UNICODE STANDARD\
+- compatible with 7 bit ASCII\
+- 120K characters from 129 scripts\
+- code point - a unique number assigned to each unicode character  which could either be a character or a grapheme\
+- a glyph is a visual representation of a character, fonts provide glyphs\
+- 2 parts\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx10219\pardirnatural\partightenfactor0
+\cf0   - BMP, basic multilingual plane		- 16 bit (2 bytes) code point per character 	[ first 65536 (2 exponent 16) characters are referred to as BMP]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0   - Supplementary (Non-BMP)		-  2 code points (16 bits) per character\
+- the hexadecimal notation that refers to each character is called the \'91code point\'92\
+\
+\
+\
+ISO 10646 STANDARD\
+\
+\
+\
+\
+ENCODING SCHEMES\
+\
+ASCII						\
+- 7 bit\
+\
+ISO/IEC 8859-1\
+- 8 bit extension to ASCII\
+\
+UCS-2 (Unicode)		\
+- Fixed length, 16 bit (2 Bytes)\
+\
+UTF-7\
+\
+UTF-8 (Unicode)\
+- Variable length scheme\
+- 1 byte (8 bits) for ASCII, 2-4 bytes (16-32 bits) for other, 4 bytes (32 bits) for Non-BMP\
+\
+UTF-16 (Unicode)		\
+- Variable length\
+- BMP 2 bytes, Non BMP 4 bytes\
+\
+NOTE: Java stores characters in internal memory as UTF-16. (ASCII character set is stored in BMP using 2 bytes)\
+\
+\
+UTF-32 (Unicode)\
+- fixed length\
+- 4 bytes (32 bits) per character\
+\
+\
+BIG-5\
+\
+\
+\
+\
+ENDIANNES\
+- Big Endian\
+- Low Endian\
+- BOM - identifies the Endianness\
+\
+\
+\
+\
+\
+TRY-WITH-RESOURCES\
+- a way of closing a resource without writing a finally block\
+- the argument to try with resources should be autocloseable \
+- the variable in try with resources is implicitly final\
+\
+\
+\
+TYPES OF STREAMS\
+\
+Byte			- 		InputStream\
+						FilterInputStream\
+							BufferedInputStream\
+							DataInputStream\
+							PushBackInputStream\
+						FileInputStream\
+						ByteArrayInputStream\
+						PipedInputStream\
+						ObjectInputStream\
+\
+					OutputStream\
+						FilterOutputStream\
+							BufferedOutputStream\
+							DataOutputStream\
+							PushBackOutputStream\
+						FileOutputStream\
+						ObjectOutputStream\
+\
+\
+Character 		-		Reader\
+						BufferedReader\
+						CharArrayReader\
+						FilterReader\
+						InputStreamReader\
+							FileReader\
+						PipedReader\
+						StringReader\
+\
+					Writer\
+						BufferedWriter\
+						CharArrayWriter\
+						FilterWriter\
+						OutputStreamWriter\
+							FileWriter\
+						PipedWriter\
+						PrintWriter\
+						StringWriter						\
+\
+\
+\
+\
+FileReader and FileWriter 						- 	specifically for files\
+InputStreamReader and OutputStreamWriter		-	general purpose stream reader and writer classes for characters (translate bytes to character and character to bytes)\
+											they will allow to set the character encoding on the stream\
+\
+\
+\
+BUFFERING\
+- read/write a \'91block of bytes\'92 into a memory area called buffer\
+- then read/write from that buffer (into the heap ?)\
+- a buffer is a byte[]\
+- default buffer size is 8192 bytes for java for Byte Streams and 8192 characters for Character Streams\
+- buffer streams in java are chained to other streams that do the actual reading/writing\
+\
+\
+DECORATOR PATTERN\
+- one object decorates (adds) functionality to another object\
+- open/closed principle - classes should be open for decoration but closed for modification\
+- open/closed principle works when decorator and target being decorated have a common supertype\
+\
+\
+SCANNER\
+- a text scanner for parsing primitives and strings\
+- needs an inputstream to work on\
+- delimits using whitespace but that can be changed\
+- relies on hasXXX and nextXXX methods\
+- most common application is System.in\
+\
+\
+SERIALIZATION\
+- the process of writing a java object to some destination, as a bytestream\
+- save the object and its state to disk or memory\
+- why\
+	pass java objects to remote hosts\
+	serialize read queries from a database that will change rarely\
+	post mortem analysis\
+- primitives and arrays are serializable by default\
+- the entire object tree will be serialized\
+- multiple object references are saved only once\
+- static variables are not serializable because they are not tied to any object instance\
+- subclass of a superclass is automatically serializable\
+- if you don\'92t want an instance variable to be serialized then mark it as \'91transient\'92\
+\
+NOTE: Every serializable class gets a version ID (serialVerisionUID) computed from class structure OR hand coded by programmer\
+\
+\
+DESERIALIZATION\
+- when deserializing, if there is a non-serializable ancestor of the object in question, then ancestor\'92s constructor will be run and any constructors above it (even if they are serializable)\
+- instance variables that are non-transient situation will get their serialized state\
+- instance variables that are transient will get default values\
+\
+the following changes will not affect the deserialization process (given serialVersionUID) has been specified\
+- add/delete instance variables\
+- make an instance variable as static\
+- change instance variable from transient to non-transient\
+- change access level of variables\
+- add/remove classes to/from inheritance tree\
+\
+the following changes will affect deserialization\
+- change instance variable\'92s type\
+- make serializable class (anywhere in the object tree) non-serializable\
+\
+\
+}

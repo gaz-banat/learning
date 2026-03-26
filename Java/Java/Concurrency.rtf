@@ -1,0 +1,221 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2576
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww34300\viewh17180\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+THREADS\
+\
+- a thread is akin to a worker\
+- is an instance of java.lang.Thread\
+\
+\
+Thread States\
+- New				-	an instance has been created\
+- Runnable			-	about to run\
+- Running				-	is running\
+- Blocked				-	can only be reached from a thread in running state, only progresses to runnable state\
+- Waiting				-	from this state a thread can only go to blocked state\
+- Time Waiting			-	e.g. invoked by sleep();\
+- Dead/Terminated\
+\
+\
+Thread scheduler moves thread from runnable state to running state and vice versa\
+\
+- Threads have a priority of 5 by default\
+\
+\
+\
+THREAD METHODS\
+\
+sleep()		-		puts the thread to sleep, is a blocking method\
+wait()		-		makes the thread release the lock on an object, is a blocking method\
+\
+\
+\
+\
+TASK\
+\
+- is akin to a work that needs to be done\
+- is an instance of java.lang.Runnable\
+\
+\
+thread.start() - causes a call stack to be created for the thread and run() method of the task is pushed onto the stack\
+\
+\
+Try to think of a thread in terms of the pieces of code that need to run\
+\
+\
+NOTE: Class Thread implements runnable. So you can extend Thread in your own class and implement a running task.\
+But good OOD is to keep the task(runnable) class/object separate to the Thread class/object.\
+\
+\
+\
+\
+RACE CONDITION\
+\
+\
+\
+INTRINSIC LOCK\
+- is on a per object basis and not on a per method basis, so when a method is synchronized it is actually working on the objects lock\
+- a thread can enter an objects unsynchronized methods even if another thread holds the lock of the object\
+- static synchronized methods use Class object as the lock (since there is no instance variable involved)\
+- pessimistic locking\
+- lock is also known as monitor\
+\
+\
+The way to use synchronization is either to use synchronize(object) \
+OR \
+use the \'91synchronized\'92 modifier on the objects method\
+\
+\
+IMPORTANT: When a thread synchronizes on an object it means that the thread has acquired a lock on the object\
+\
+\
+synchronization = mutual exclusion (only one thread holds the lock) + reliable thread communication\
+synchronization is considered a bit expensive in processing because threads that dont have a lock on an object need to be suspended (BLOCKED STATE) and resumed (RUNNABLE then RUNNING) when lock is available\
+\
+Synchronization rules\
+- in a class add synchronize to every method in which the variable you want to protect is accessed\
+- use same lock to guard the same shared mutable variable, don\'92t use a different lock (so synchronized method of one object  and synchronized block of another object in the same class)\
+- if a method modifies a static field you must use synchronize access to this field even if the method is typically used only by a single thread\
+- keep a synchronized block small\
+- try to move time consuming activities out of synchronized blocks without affecting thread safety\
+- avoid excessive synchronization\
+\
+Note: StringBuffer uses synchronization but is mostly used by a single thread. Therefore replaced with StringBuilder\
+\
+A thread in synchronized block can be context switched\
+\
+\
+\
+VOLATILE VARIABLES\
+- a volatile variable lives in main memory and not in CPU cache (remember that there could be many CPU\'92s each with its own cache)\
+- it is read from main memory and not from CPU cache\
+- writes are to main memory and not to CPU cache\
+- volatile keyword guarantees visibility of changes to variables across threads\
+\
+\
+Locking (synchronization) VS Volatile (volatile) - locking can guarantee both visibility and mutual exclusion (atomicity) while volatile variables can only guarantee visibility\
+\
+\
+\
+\
+ATOMIC VARIABLES\
+- applies to single variables that are \
+	Scalars\
+	Arrays\
+	Field Updaters\
+	Compound Variables\
+- package is java.util.concurrent.atomic.*\
+- provides memory visibility between threads\
+- provides atomicity on a variable [meaning all operations in sequence on a variable (read, update, write) are run together as one indivisible unit that cannot be affected by a race condition]\
+- thread safety\
+- they are regarded as \'91better volatile variables\'92\
+- the underlying implementation uses a non-blocking algorithm/optimistic locking\
+\
+\
+\
+\
+\
+THREAD COOPERATION \
+\
+Using Volatile\
+\
+\
+Using wait() & notify()\
+- when a thread goes into waiting via wait() it releases the lock on an object\
+- notify() method wakes other thread from waiting state and the other thread moves to blocked state [lock on the object is not released at notify(), but rather at end of synchronized block OR at the call of wait()]\
+- to go from blocked state to runnable state a thread needs to acquire the lock on an object, no lock on object no progress to runnable\
+- use wait() method inside a while loop, why? Sometimes a thread can have a spurious wakeup, i.e. it is woken up from wait() state even when it did not receive a notify from another cooperating thread, in this case the while loop helps\
+\
+Concurrency utilities\
+\
+\
+Note: sleep() and yield() will not release the lock on an object\
+\
+\
+\
+THREAD INTERRUPTION\
+\
+Java provides a cooperative mechanism for requesting a thread to stop what it is doing\
+Every thread has a boolean - interrupted status which is false by default\
+Thread blocked due to stream IO is uninterruptable	- the stream needs to be closed to interrupt the thread\
+Threads blocked due to intrinsic locks (obtained via synchronize) are also uninterruptable\
+\
+\
+\
+\
+\
+EXPLICIT/REENTRANT LOCK\
+\
+- mutually exclusive lock\
+\
+\
+\
+\
+THREAD MANAGEMENT\
+\
+Concurrency utilities (Executor Framework)\
+\
+\
+\
+\
+\
+CONCURRENCY UTILITIES\
+- Executor Framework\
+- Synchronizers (e.g. CountDownLatch)\
+- Concurrent Collections\
+\
+\
+EXECUTOR FRAMEWORK\
+\
+- Thread pool\
+- Work queue\
+\
+\
+\
+EXECUTOR SERVICE (extends Executor)\
+\
+- provides methods for submitting tasks and managing termination\
+- Lifecycle\
+	Running\
+	Shutting Down		-	use shutdown() which is graceful or \
+						shutdownNow() which will interrupt active threads/tasks and ignore and return queued threads/tasks\
+	Terminated		-	isTerminated() tells if Executor is terminated\
+\
+Methods\
+- awaitTermination(int number, TimeUnit)		-	returns true if all tasks are complete and false otherwise\
+\
+\
+\
+FUTURE\
+- think of a future as representing the lifecycle of a task\
+- get() method							-	blocks until task is completed, returns a result if task submitted to Executor was \'91Callable\'92 and return null if task submitted to Executor was \'91Runnable\'92\
+- \
+\
+\
+\
+To understand the concurrency utilities understand these 4 things - the Executor, the Future, the Task and the Object being worked on\
+\
+\
+\
+CLASS HIERARCHY\
+\
+Executor\
+	ExecutorService		-	The implementation of Executor, here is where the threads are created and managed\
+\
+Runnable 					-	The task that needs to be run,  							[ Note: This class comes from java.lang, does not return a result, no checked exceptions ]\
+\
+\
+Callable					-	The task that needs to be run							[ Note: This class comes from java.util.concurrent, returns a result, throws Exception ]\
+\
+Future\
+	FutureTask			-	The implementation of Future, allows to get the result of the task that was run in a thread\
+\
+\
+\
+}

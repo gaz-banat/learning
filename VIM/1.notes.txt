@@ -1,0 +1,36 @@
+
+Lab: the absolute minimum you need to know to edit a file in vi/vim
+
+
+# agenda
+* locking the terminal
+* minimum set of features
+* alternative keys
+
+
+# locking the terminal
+ctrl-s        lock
+ctrl-q        unlock
+stty -ixon    disable terminal locking
+
+
+# minimum set of features
+vi  [file]    start vi with the file specified
+vim [file]    start vim with the file specified
+:q            exit vim (:q! = force quit)
+:w            save file
+hjkl          move cursor in normal mode
+i             go to insert mode from normal mode
+esc           go to normal mode
+
+
+# alternatives
+ctrl-[        go to normal mode
+:quit         exit vim
+:write        save file
+:wq           save and exit
+:x            save and exit
+ZZ            save and exit
+
+
+

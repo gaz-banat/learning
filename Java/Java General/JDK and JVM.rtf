@@ -1,0 +1,451 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2708
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red31\green31\blue31;\red255\green255\blue255;\red0\green0\blue0;
+\red60\green72\blue105;}
+{\*\expandedcolortbl;;\cssrgb\c16078\c16078\c16078;\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;
+\cssrgb\c30196\c35686\c48627;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww32880\viewh14760\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+===============\
+JDK (aka Java SDK)\
+===============\
+\
+Components\
+ - JVM\
+ - JAVA API Code\
+ - Dev Tools (Compiler, etc.)\
+\
+NOTE: JRE is a combination of JVM + Java API\'92s\
+             From Java 11 onwards Oracle does not provide a JRE, instead it provides \'91jlink\'92 that can be used to create a custom JRE\
+\
+\
+\
+=============\
+KNOWN JDKs/VMs\
+=============\
+\
+OpenJDK\
+ - the open source project which is the mother of all JDK\'92s\
+ - the JRE is API + HotSpot JVM\
+\
+\
+OracleJDK\
+- Oracles enterprise version\
+- paid support\
+\
+\
+Oracle OpenJDK\
+- Oracles open source version\
+\
+\
+IBM J9\
+\
+\
+\
+GraalVM (Oracle)\
+ - based on HotSpot/OpenJDK\
+ - implemented in Java\
+ - supports additional programming languages\
+ - supports ahead-of-time compilation\
+ - low memory footprint\
+\
+\
+ZIng\
+\
+\
+Red Hat Build of OpenJDK\
+\
+\
+Amazon Corretto\
+\
+\
+Pivotal Distribution of OpenJDK\
+\
+\
+Zulu Enterprise\
+\
+\
+Zulu Community\
+\
+\
+AdoptOpenJDK\
+\
+\
+jClarity\
+\
+\
+SapMachine\
+\
+\
+BellSoft Liberica\
+\
+\
+\
+NOTE: JVM\'92s - Oracle HotSpot, Eclipse OpenJ9, IBM J9, JRockit, Oracle GraalVM\
+\
+\
+\
+\
+=====================\
+JVM\
+=====================\
+\
+Components\
+- Classloader\
+- Bytecode Verifier\
+- Execution Engine (JIT Compiler, Interpreter)\
+- Garbage Collector\
+- Security Manager\
+\
+\
+\
+\
+=======================\
+TOOLS/FEATURES OF JVMs\
+=======================\
+\
+JIT		-	Just in Time Compilation (aka Dynamic Compilation)\
+identifies frequently executed bytecode as hotspots, converts hotspots to machine code, Caches machine code\
+\
+Java Flight Recorder\
+\
+Application Class Data Sharing\
+\
+\
+Cooperative Memory Management\
+\
+\
+\
+=======================\
+JVM arguments\
+=======================\
+-verbose:class				-		gives class loading details\
+-XX:+<gc-type>				-		chose a gc type, e.g. UseConcMarkSweepGC (this is the CMS garbage collector), UseSerialGC\
+-Xms						-		starting heap size\
+-Xmx						-		maximum heap size\
+-XX:MaxNewSize			-		maximum memory for young generation in heap\
+\
+\
+\
+\
+\
+\
+======================\
+MEMORY\
+======================\
+\
+Memory concepts\
+\
+Virtual address space	-	physical memory + swap, has kernal space + user space\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7932\tx9078\tx10194\tx11336\pardirnatural\partightenfactor0
+\cf0 Memory Areas\
+\
+ Non Heap (Native Memory, Off-heap memory)					-	calculated as \'91user space memory for this process\'92 minus \'91java heap\'92\
+\
+		Metaspace (previously PermGen)					-	-XX:MaxMetaspaceSize, -XX:MetaspacesSize, -XX:CompressedClassSpaceSize\cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 , \cf4 It has more efficient GC \'97 gets triggered automatically when class metadata usage reaches its maximum size\cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+			Class Space (Compressed class space)			-	Class data\
+															meta-information of class (fully qualified name of class, its superclass, interfaces; its type modifiers like abstract, final, public)\
+															Reference (memory address) to Class object in heap\
+															Field meta information (field name, field type, access modifiers\
+															Run time constant pool (string literals, literals assigned to variables, symbolic references)\
+															Method meta information (name, return type, number and type of parameters, modifiers of the method)\
+															method bytecode\
+															Method table\
+																what it is - an array of references to instance methods, inherited methods from super class\
+																it is only for classes that can be instantiated (so not abstract classes)\
+			Non Class Space							-	\
+				the constant pool\
+				method metadata, \
+				Method Counters (JIT Compiler optimization)\
+				Annotation Metadata\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7932\tx9078\tx10194\tx11336\pardirnatural\partightenfactor0
+\cf0  		Thread Memory (one of which is the main program)		-	also known as Stack Memory\
+			JVM stack									-	method invocation state (order by which methods have been invoked)\
+														local variable information of a method\
+														applies only to currently executing methods\
+														stack frame \
+															- is the object that encapsulates method information in the stack															- it contains a local variables array, operand stack and reference to the constant pool\
+															- local variables array 0th element is a \'91this\'92 reference to the object that has this method OR the first method parameter for a static method\
+															- operand stack is similar to registers in a CPU, central focus of JVM\'92s instruction set, it stores values returned by current method\
+			Program Counter							-	holds the memory address of the next instruction\
+			Native Method Stack							-	methods in native code\
+\
+		Code Cache									-	Source Code -- compiled into --> Bytecode -- interpreted to --> Machine Code, Code Cache contains bytecode, frequently executed bytecode is stored as machine code\
+			Internal JVM								-	-XX:NonMethodCodeHeapSize, compiler buffers, bytecode interpreter\
+			Lightly Profiled Code							-	-XX:ProfiledCodeHeapSize, \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Contains lightly optimized methods that have gone through basic profiling (courtesy of the JIT C1 compiler)\cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+			Non Profiled Code							-	-XX:NonProfiledCodeHeapSize\
+\
+		Direct Buffer									-	used for caching data (maybe buffered io streams)\
+\
+		Garbage Collector Data\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7932\tx9078\tx10194\tx11336\pardirnatural\partightenfactor0
+\cf0  Heap												-	-Xms -Xmx, instance objects (e.g created with new keyword in code) and class objects (created by JVM from class files), arrays, lists, variables of a class \
+\
+		Young Generation (Nursery)						-	Minor GC (moves objects from eden to survivor space), one of the 2 survivor spaces will always be empty\
+			Eden\
+			Survivor 0 (S0)\
+			Survivor 1 (S1)\
+\
+		Old Generation	(Tenured)							-	Major GC, \'91stop the world\'92 event, \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec5 contains the objects that are long-lived and survived after many rounds of Minor GC\kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\
+\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+Note: For every object on the heap there is corresponding class data in the method area\
+	 Method Area and Heap are shared across all the threads\
+\
+\
+\
+Method Area and Heap (the Java Heap)\
+\
+space for object in heap = number and type of instance variables\
+\
+\
+\
+Run TIme Type Information (RTTI)\
+- used when casting is done\
+- used when \'91instanceof\'92 is invoked\
+\
+\
+Native method - a method that has been implemented in some other programming language\
+\
+\
+\
+==========================\
+JVM - STEPS FOR A TYPE\
+==========================\
+\
+Class Loading\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7932\tx9067\pardirnatural\partightenfactor0
+\cf0 Loads classes from classpath									[Class Loader]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 (Super classes of a class are loaded first)\
+\
+Linking\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx8996\pardirnatural\partightenfactor0
+\cf0  - Verification: check if the class is well formed 					[Byte code verifier]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0  - Preparation: allocate space for variables\
+ - Resolution: load referenced classes (dynamic linking at run time)\
+(Interestingly static linking is done at compile time)\
+\
+Initialization\
+ - Initialize static fields with user defined values\
+\
+\
+\
+\
+\
+CLASS LOADING\
+\
+BootStrap Class Loader\
+- $JAVA_HOME/jre/lib/rt.jar			- This is the runtime jar and includes the core java library\
+\
+Extension Class Loader\
+- $JAVA_HOME/jre/lib/ext/*.jar\
+\
+\
+Application Class Loader\
+$classpath\
+\
+\
+User-Defined Class Loader\
+\
+\
+Parent-Delegation Model\
+Bootstrap CL is parent of Extension CL which is parent of Application CL which is parent of User-Defined CL\
+\
+\
+\
+When is a class or interface loaded by the JVM\
+- new instance of the class is created				[this only applies to a class and not to an interface]\
+- a static method of the class/interface is invoked\
+- a static field of the class/interface is accessed\
+- one of its subclass is loaded					[an interface can be loaded when its subclass or sub-interface is loaded]\
+- if the class/interface is run directly from the command line\
+- can be loaded via reflection\
+\
+\
+Note: compile time constants of a class do not cause a class to be loaded since they were compiled in at compile time and not at run time\
+\
+\
+\
+Class Object\
+\
+The Class Object contains meta information of a class as follows:\
+String getName()\
+Class getSuperClass()\
+boolean isInterface()\
+Class[] getInterfaces()\
+ClassLoader getClassLoader()\
+\
+The following have a Class Object\
+- Class\
+- Interface\
+- Primitives\
+- void keyword\
+- Arrays\
+\
+\
+\
+\
+LINKING\
+\
+Verification Steps\
+ - final classes are not subclassed\
+ - final methods are not overridden\
+ - No illegal method overloading\
+ - bytecode integrity (jump instruction)\
+\
+\
+Preparation Steps\
+ - Storage allocation for static fields\
+ - initialize fields with default values\
+ - OutOfMemoryError if no space in memory\
+ - Instance creation\
+	instance fields are initialized after static fields\
+\
+Resolution Steps\
+ - resolve symbolic references and load them\
+ - Permissions and Correctness (referenced fields exist, are of the right type and the current class has the permission to access the fields)\
+\
+ - this is dynamic linking\
+\
+Symbolic References - are logical references stored in a Constant Pool that are replaced with direct references at run time\
+\
+Constant Pool - is made up of Symbolic References, compile time constants and string literals\
+\
+\
+Dynamic Linking can be\
+- Eager Loading :	happens after preparation step in Linking process \
+				referenced classes are loaded and initialized before current class initialization completes\
+- Lazy Loading :	happens after Initialization process (i.e. on-demand) \
+				referenced classes are loaded when the statement referencing them is encountered\
+				symbolic references in the class being executed are then replaced with direct references\
+				this is the default implementation of most JVM\'92s\
+\
+\
+\
+\
+INITIALIZATION\
+\
+- initialize static fields with user defined values\
+- An Interface is only initialized if one of its static methods is accessed OR one of its fields which is a non-compile time constant is accessed\
+\
+\
+\
+\
+\
+=====================\
+GARBAGE COLLECTION\
+=====================\
+\
+MEMORY ISSUES\
+\
+Memory Leak			-	unused objects are never freed\
+Dangling Reference		-	reference to an area of memory that has already been reclaimed	\
+\
+CONCEPTS\
+\
+Automatic/Implicit Memory Management\
+\
+\
+Abandoned Object\
+- an object with no active references\
+- how \
+	- object goes out of scope\
+	- objects reference is assigned some other reference or a null value\
+\
+\
+GC Specifics\
+- runs in the background\
+- there is no guarantee when gc runs\
+- programmer can hint to JVM to run gc with System.gc() or Runtime.getRuntime().gc() (JVM may ignore this hint)\
+- each gc cycle can cause pauses (stop-the-world) in application\
+\
+\
+\
+ALGORITHMS\
+\
+Challenges	-	 how to identify dead objects, how to minimize application pause\
+\
+\
+Algorithm - Mark and Sweep\
+Mark finds live objects\
+Sweep removes abandoned ones\
+\
+\
+Algorithm - Mark-Sweep-Compact\
+like mark and sweep, memory area is compacted\
+\
+\
+Algorithm - Mark and Copy\
+instead of sweep, live objects are copied to a new memory area\
+\
+\
+Algorithm	- Concurrent Mark and Sweep	(mostly runs concurrently with application, but can pause application)\
+\
+\
+MEMORY DIVISIONS\
+\
+Generational Collection\
+- java heap memory is divided into Young generation and Old (tenured) generation\
+- objects get promoted from young generation to old generation\
+- old generation collection is less frequent\
+- garbage collection of young generation is young gc and for old generation is old gc\
+- full gc involves both young and old generations\
+\
+\
+Young generation memory is divided into\
+- eden\
+- from survivor\
+- to survivor\
+\
+\
+GC PROCESS\
+When application first starts all objects on heap are created in eden part of young generation, the other parts of memory (young survivor and tenured) are empty\
+gc cycle kicks in -  promotes eden objects to \'91to survivor\'92 (mark and copy)\
+gc cycle ends - \'91to survivor\'92 objects are sent to \'91from survivor\'92	(eden and \'91to survivor\'92 are empty)\
+application is working - eden is filling up \
+gc cycle kicks in - eden and \'91from survivor\'92 objects are sent to \'91to survivor\'92\
+gc cycle ends - \'91to survivor\'92 objects are sent to \'91from survivor\'92	(eden and \'91to survivor\'92 are empty)\
+application is working - eden is filling up\
+after X number of cycles a survivor object can be moved to old/tenured generation  (15 gc cycles default, depends on jvm, can be adjusted)\
+\
+Caveats\
+in a gc cycle an object can go from eden to old generation if there is no space for it in \'91to survivor)\
+\
+\
+Full GC kicks in - this is young gc + old gc + metaspace\
+\
+\
+\
+\
+GC TYPES\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx11306\tx12455\tx13564\tx14716\pardirnatural\partightenfactor0
+\cf0 Serial GC		-	Mark and Copy for Young GC and Mark-Sweep-Compact for Old GC	[Single Threaded, not good for production]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx11313\pardirnatural\partightenfactor0
+\cf0 Parallel GC	-	Mark and Copy for Young GC and Mark-Sweep-Compact for Old GC	[Multi Threaded, can use multiple cores of CPU]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx11297\pardirnatural\partightenfactor0
+\cf0 CMS			-	Mark and Copy for Young GC and Concurrent Mark-Sweep for Old GC	[Multi Threaded, can use multiple cores of CPU]\
+\
+What is G1 (Garbage First)?}

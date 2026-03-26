@@ -1,0 +1,188 @@
+
+Linux Distribution
+===================
+
+Kernel
+
+System Libraries (GNU?)
+
+System tools	(GNU?) 					- bootloader, init program
+
+Window system
+
+Window manager
+
+Desktop environment					- gnome, kde, etc
+
+Installer						- anaconda
+
+Free applications 					- Apache, OpenOffice, etc
+
+Distribution specific applications 			- system config utilities on red hat
+
+Package Manager
+
+
+
+
+
+
+
+
+Toolchain
+==========
+
+It consists of things like
+a compiler (GCC), 
+binutils, 
+glibc (C library), 
+gdb (debugger), 
+make, 
+automake, 
+autoconf, 
+bash shell, 
+tar, 
+and a few other things
+
+
+It comes from the GNU project
+
+
+
+
+
+FHS
+=====
+
+/ 	Primary hierarchy root and root directory of the entire file system hierarchy.
+
+
+
+/bin	Essential command binaries that need to be available in single user mode; for all users, e.g., cat, ls, cp.
+
+
+
+/boot	Boot loader files, e.g., kernels, initrd.
+
+
+
+/dev	Essential devices, e.g., /dev/null.
+
+
+
+/etc	Host-specific system-wide configuration files
+
+
+        /etc/opt	Configuration files for /opt/.
+
+        /etc/sgml	Configuration files for SGML.
+
+        /etc/X11	Configuration files for the X Window System, version 11.
+
+        /etc/xml	Configuration files for XML.
+
+
+
+/home	Users' home directories, containing saved files, personal settings, etc.
+
+
+
+/lib	Libraries essential for the binaries in /bin/ and /sbin/.
+
+
+
+/media	Mount points for removable media such as CD-ROMs (appeared in FHS-2.3).
+
+
+
+/mnt	Temporarily mounted filesystems.
+
+
+
+/opt	Optional application software packages.[27]
+
+
+
+/proc	Virtual filesystem providing information about processes and kernel information as files. In Linux, corresponds to a procfs mount.
+
+
+
+/root	Home directory for the root user.
+
+
+
+/sbin	Essential system binaries, e.g., init, ip, mount.
+
+
+
+/srv	Site-specific data which are served by the system.
+
+
+
+/tmp	Temporary files (see also /var/tmp). Often not preserved between system reboots.
+
+
+
+/usr	Secondary hierarchy for read-only user data; contains the majority of (multi-)user utilities and applications.[28]
+
+
+	/usr/bin	Non-essential command binaries (not needed in single user mode); for all users.
+
+
+	/usr/include	Standard include files.
+
+
+	/usr/lib	Libraries for the binaries in /usr/bin/ and /usr/sbin/.
+
+
+	/usr/local	Tertiary hierarchy for local data, specific to this host. Typically has further subdirectories, e.g., bin/, lib/, share/.[29]
+
+
+	/usr/sbin	Non-essential system binaries, e.g., daemons for various network-services.
+
+
+	/usr/share	Architecture-independent (shared) data.
+
+
+	/usr/src	Source code, e.g., the kernel source code with its header files.
+
+
+	/usr/X11R6	X Window System, Version 11, Release 6.
+
+
+
+/var	Variable files—files whose content is expected to continually change during normal operation of the system—such as logs, spool files, and temporary e-mail files.
+
+
+	/var/cache	Application cache data. Such data are locally generated as a result of time-consuming I/O or calculation. The application must be able to regenerate or restore the data. The cached files can be deleted without loss of data.
+
+
+	/var/lib	State information. Persistent data modified by programs as they run, e.g., databases, packaging system metadata, etc.
+
+
+	/var/lock	Lock files. Files keeping track of resources currently in use.
+
+
+	/var/log	Log files. Various logs.
+
+
+	/var/mail	Users' mailboxes.
+
+
+	/var/run	Information about the running system since last boot, e.g., currently logged-in users and running daemons.
+
+
+	/var/spool	Spool for tasks waiting to be processed, e.g., print queues and unread mail.
+
+
+	/var/spool/mail	Deprecated location for users' mailboxes.
+
+
+	/var/tmp	Temporary files to be preserved between reboots.
+
+
+
+
+Logs
+Syslog is only one of many log systems on local machines.
+Separate logs are kept for utmp/wtmp, lastlog, audit, kernel logs, firmware logs, and a multitude of application-specific log formats

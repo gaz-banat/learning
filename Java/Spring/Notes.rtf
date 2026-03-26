@@ -1,0 +1,216 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red38\green38\blue38;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c20000\c20000\c20000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww20880\viewh15720\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+=============================\
+SPRING FRAMEWORK PROJECTS\
+=============================\
+\
+Spring Core			-	spring context, spring aspects, spring expression language, dependency injection\
+\
+Spring Data Access		-	connectivity to SQL databases, \
+\
+Spring MVC			-	web applications that serve http requests\
+\
+Spring WebFlux		-	reactive web applications\
+\
+Spring Testing			-	write tests for Spring Applications\
+\
+Spring Session			-	API and implementation for managing user session informaiton\
+\
+Spring Security			-	authentication and access-control framework for Spring apps\
+\
+Spring Boot			-	\cf2 \expnd0\expndtw0\kerning0
+create stand-alone, production-grade Spring based Applications that you can "just run".\cf3 \
+\
+\cf0 \kerning1\expnd0\expndtw0 \
+\
+=====================\
+SPRING CORE\
+=====================\
+\
+\
+SPRING CONTEXTS\
+\
+- manage an instance of an application\
+\
+\
+AnnotationConfigApplicationContext\
+\
+ClassPathXmlApplicationContext				-		came across this in the camel book\
+FileSystemXmlApplicationContext				-		came across this in the camel book\
+\
+\
+\
+ADDING BEANS INTO SPRING CONTEXT\
+\
+@Bean notation\
+- allows full control of the creation of the instance\
+- can add more instances of the same type\
+- can add any object instance type, the type does not need to be defined in your code/app\
+- a separate method for each bean that needs to be created, so needs some boiler plate code\
+\
+\
+@Component StereoType annotation\
+- you only have control of the instance after the framework creates it\
+- you can add only one instance of the class/type into the Spring context\
+- only for classes that are in your own code/app\
+- no need for boiler plate code\
+\
+\
+Programatically\
+\
+\
+\
+\
+RELATIONSHIPS BETWEEN BEANS\
+\
+Wiring 		\
+- relationship is implemented by directly calling a @Bean annotated method from another method annotated with @Bean that defines the second bean of the relationship\
+\
+\
+Autowiring 	\
+- Spring provides a value for a parameter you define for the @Bean annotated method\
+ - inject the value in the field of the class which needs the dependency\
+ - inject the value through the constructor of the class which needs the dependency, [not needed when only when constructor is present]\
+\
+\
+\
+HOW DOES SPRING CHOOSE A BEAN\
+\
+- a bean gets named by its creating method name OR with name attribute on @Bean notation.   [a beanID is the same as a bean name]\
+- @Primary makes the bean a default choice\
+- @Qualifier(<name>) can be used to name a bean via @Component and then @Qualifier(<name>) can be used to call a named bean\
+\
+\
+\
+BEAN SCOPES AND LIFECYCLES\
+\
+Singleton\
+ - you get the same instance when you refer to a specific bean [even though multiple instance of the same type exist]\
+ - for Spring singleton means unique per bean name (not unique per app)\
+ - best for immutable beans\
+ - this scope is not thread safe\
+ - eager instantiation - spring creates the bean when it initializes the context\
+ - lazy instantiation - spring creates the bean when the bean is first referenced\
+\
+Prototype\
+ - spring does not create and manage the instance directly, rather it manages just the type\
+ - a new instance is created when referenced\
+ - since it is a new instance each time the instance is thread safe and mutable\
+ - this is best used in my opinion when writing processing logic\
+ - a name is associated with a type\
+ - the instance is only created when it is referred\
+\
+\
+Request\
+\
+\
+Session\
+\
+\
+Application\
+\
+\
+\
+\
+ASPECTS\
+- \'91aspect\'92 is the logic you want spring to execute when you call specific methods\
+- \'91advice\'92 is the timing of the logic execution, befor/after/instead of the method call\
+- \'91pointcut\'92 is the method/s spring needs to intercept\
+- \'91target object\'92 is the bean that declares the pointcut\
+- \'91joinpoint\'92 is the execution of the pointcut\
+- \'91weaving\'92 is spring returning a proxy object instead of a target object, the proxy calls the aspect logic\
+\
+\
+\
+\
+\
+\
+ANNOTATIONS\
+\
+Bean\
+ - @Component		-	a general bean\
+ - @Service		-	a bean that represents a use case\
+ - @Repository		-	a bean that manages data persistence\
+\
+Aspects\
+ - @Around\
+ - @Before\
+ - @AfterReturning\
+ - @AfterThrowing\
+ - @After\
+ - @Order\
+\
+\
+@Controller\
+\
+\
+@RestController\
+- this annotation on a class means that this class has methods that can deal with REST calls\
+\
+\
+@RequestMapping\
+- this annotation on a class maps a URL /path at which this classes methods are available \
+- this annotation on a method maps a URL /path at which the method is called for the REST request\
+\
+\
+\
+@SpringBootApplication\
+- this annotation on a class means that this is a spring boot application \
+\
+\
+\
+\
+\
+\
+\
+\
+==================\
+SPRING BOOT\
+==================\
+\
+Features\
+simplified project creation					-		project initialization service\
+dependency starters						-		grouping of certain dependencies with comparable versions used for a specific capability\
+											capability could be web, database, security, etc.\
+autoconfiguration based on dependencies		-		based on the dependencies added spring boot defines some default configurations (e.g. for a web app, tomcat is configured)\
+											change only the configs that don\'92t match for your app\
+											
+\f1\b convention over configuration
+\f0\b0 \
+\
+\
+\
+\
+\
+===================\
+WEB APPS\
+===================\
+\
+Servlet Container		-		translates the HTTP request to a Java object and takes a response from a Java object to return it as an HTTP response to a client\
+							translator of HTTP messages for your Java app\
+							when the servlet container gets an HTTP request it calls a servlet objects method providing the request as a parameter\
+							it has a \'91context\'92 of servlet instances it controls\
+\
+Servlet				-		a Java object which directly interacts with the servlet container\
+							Spring can provide a servlet object, we register this object so a servlet container can call it for any path of the client request\
+\
+\
+NOTE: there has to be some way for the servlet container to know about a servlet, this is done by registering the servlet into the servlet containers configuration (this configuration is done automatically by Spring Boot)\
+\
+\
+Servlets\
+\
+DispatcherServlet		-		\'93front controller\'94 servlet, receives from servlet container and looks up controller method to call\
+							\'93Handler Mapping\'94 is the component that actually finds the controller method, it uses the @RequestMapping\
+							DispatcherServlet then calls that method and learns of the view to send back\
+							\'93View Resolver\'94 is the component tasked with getting the view content\
+							DispatcherServlet then sends the view back as a response\
+\
+\
+}

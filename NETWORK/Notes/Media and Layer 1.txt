@@ -1,0 +1,50 @@
+Media
+
+	- Copper
+		Twisted Pair
+			UTP
+			STP
+		Coaxial
+
+	- Fibre
+
+		Modes
+			Multimode
+				Mostly within premise, patch leads
+
+			Singlemode
+				Mostly for longer distance like Telco to premise, Telco rings, etc.
+
+		Standards
+
+
+	- Wireless
+
+
+
+Connectors
+
+	- RJ11
+	- RJ45
+	- RJ48
+	- RG59 - 75 ohm BNC Coaxial connector
+
+
+
+
+
+Copper Cables
+
+	Categories
+		- Cat 5
+
+
+		- Cat 5e
+
+
+
+		- Cat 6
+
+
+	Twisted 4 pairs
+			

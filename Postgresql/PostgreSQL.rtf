@@ -1,0 +1,732 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset0 Menlo-Regular;\f2\froman\fcharset0 Times-Roman;
+\f3\fswiss\fcharset0 Helvetica;\f4\froman\fcharset0 TimesNewRomanPSMT;\f5\froman\fcharset0 Times-Italic;
+}
+{\colortbl;\red255\green255\blue255;\red24\green25\blue27;\red255\green255\blue255;\red5\green10\blue30;
+\red0\green0\blue0;\red0\green0\blue0;\red176\green0\blue4;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c12549\c12941\c14118;\cssrgb\c100000\c100000\c100000;\cssrgb\c1569\c4706\c15686;
+\csgray\c0\c0;\csgray\c0;\cssrgb\c75294\c0\c0;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww31500\viewh17040\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs32 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\
+FIT THIS SOMEWHERE\
+\
+checkpoint		-		WAL writer process flushes the WAL buffer to disk, this is known as a checkpoint\
+\
+\
+\
+
+\fs24 NAMING CONVENTIONS\
+\
+\
+Common Name						PostgreSQL Name\
+\
+Table or Index						Relation\
+Row								Tuple\
+Column							Attribute\
+Data Block							Page (on disk)\
+Page								Buffer (when block is in memory)\
+\
+\
+\
+\
+PAGE\
+\
+Smallest unit of data storage in postgres\
+Every relation (table or index) is an array of pages of fixed size\
+It is not possible to have pages of different sizes in the same database\
+Default page size is 8 Kb\
+In a database all pages are logically equivalent and any row can be stored in any page\
+\
+\
+Page Layout\
+	Page Header		24 bytes, page size, version, and availability of space (free space pointers)\
+	ItemIdData		4 bytes, pointer to Tuple\
+	Free Space		if any, the unallocated space in the page, ItemIdData is put at the start of this space, new Tuples inserted from the end of the space\
+	Tuple			a row of data\
+	Special		Index access method specific data, e.g.btree indexes. Different methods store different data. Empty is ordinary tables\
+\
+\
+\
+\
+\
+ENVIRONMENT VARIABLES\
+\
+PGDATA 					-		the data directory for postgresql\
+POSTGRES_PASSWORD\
+\
+\
+\
+\
+\
+COMPONENTS\
+\
+\
+Processes:\
+	Postmaster				-		supervisor process, first to get started, monitors and starts/restarts other processes\
+								as a listener it recieves new connection requests\
+								responsible for authentication and authorization\
+								spawns new process called Postgres for each new connection\
+	Postgres x N\
+\
+	Stats Collector			-		responsible for collecting and reporting information about server activity then update the information to optimizer dictionary (pg_catalog)\
+	Checkpointer				-		checkpoint is invoked every 5 minutes or when max_wal_size value is exceeded. It syncs all the buffers from the shared buffer area to the data files\
+								does this by sending a signal to bgwriter\
+	Wal (Write Ahead Log) Writer	-		Writes the WAL buffer to the WAL file\
+	Auto Vacuum Cleaner		-		responsible to carry vacuum operations on bloated tables (if enabled)\
+	Logwriter\\Logger			-		Write the error message to the log file\
+	Bgwriter\\Writer			-		periodically writes the dirty shared buffer to a data file\
+	Archiver				-		provides additional security by copying WAL files to a specified directory\
+\
+\
+Memory Segments:\
+	Shared Buffer			-		is considered dirty when it has data not committed to data files\
+	WAL Buffer				-		transaction log buffer, \
+								contains metadata changes made to the actual data, sufficient to reconstruct actual data during database recovery operations\
+								contents of this buffer are written to WAL Files (wal segements or checkpoint segments) by WAL writer\
+	CLOG Buffer (Commit Log)	-		an area dedicated to holding commit log pages\
+								commit logs have commit status of all transactions and indicate whether or not a transaction has been completed\
+	Work Memory Buffer		-		memory reserved for a single sort or hash table\
+	Maintenance Work Memory\
+	Temp Buffers			-		these are used for access to temporary tables in a user session during large sort and hash table\
+\
+\
+Disk Files:\
+	Data files\
+	WAL files\
+	Log files				-		stderr, csvlog, syslog\
+	Archive Logs\
+	\
+\
+\
+FILES\
+\
+postgresql.conf\
+	shared_buffer\
+	wal_buffer\
+	work_mem\
+	maintenance_work_mem\
+	temp_buffers\
+\
+\
+pg_hba.conf					(host based authentication)\
+\
+\
+pg_ident.conf				ident configuration file\
+\
+\
+\
+\
+STRUCTURE\
+\
+	Database Cluster\
+		Database\
+			Schema\
+				Table\
+				Table\
+			Schema\
+		Database\
+\
+\
+\
+\
+DATABASE CLUSTER\
+\
+What\
+a collection of databases that is managed by a single instance on a server\
+\
+\
+How\
+initdb -D /var/lib/pgsql/data\
+pg_ctl -D /var/lib/pgsql/data\
+\
+\
+Types of shutdown\
+Smart				-	disallow new connections, let current connections finish their tasks then shutdown\
+Fast				-	disallow new connections, abort current connection transactions, exit gracefully\
+Immediate			-	aborts without proper shutdown which leads to recovery from WAL files on next startup\
+\
+\
+\
+SCHEMA\
+\
+What:\
+It is a namespace that contains named objects like tables, data types, functions and operators\
+one database can have multiple schemas\
+schemas help with separation of data between different applications\
+\
+\
+\
+PRIVILIGES\
+\
+what:\
+- the right to execute a particular type of SQL statement\
+- the right to access and act on another user\'92s object (table, view, sequence)\
+\
+types:\
+cluster level			-		granted by superuser (ALTER)\
+object level			-		granted by superuser or owner of object or role with grant privileges (GRANT, REVOKE)\
+\
+\
+\
+\
+\
+\
+\
+PG SYSTEM CATALOGS\
+\
+postgres						-		a database that comes with PostgreSQL\
+	pg_catalog					-		a schema to store metadata information about the database and cluster (no manual intervention required!)\
+		pg_database				-		a table to store general database info\
+		pg_stat_database			-		a table that contains stats informatio of database\
+		pg_tablespace			-		a table that contains tablespace information\
+		pg_operator				-		a table that contains operator information\
+		pg_avalable_extensions		-		a table to list all avalable extensions\
+		pg_shadow				-		a table to list all users in the system\
+		pg_timezone_names		-		a table to list available timezones\
+		pg_locks				-		a table to list locks on database tables\
+		pg_tables				-		a table to list all tables in current database and pg_catalog schema\
+		pg_settings				-		a table to list configuration information\
+		pg_indexes				-		a table to display indexes\
+		pg_views				-		a table to list all views\
+\
+\
+NOTE: pg_catalog schema can be accessed from any database\
+\
+\
+\
+POSTGRESQL DATATYPES\
+\
+Character types		-		char, varchar, text					these types are collatable\
+Numeric types		-		integer, floating point\
+Boolean types\
+Temporal types		-		date, time, timestamp, interval\
+Array types\
+JSON\
+Special types			-		network address, geometric data\
+Other types			-		serial\
+\
+\
+\
+\
+OPERATORS\
+\
+\
+Comparision\
+Mathematical\
+\
+\
+\
+\
+\
+\
+CONSTRAINTS\
+\
+what:\
+rules enforced on data columns on table\
+\
+can be enforced at column level or table level\
+\
+\
+types:\
+NOT NULL\
+UNIQUE\
+PRIMARY\
+FOREIGN\
+CHECK			-		ensures that all values in a column satisfy certain conditions\
+\
+\
+\
+\
+OBJECTS\
+\
+database\
+table/relation\
+sequence			-		\cf4 \cb5 a user-defined schema-bound object that generates a sequence of integers based on a specified specification\cf2 \cb3 \
+view\
+function\
+index\
+\
+\
+\
+\
+TABLE INHERITANCE\
+\
+\
+\
+\
+TABLE PARTITIONING\
+\
+Paritioning Methods\
+	range\
+	list\
+\
+\
+\
+TABLESPACES\
+\
+PostgreSQL stores data logically in tablespaces and physically in datafiles (mapping a logical name to a physical location)\
+PostgreSQL uses a tablespace to map a logical name to a physical location on disk\
+Tablespaces allow the user to control the disk layout of PostgreSQ \
+	e.g. seperate indexes into one volume and tables into another volume\
+	e.g. WAL files object on fast media and archive data on slow media\
+\
+Default Tablespaces with PostgreSQL\
+	pg_default		-		stores user data\
+						default tablespace for template0 and template1 databases\
+	pg_global		-		stores global data\
+\
+Note: location of default tablespaces is data/ directory\
+\
+\
+Temporary Tablespaces:\
+\
+these are created by PostgreSQL when it needs to hold large datasets temporarily for completing a query, e.g. sorting\
+these do not store any data and there is no persistent file left when the database is shutdown\
+\
+\
+\
+\
+INDEXES\
+\
+\
+\
+VIEWS\
+\
+\
+\
+FUNCTIONS\
+\
+Aggregate			-		Avg(), Count(), Max(), Min(), Sum()\
+String				-		Chr, Concat, format, Initcap, Lower, Rtrim, Ltrim, Substring, Upper\
+Date and Time		-		Age(Timestamp), now(), current_date, current_time, current_timestamp, transaction_timestamp\
+\
+\
+Example custom function:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f1 \cf6 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 create or replace function on_insert() returns trigger as $$\
+begin\
+  if(new.booking_date >= date '2022-01-01' and new.booking_date <=date '2022-01-31') then\
+     insert into jan_bookings values(new.*);\
+    elsif (new.booking_date >= date '2022-02-01' and new.booking_date <=date '2022-02-28') then\
+     insert into feb_bookings values(new.*);\
+    else\
+     raise exception 'Enter valid booking date';\
+    end if;\
+ \
+    return null;\
+end;\
+$$ LANGUAGE plpgsql;\
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+\
+\
+\
+TRIGGERS\
+\
+\
+Example custom trigger:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f1 \cf6 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 create trigger booking_entry before insert on bookings for each row execute procedure on_insert();
+\f0 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\
+\
+\
+\
+COMMANDS\
+\
+psql				-		work with \
+pg_ctl				-		looks like work with postgresql daemon\
+pg_stat_activity		-		a system view that allows to monitor the.\'a0databases processes in real time\
+pg_controldata\
+\
+\
+\
+PSQL COMMANDS\
+\
+psql -V							-	get version of postgresql\
+psql -U <user> -W  -d <database>			-	connect to a postgresql instance with a specific database	\
+\
+\\?								-	help on psql commands\
+\\conninfo							-	show connection information\
+\\l								-	list databases\
+\
+\\c <database>						-	connect to <database>\
+\\d 								-	list tables (relations), views and sequences\
+\\d <table>							-	describe <table>\
+\
+\\q								-	quit\
+\
+show search_path;						-	show order in which schemas will be checked for a query\
+\
+show server_encoding;					-	show server encoding:\
+\
+select now() as current;					-	show current time and date\
+\
+select pg_postmaster_start_time();			-	show uptime/last restarted\
+\
+\
+show all;							-	show all settings\
+select current_setting(\'91<setting-name>\'92)			-	show a setting, e.g. select current_setting(\'91max_parallel_workers\'92);\
+\
+\
+\
+copy a table with data:\
+create table <new-table-name> AS TABLE <existing-table-name>;\
+\
+copy a table without data;\
+create table <new-table-name> AS TABLE <existing-table-name> WITH NO DATA;\
+\
+show filepath for a table\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f1 \cf6 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 select pg_relation_filepath(\'91<table-name>\'92);
+\f0 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+create a tablespace:\
+make a dir at a location, e.g. /var/lib/postgresql/ts_hrd\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f1 \cf6 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 create tablespace hrd location '/var/lib/postgresql/ts_hrd';
+\f0 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+create a temporary tablespace:\
+first - create tablespace <tablespace-name> owner <owner-name> location \'91/path/in/file/system\'92\
+then - set temp_tablespaces=<tablespace-name> in postgresql.conf and reload configuration\
+Note: creating a directory before hand is not required for temporary tablespaces\
+\
+\
+\
+\
+SQL COMMANDS\
+\
+\
+select\
+insert\
+update\
+delete\
+\
+\
+select count(*) from <table>;				-	get number of rows in table\
+\
+\
+\
+TERMS\
+\
+Identifier\
+Partition Key\
+\
+\
+\
+\
+\
+\
+\
+\
+PGBOUNCER\
+\
+Pooling\
+	Session pooling			-		when a client connects a server connection will be assigned to it for the whole duration the client stays connected. When the client disconnects the server connection will be put back into the pool\
+	Transaction pooling			-		a server connection is assigned to a client only during a transaction. When pgbouncer notices the transaction is over the server connection will be put back into the pool\
+	Statement pooling			-		the server connection will be put back into the pool immediately after a query completes.\
+\
+\
+\
+===========================\
+\pard\pardeftab720\sl504\sa213\partightenfactor0
+
+\f2\fs48 \cf7 \cb1 \ul \ulc7 \'a0
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+
+\f2\fs48 \cf7 \ul Connect to Psql
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+\pard\pardeftab720\sl336\sa213\partightenfactor0
+
+\f2\fs32 \cf8 \'a0
+\f3\fs29\fsmilli14667 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Connect to Specific Database with user and password
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 Syntax: psql -d database -U user \'96W (-d =Database, -U = User, -W = Password)
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Connect to Database on a different host/machine.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0Syntax: psql -h host -d database -U user \'96W
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Connect using SSL Mode
+\f3 \
+\pard\pardeftab720\li480\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 Syntax: psql -U user -h host "dbname=db sslmode=require"
+\f3 \
+\pard\pardeftab720\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0
+\f3 \
+\pard\pardeftab720\sl504\sa213\partightenfactor0
+
+\f2\fs48 \cf7 \ul Psql Commands
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+
+\f2\fs48 \cf7 \ul \'a0
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Switch connection to a new database
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0postgres=# \\c test1
+\f3 \
+
+\f2 \'a0You are now connected to database "test1" as user "postgres".
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 List available databases
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0postgres=# \\l
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 List available tables
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0postgres=# \\ dt
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 List users and their roles(+ to get more info)
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=# \\du
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 List available sequence(+ to get more info) 
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=# \\ds
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Execute the previous command 
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=# \\g
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Command history
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=# \\s
+\f3 \
+
+\f2 \'a0
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Save Command History to file:
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=# \\s filename
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Get help on psql commands
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=# \\?
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Turn on\\off query execution time
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=#
+\f5\i  \\timing
+\f3\i0 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Edit statements in editor
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=# \\e
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Edit Functions in editor
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=# \\ef
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 set output from non-aligned to aligned column output.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0\'a0 postgres=#
+\f5\i  \\a
+\f3\i0 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 \'a0\'a0Formats output to HTML format.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0\'a0 postgres=#
+\f5\i  \\H
+\f3\i0 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Connection Information 
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=#
+\f5\i  \\conninfo
+\f3\i0 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Quit psql 
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0\'a0 postgres=#
+\f5\i  \\q
+\f3\i0 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f5\i \cf8 \'a0
+\f3\i0 \
+\pard\pardeftab720\sl504\sa213\partightenfactor0
+
+\f2\fs48 \cf7 \ul Psql File Operations
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+
+\f2\fs48 \cf7 \ul \'a0
+\f3\fs29\fsmilli14667 \cf8 \ulnone \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Run sql statements from a file.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 psql -d test1 -U test1 -f test1.sql ( command line)
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Send the output to a file.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=#
+\f5\i  
+\f2\i0 \\o <filename>
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Save query buffer to filename.
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0\'a0 postgres=#
+\f5\i  
+\f2\i0 \\w filename
+\f3 \
+\pard\pardeftab720\li960\fi-480\sl308\sa213\partightenfactor0
+
+\f0 \cf8 \'95
+\f4\fs18\fsmilli9333 \'a0\'a0\'a0\'a0\'a0\'a0 
+\f2\fs29\fsmilli14667 Turn off auto commit on session level
+\f3 \
+\pard\pardeftab720\li960\sl308\sa213\partightenfactor0
+
+\f2 \cf8 \'a0 \\set AUTOCOMMIT off
+\f3 \
+}

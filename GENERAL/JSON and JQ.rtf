@@ -1,0 +1,131 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red0\green0\blue0;
+}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c0\c0\c0;\csgray\c0\c0;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww33400\viewh16920\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+JSON\
+\
+\
+Understanding JSON:\
+\
+key-value structures				-	like python dictionaries\
+arrays (ordered list of values)		-	like python lists\
+key 							-	can only be strings in double quotes\
+values						-	strings in double quotes, numbers, true, false, null, arrays, objects	\
+\
+\
+JSON data format:\
+\
+Template\
+\{\
+	json-data\
+\}\
+\
+\
+Simple key and values\
+\{\
+	\'93alpha\'94: \'93beta\'94,\
+	\'93gama\'94: \'93theta\'94\
+\}\
+\
+\
+A json list/array\
+\{\
+	\'93fruits\'94 : [\
+			\'93apple\'94,\
+			\'93banana\'94,\
+			\'93mango\'94\
+	]\
+\}\
+\
+\
+A json dictionary\
+\{\
+	\'93fruits\'94 : \{\
+			\'93apples\'94: \'935\'94,\
+			\'93bananas\'94: \'9310\'94,\
+			\'93mangoes\'94: \'9321\'94\
+	\}\
+\}\
+\
+\
+===========\
+\
+JQ\
+\
+\
+The Whole Document:\
+\
+Get the structure of a document using its keys\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf2 \CocoaLigature0 jq -r '[paths | join(".")]'
+\f0 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+Keys:\
+\
+Get all top level keys\
+\pard\pardeftab720\sa330\partightenfactor0
+\cf3 \cb4 \expnd0\expndtw0\kerning0
+jq '. |= keys\'92\cf0 \cb1 \kerning1\expnd0\expndtw0   OR   jq \'91keys\'92\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Get the value of a top level key\
+jq \'91. | .key\'92\
+\
+Get the key and value of a top level key\
+jq \'91. | \{key1, key2, \'85..\}\'92\
+\
+Same as above but top level structure is an array\
+jq \'91.[ ] | .key\'92\
+jq \'91.[ ] | \{key1, key2 \'85\}\'92\
+\
+\
+\
+\
+\
+Arrays:\
+\
+Extract all keys of an array, keys is a keyword\
+jq \'91.array-name | keys\'92\
+\
+Get the value of a specific key\
+jq \'91.array-name[ ] | .key\'92\
+\
+Get specific key and values from a named array based on key\
+jq \'91.array-name[ ] | \{key1, key2, \'85\}\'92\
+\
+Select every item that has a particular key from a named array\
+jq \'91.array-name[ ]|select(.key)\'92\
+\
+Select an item from a named array when you know the exact value of the key\
+jq \'91.array-name[ ] | select(.key == \'93value\'94)\'92\
+\
+Select a key from a named array with pattern matching\
+jq \'91.array-name[ ] | select(.key | match(\'93value\'94))\
+\
+Select an item from a named array and only get a specific value in that item\
+jq \'92.array-name[ ] | select(.key1 == \'93value\'94) | \{key2\}\'92\
+\
+The above with multiple selects\
+jq \'91.array-name[ ] | select((.key1 == \'93value\'94) and (.key2 == \'93value\'94)) | \{key3\}\'92\
+\
+The above but you only know part of the value\
+jq \'91.array-name[ ] | select(.key1 | contains(\'93value\'94))\'92\
+\
+The above with PCRE \
+jq \'91.array-name[ ] | select(.key1 | test(\'93value1\\s+value2\'94))\'92\
+\
+\
+\
+\
+\
+}

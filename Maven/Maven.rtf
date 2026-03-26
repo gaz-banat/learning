@@ -1,0 +1,621 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Monaco;
+\f3\fswiss\fcharset0 Helvetica-Oblique;\f4\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red255\green255\blue255;
+\red49\green49\blue49;\red0\green0\blue117;\red234\green234\blue234;\red24\green25\blue27;\red11\green97\blue205;
+}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000;
+\cssrgb\c25098\c25098\c25098;\cssrgb\c0\c0\c53333;\cssrgb\c93333\c93333\c93333;\cssrgb\c12549\c12941\c14118;\cssrgb\c0\c47059\c84314;
+}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww32280\viewh15840\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+================\
+MAVEN SOURCE DIRECTORY STRUCTURE\
+================\
+\
+src/\
+	main/\
+		java/						-		source code layed out in directories matching class hierarchy\
+		resources/					-		configuration and data files related to the application\
+			config/\
+	test/\
+\
+target/\
+\
+================\
+CONF FILE\
+================\
+\
+$\{maven.conf\}/setttings.xml		-	global settings		you can get the value of maven.conf by running mvn help:system\
+$\{user.home\}/.m2/settings.xml		-	user settings\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7378\tx7939\tx8510\tx9084\pardirnatural\partightenfactor0
+\cf0 settings.xml\
+	\
+  settings\
+	localRepository\
+	interactiveMode\
+	offline\
+	pluginGroups\
+	proxies\
+		proxy\
+		proxy\
+	servers\
+		server\
+		server\
+	mirrors\
+		mirror\
+		mirror\
+	profiles\
+		profile							-	a collection of repositories	\
+			id\
+			activation\
+			properties\
+			repositories\
+				repository	\
+				repository\
+			pluginrepositories\
+		profile	\
+			id\
+			activation\
+			properties\
+			repositories\
+				repository\
+			pluginrepositories\
+	activeProfiles\
+		activeProfile	\
+		activeProfile\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+================\
+POM FILE\
+================\
+\
+modelVersion\
+\
+groupId\
+artifactId\
+version\
+packaging\
+\
+name\
+description\
+\
+modules\
+	module\
+	module\
+\
+parent\
+\
+properties\
+\
+dependencies\
+\
+build\
+	resources\
+		resource\
+	plugins\
+		plugin\
+			...\
+			executions\
+				execution\
+\
+repositories\
+	repository\
+	repository\
+distributionManagement\
+	snapshotRepository\
+	repository\
+scm\
+\
+\
+\
+\
+================\
+MAVEN VERSIONING FOR ARTIFACTS\
+================\
+\
+3.2.1-987-beta\
+\
+Major Version: 			3\
+Minor Version:		 	2\
+Incremental Version: 		1\
+Build Number:			987  (probably from a CI build)\
+Qualifier: 				beta\
+\
+\
+3.2.1-SNAPSHOT\
+\
+SNAPSHOT is a special qualifier\
+tells maven this artifact is a development version\
+when maven is pulling an artifact it with SNAPSHOT it should check for newer versions and maven will do this by default once a day\
+first maven will check locally and then check remote repositories\
+\
+\
+\
+\
+===============\
+MAVEN REPOSITORIES\
+===============\
+\
+Local		-		repository on local file system - $HOME/.m2\
+Central		-		Public repository by Maven community - https://repo1.maven.org/maven2    (https://mvnnrepository.com)\
+Remote		-		Other locations which can be public or private\
+\
+\
+Maven Wagon:\
+- unified Maven API\
+- transport abstraction for artifact and repository handling code\
+- in some environments you may need to configure Wagon for Proxy settings\
+- allows different providers to be used for communication with Maven Repositories\
+- available providers\
+	http/https\
+	file\
+	ftp\
+	ssh/scp\
+	WebDav\
+	SCM\
+\
+\
+\
+\
+=================\
+DEPENDENCIES\
+=================\
+\
+Dependency is an artifact that could be a jar or a pom\
+\
+Transitive Dependency 		-  		your project depends on an artifact which in turn has a dependency on another artifact\
+\
+Dependency Mediation 		- 		maven determines what version to use when multiple versions of the same dependency are encountered\
+\
+\
+Dependency Scope\
+Compile					-		default scope. available on all classpaths of a project. propogated to downstream projects\
+Provided					-		like compile, but expected to be provided by JDK or container at runtime.\
+Runtime					-		the dependency is not required for compiling but needed for runtime\
+Test						-		the dependency is only available on test classpath\
+System					-		like Provided, but JAR is added to system explicitly (via file path)\
+Import					-		imports dependency of POM, allows for inheritance\
+\
+\
+\
+\
+================\
+LIFECYCLES \
+================\
+\
+What:\
+A life cycle is a sequence of pre-defined phases (build steps)\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx9084\tx10208\tx11344\pardirnatural\partightenfactor0
+\cf0 Structure of Lifecycles:\
+\
+Lifecycle		-		Phase		-		Plugin:Goal	A phase can correspond to one plugin:goal\
+					Phase		-		Plugin:Goal	A phase can correspond to more than one plugin:goal\
+										Plugin:Goal\
+					Phase		\
+					Phase\
+									\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+Built-in Build Life Cycles:\
+\
+default			-	main lifecycle used for project build and deployment\
+					this lifecycle is defined without plugin bindings\
+					bindings are defined by packaging type\
+clean			-	to clean the project and remove all files generated by previous build\
+site				-	to create the projects site documentation\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 \
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 ================\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 PHASES\
+================\
+\
+A phase is a sequence of goals (each goal comes from a plugin). When the phase is run all of it\'92s goals are executed\
+\
+all the \'91default\'92 Build lifecycle phases in order:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \CocoaLigature0   validate\cf0 \CocoaLigature1 					-	check if all information necessary for the build is available\cf2 \CocoaLigature0 \
+  initialize \
+    generate-sources\
+    process-sources\
+    generate-resources\
+    process-resources\
+  compile\cf0 \CocoaLigature1 					-	compile the source code\cf2 \CocoaLigature0 \
+    process-classes\
+    generate-test-sources\
+    process-test-sources\
+    generate-test-resources\
+    process-test-resources\
+    test-compile\cf0 \CocoaLigature1 				-	compile the test source code\cf2 \CocoaLigature0 \
+    process-test-classes\
+  test\cf0 \CocoaLigature1 						-	test the compiled source code using a suitable unit testing framework. These tests should not require the code be packaged or deployed\cf2 \CocoaLigature0 \
+    prepare-package\
+  package\cf0 \CocoaLigature1 					-	package the compiled code into a distributable format, e.g. JAR\cf2 \CocoaLigature0 \
+    pre-integration-test\
+    integration-test\cf0 \CocoaLigature1 			-	\cf3 \cb4 \expnd0\expndtw0\kerning0
+process and deploy the package if needed to run integration tests\cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+    post-integration-test\
+  verify					-	run any checks on results of integration tests to ensure quality criteria are met\
+  install\cf0 \CocoaLigature1 					-	install the package to a local repository, for use as a dependency in other projects locally\cf2 \CocoaLigature0 \
+  deploy\cf0 \CocoaLigature1 					-	copy the package to the remote repository\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+NOTE: \
+ - depending upon the packaging type chosen a combination of default lifecycle phases are executed (but always following the order above) \
+ - the configuration comes from default-bindings.xml\
+ - phases named with hyphenated words (e.g. integration-test) are not usually called from the command line. This is because these phases produce intermediate results that are not useful outside the build.\
+\
+\
+\
+	\'91default\'92 Build lifecycle phases for ejb/ejb3/jar/par/rar/war packaging\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx11349\pardirnatural\partightenfactor0
+\cf0 	  process-resources			-->		resources:resources\
+	  compile					-->		compiler:compile	uses the \'91javax.tools.JavaCompiler\'92 by default, can be configured to use \'91javac\'92\
+  	  process-test-resources		-->		resources:testResources\
+  	  test-compile				-->		compiler:testCompile\
+ 	  test						-->		surefire:test		for unit testing, supports JUnit 3, JUnit 4, JUnit 5 and TestNG\
+  	  package					-->		jar:jar\
+ 	  install					-->		install:install\
+ 	  deploy					-->		deploy:deploy		deploy project artifacts to remote Maven repositories\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+	Note: \
+ 	- in POM under <build><plugins><plugin> we can bind a phase that is not in the default lifecycle phase list for jar packaging (e.g. initialize) to a plugin goal (e.g. clean:clean) and then that phase will run as well\
+\
+\
+	\'91default\'92 Build lifecycle phases for ear packaging\
+	  generate-sources			-->		ear:generate-application-xml\
+	  process-resources			-->		resources:resources\
+	  package					-->		ear:ear\
+	  install					-->		install:install\
+	  deploy					-->		deploy:deploy\
+\
+\
+	\'91default\'92 Build lifecycle phases for pom packaging\
+  	  package\
+	  install					-->		install:install\
+	  deploy					-->		deploy:deploy\
+\
+\
+\
+\'91clean\'92 Build lifecycle phases in order\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \CocoaLigature0   pre-clean\
+  clean					-->		clean:clean\
+  post-clean\
+\
+\
+\
+\'91site\'92 Build lifecycle phases in order\
+  pre-site\
+  site						-->		site:site\
+  post-site\
+  site-deploy				-->		site:deploy
+\f1\fs22 \
+\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 ================\
+PLUGIN\
+================\
+\
+A maven plugin is a group of goals\'85but\'85these goals are not all necessarily bound to the same phase\
+\
+\
+Plugin = Goal + Goal + Goal + Goal ...\
+\
+\
+\
+================\
+GOAL\
+================\
+\
+A goal is a task that a plugin executes\
+A goal can be bound to one or more phases\
+\
+\
+\
+\
+================\
+ARCHETYPES\
+================\
+\
+An archetype is a project template\
+\
+\
+\
+\
+================\
+PACKAGING\
+================\
+\
+ejb		-	ejb:ejb\
+ejb3		-	ejb3:ejb3\
+jar		-	jar:jar			\
+par		-	par:par\
+rar		-	rar:rar\
+war		-	war:war							I want to run my application in the context of an application server like tomcat\
+ear		-	ear:ear\
+rpm		-	red hat package\
+pom		-	this is a container for submodules		each submodule is represented by a subdirectory in the same directory as the pom.xml that has pom packaging, each submodule may have its own type of packaging\
+			pom is also considered to be metadata\
+tile\
+\
+\
+jar\
+for running an application on a desktop or server with the \'91java -jar <jar_name>\'92 command\
+contains libraries, resources and accessories (e.g. property files)\
+Structure\
+	META-INF/ejb-jar.xml\
+	*.class\
+\
+\
+war\
+for running a web application that can be deployed on any servlet/jsp container\
+contains jsp, html, javascript and other necessary files for a complete web application\
+Structure\
+	META-INF/\
+	WEB-INF/\
+		classes/\
+		lib/\
+		web.xml			\
+		*.xml	\
+	index.html	\
+	<supporting directory/>\
+	<supporting directory/>\
+	<supporting directory/>\
+	<supporting file>\
+	<supporting file>\
+	<supporting file>\
+\
+\
+Note: \
+ - the war plugin is configured in a pom file with these settings so that the plugin knows how to build the war package\
+	- a web.xml file\
+	- web resources, each resource defined in <resource></resource> tags\
+		\
+\
+\
+ear\
+Enterprise application archive\
+\
+\
+\
+\
+======================================================================================\
+HOW TO ASSIGN TASKS TO BUILD PHASES (i.e. phases of one of the Build lifecycles) FOR YOUR PROJECT\
+======================================================================================\
+\
+1. Set the packaging type via POM element <packaging>\
+Each packaging contains a list of goals to bind to a particular phase\
+Look at the jar packaging and the goals and phases for \'91default\'92 Build lifecycle\
+\
+\
+2. Via Plugins\
+Add the plugin to your POM as well as the phase and goal of the plugin in its execution element\
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0
+\f2\fs26 \cf5 {\listtext	1	}\expnd0\expndtw0\kerning0
+ \cf6 <plugin>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+   \cf6 <groupId>\cf5 com.mycompany.example\cf6 </groupId>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
+   \cf6 <artifactId>\cf5 display-maven-plugin\cf6 </artifactId>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	4	}\expnd0\expndtw0\kerning0
+   \cf6 <version>\cf5 1.0\cf6 </version>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	5	}\expnd0\expndtw0\kerning0
+   \cf6 <executions>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	6	}\expnd0\expndtw0\kerning0
+     \cf6 <execution>\
+\pard\tx220\tx720\tx1133\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \kerning1\expnd0\expndtw0 {\listtext	7	}       <id>dmp-time</id>\expnd0\expndtw0\kerning0
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	8	}\expnd0\expndtw0\kerning0
+       \cf6 <phase>\cf5 process-test-resources\cf6 </phase>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	9	}\expnd0\expndtw0\kerning0
+       \cf6 <goals>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	10	}\expnd0\expndtw0\kerning0
+         \cf6 <goal>\cf5 time\cf6 </goal>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	11	}\expnd0\expndtw0\kerning0
+       \cf6 </goals>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	12	}\expnd0\expndtw0\kerning0
+     \cf6 </execution>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb7 \kerning1\expnd0\expndtw0 {\listtext	13	}\expnd0\expndtw0\kerning0
+   \cf6 </executions>\cf5 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf5 \cb1 \kerning1\expnd0\expndtw0 {\listtext	14	}\expnd0\expndtw0\kerning0
+ \cf6 </plugin>\cf5 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+In the above case the \'91time\'92 goal of the display-maven-plugin has been bound to the \'91process-test-resources\'92 phase of the \'91default\'92 build lifecycle with an id of \'91dmp-time\'92\
+The id is just a label to help identify the plugin:goal in the output\
+\
+\
+If the phase is not specified then the plugin 
+\f3\i should 
+\f0\i0 know which goal gets bound to which phase\
+\
+\
+==================\
+PROFILES\
+==================\
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb4 \expnd0\expndtw0\kerning0
+A profile in Maven is\'a0an alternative set of configuration values which set or override default values.\
+Using a profile, you can customize a build for different environments. \
+Profiles are configured in the pom. xml  or settings.xml and are given an identifier.\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+==================\
+PROPERTIES\
+==================\
+\
+There are a set of available properties for all Maven projects and can be referenced as $\{<property>\}\
+\
+Here are some common ones:\
+project.*\
+	project.basedir\
+	project.version\
+	project.baseuri\
+maven.*\
+	maven.build.timestamp\
+	maven.home\
+	maven.version\
+	maven.build.version\
+env.*\
+	env.PATH\
+settings.*\
+	settings.localrepository\
+\
+\
+\
+\
+You can set your own properties for a project in the pom:\
+<properties>\
+	<tile.version>2.0.40</tile.version>\
+</properties>\
+\
+$\{tile.version\}\
+\
+\
+You can set properties from the cli using -D<property>=<value>:\
+e.g. -DbuildNumber=61 could be referenced in pom as $\{buildNumber\}\
+\
+\
+Java system properties:\
+	user.home\
+	java.home\
+\
+\
+\
+\
+================================\
+COMMON COMMANDS AND OPTIONS\
+================================\
+\
+RUN A PHASE OF A BUILD LIFECYCLE\
+\
+mvn <phase>\
+e.g: mvn compile					This is running the all phases up to the compile phase of the \'91default\'92 build lifecycle\
+\
+\
+\
+RUN A GOAL OF A PLUGIN\
+\
+Note: \
+ - the below format is 
+\f1\fs22 \cf2 \CocoaLigature0 <plugin-prefix>:<goal> OR <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>
+\f0\fs24 \cf0 \CocoaLigature1 \
+ - a plugin can be specified by coordinates: \'91org.apache.maven.plugins:mvn-compiler-plugin:3.17\'92 OR just by its name \'91compiler\'92\
+ \
+Get the OS environment variables and Java System properties\
+mvn help:system\
+\
+List all goals bound to a specific phase and their plugins (call describe goal of help plugin with arguments)\
+mvn help:describe -Dcmd=<phase_name>, e.g. mvn help:describe -Dcmd=compile\
+\
+Get the effective pom of a project\
+mvn help:effective-pom\
+\
+See available plugins for the current project\
+mvn help:effective-pom | grep -A1 artifactId\
+\
+Run compile goal of compiler plugin \
+mvn compiler:compile\
+\
+Resolve dependencies for a project (run the resolve goal of the dependency plugin)\
+mvn dependency:resolve\
+\
+See dependencies and transitive dependencies \
+mvn dependency:tree [-Dscope=runtime]\
+\
+Clear artifacts from local repository\
+dependency:purge-local-repository\
+\
+Get sources for all dependencies\
+dependency: sources\
+\
+List all goals in a plugin (run the help goal on that plugin)\
+mvn <plugin>:help, e.g. mvn compiler:help\
+\
+Get the classpath after maven has compiled software		(dont forget about packaging here)\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 mvn -q exec:exec -Dexec.executable=echo -Dexec.args="%classpath" | sed 's|:|\\n|g'\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+Create a maven wrapper for your project\
+mvn -N io.takari:maven:wrapper -Dmaven=3.6.3		(you can specify any maven version you want)\
+\
+Generate a project from an archetype \
+of \'91maven-archetype-simple\'92:\
+mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-simple -DarchetypeVersion=1.4\
+\
+of \'91camel-archetype-spring-boot\'92:\
+mvn archetype:generate -DarchetypeGroupId=org.apache.camel.archetypes -DarchetypeArtifactId=camel-archetype-spring-boot -DarchetypeVersion=4.0.0.redhat-00005 -DgroupId=com.redhat -DartifactId=csb-app -Dversion=1.0-SNAPSHOT -DinteractiveMode=false\
+\
+\
+\
+\
+OPTIONS\
+\
+-D				- 		supply arguments OR supply variable=value\
+-e 				- 		report detailed information about errors\
+-X				-		debug\
+--batch-mode		-		supposedly maven relies on default or supplied values at command line rather than interacting with the user on parameters for various plugins\
+						practically it just causes maven to not display \'91Progress: 125/150KB\'92 style lines in the output\
+\
+\
+Deploy to a repository\
+\pard\pardeftab720\partightenfactor0
+\cf3 \expnd0\expndtw0\kerning0
+mvn deploy:deploy-file \\\
+-Dfile=./aqapi-jakarta-19.3.0.0-TRANSPOWER.jar \\\
+-DgroupId=com.oracle.database.messaging \\\
+-DartifactId=aqapi-jakarta \\\
+-Dversion=19.3.0.0-TRANSPOWER \\\
+-Dpackaging=jar \\\
+-DrepositoryId=libs-release-local \\\
+-Durl={\field{\*\fldinst{HYPERLINK "https://artifactory.cs.transpower.co.nz/artifactory/libs-release-local"}}{\fldrslt \ul \ulc9 https://artifactory.cs.transpower.co.nz/
+\f4\b artifactory/libs-release-local}}}

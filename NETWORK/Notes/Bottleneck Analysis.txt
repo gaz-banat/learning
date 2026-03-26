@@ -1,0 +1,127 @@
+
+
+Troubleshooting Guidelines
+==========================
+
+
+Define the issue
+
+
+
+Time of Day
+
+
+
+Layer 1 Checks
+
+	Speed and Duplex settings on all devices in the network on both sides of the WAN
+
+
+Path MTU
+
+
+
+Routing Path
+
+
+Proxy
+
+
+Bandwidth Utilization
+
+
+
+
+Quality of Service Drops
+	Does Shaping value match the actual value of the link
+
+	Which class is seeing drops
+
+
+
+Riverbed Steelhead
+
+	Is optimization working
+
+	Is optimization from LAN to WAN breaching the wan optimization bandwidth limit
+
+	Is optimization from LAN to WAN breaching the connection limit
+
+
+Wireshark
+
+	Any known issues like RST?
+
+	What is the rate of transfer from the conversation
+
+
+
+TCP Issues
+
+
+
+
+APM
+
+
+
+
+
+NPM
+
+
+
+
+
+The 12 factors
+===============
+
+
+
+Server Processing Delays
+
+
+
+Client Processing Delays
+
+
+
+Bandwidth Constraints
+
+	Serialization Delay	- number of bits transmitted/number of bits that can be sent in one second
+	Transmission Delay	- latency measured as one way delay
+
+
+Congestion
+
+
+
+Packet Loss
+
+
+
+Receiver Flow Control (Window 0)
+
+
+
+Window and the Bandwidth Delay Product
+
+
+
+Chattiness and Latency
+
+
+
+Application Windowing
+
+
+
+Starved for Data
+
+
+
+The Nagle Algorithm
+
+
+
+TCP Slow-Start

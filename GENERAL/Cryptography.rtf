@@ -1,0 +1,359 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\fnil\fcharset0 Menlo-Regular;
+\f3\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red255\green255\blue255;\red0\green0\blue0;
+\red47\green180\blue29;\red4\green46\blue109;\red16\green16\blue16;\red31\green31\blue51;\red0\green0\blue0;
+\red242\green242\blue242;}
+{\*\expandedcolortbl;;\cssrgb\c20000\c20000\c20000;\cssrgb\c100000\c100000\c100000;\csgray\c0;
+\cssrgb\c20241\c73898\c14950;\cssrgb\c0\c25098\c50196;\cssrgb\c7843\c7843\c7843;\cssrgb\c16471\c16471\c26275;\csgray\c0\c0;
+\cssrgb\c96078\c96078\c96078;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww32680\viewh13220\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+----------------\
+HASHING \
+----------------\
+\
+Changing a message into a string so that the message can be verified\
+\
+\
+\
+Algorithms\
+\
+	md5\
+\
+	sha1\
+\
+	sha256\
+\
+\
+Use case \
+- software download\
+\
+\
+----------------------\
+ENCRYPTION\
+----------------------\
+\
+SYMMETRIC\
+\
+Only a single key is used\
+\
+\
+Symmetric Algorithms\
+\
+DES							-	56 bit key\
+\
+3DES						-	 \
+\
+AES							-	128/192/256 bit key sizes, \
+\
+BLOWFISH					-	\
+\
+TWOFISH						-	\
+\
+\
+Use case \
+- encrypting drives\
+\
+\
+\
+ASYMMETRIC\
+\
+2 Keys are used, a public key and a private key.\
+Server side keys 				- 	Public key will encrypt the message and the private key will decrypt the message\
+Client side keys					- 	Public key will be used for verifying and private key for signing (aka authentication)\
+\
+Asymmetric Algorithms\
+\
+DSA							-\
+	\
+RSA							-	1024/2048/3072/7680/15360 bit key sizes\
+	DER encoding				-	this is a binary encoding\
+	PEM encoding				-	this is a base64 encoding of binary data\
+	\
+\
+ECDSA						-	160-233/224-255/256-383/384-511/512+ bit key sizes\
+\
+\
+\
+\
+Key Formats\
+\
+PKCS#8		-		key type is included in the key data\
+					-----BEGIN PRIVATE KEY-----\
+					base64 encoded data\
+					-----END PRIVATE KEY-----\
+\
+PKCS#1		-		just an RSA key	 (only the key object from PKCS#8)\
+					-----BEGIN RSA PRIVATE KEY-----\
+					base64 encoded data\
+					-----END RSA PRIVATE KEY-----\
+\
+OPENSSH	-		for use with OpenSSH\
+					private key\
+					-----BEGIN OPENSSH PRIVATE KEY-----\
+					base64 encoded data but there is no DER data, rather it is a proprietary OpenSSH format\
+					-----END OPENSSH PRIVATE KEY-----\
+					public key\
+					ssh-rsa abcd..........................xyz [user@computer]			\
+		\
+PPK			-		for use with PuTTY\
+\
+\
+\
+File Formats\
+\
+PEM			-		header, base64 encoded DER data, footer\
+\
+\
+Use case \
+- Communication over the wire \{SSL/TLS (protocol could be http, smtp, ftp, etc.), PGP, SSH\}\
+- Digital signing of files (DSA is better suited for this) \
+\
+\
+\
+\
+USE CASES FOR KEYS\
+\
+\
+encryption\
+\
+decryption\
+\
+signing					
+\f1\fs32 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 This key usage allows a key to be used to create digital signatures that verify the identity of the signer.
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\
+signature verification\
+\
+non-repudiation				
+\f1\fs32 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Ensures that a signer cannot deny the authenticity of their signature.\
+\
+key encipherment		Used for encrypting keys that can then be used for decrypting data.\
+\
+data decipherment		Directly used for encrypting data to maintain confidentiality
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\
+\
+\
+\
+\
+THE CASE FOR PGP\
+\
+PGP uses a combination of symmetric key encryption and public key encryption\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2 \cf4 \CocoaLigature0 [gaz\cf5 :\cf4 ~] $ gpg --help\
+gpg (GnuPG) 2.4.5\
+libgcrypt 1.10.3\
+Copyright (C) 2024 g10 Code GmbH\
+...
+\f0 \cf0 \CocoaLigature1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2 \cf4 \CocoaLigature0 Home: /Users/gaz/.gnupg\
+Supported algorithms:\
+Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA\
+Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH, CAMELLIA128, CAMELLIA192, CAMELLIA256\
+AEAD: EAX, OCB\
+Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224\
+\
+\
+\
+\
+
+\f0 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 KEY EXCHANGE\
+\
+	ECDHE_RSA\
+\
+	Diffie-Hellman\
+\
+\
+\
+CIPHER\
+\
+	AES_256_GCM\
+\
+\
+\
+\
+\
+CIPHER SUITE\
+\
+A cipher suite is a grouping of configuration choices\
+\
+	compression\
+\
+	key exchange algorithm\
+\
+	bulk cipher\
+\
+\
+Some known ciphers\
+\
+	{\field{\*\fldinst{HYPERLINK "https://ciphersuite.info/cs/TLS_PSK_WITH_AES_128_CBC_SHA/"}}{\fldrslt \cf6 \cb3 \expnd0\expndtw0\kerning0
+\ul \ulc6 TLS_PSK_WITH_AES_128_CBC_SHA}}\cf7 \cb3 \expnd0\expndtw0\kerning0
+\'a0\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+\
+\
+\
+\
+-----------------------\
+CERTIFICATES\
+-----------------------\
+\
+\
+CERTIFICATE COMPONENTS\
+\
+Subject Name\
+Issuer Name\
+Public Key Info\
+Extensions\
+Fingerprint\
+Extensions\
+	subjectAltName\
+	basicConstraints\
+	keyUsage\
+		\
+\
+\
+CERTIFICATE FORMATS\
+\
+\
+DER			- binary encoding\
+\
+PEM			- base64 ASCII encoding of DER binary encoding with header and footer lines\
+			- header and meta data information\
+\
+\
+PKCS7\
+\
+PKCS10\
+\
+\
+PKCS12		- microsoft enhanced standard\
+			- password container format\
+			- fully encrypted\
+			- for both public and private certificate pairs\
+\
+P7b			- format used by windows for certificate interchange\
+\
+\
+\
+\
+CERTIFICATE EXTENSIONS\
+\
+.crt, .cer		- certificate\
+.key\
+.csr\
+\
+\
+\
+\
+COMPONENTS OF A CSR\
+\
+	Version\
+\
+	Subject\
+\
+	Public Key Info\
+\
+	Attributes\
+\
+	Requested  Extensions\
+\
+	Signature Algorithm\
+\
+\
+\
+\
+CERTIFICATE PROCESS BETWEEN CLIENT AND SERVER\
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0
+\f3\fs28 \cf8 \cb3 {\listtext	1	}\expnd0\expndtw0\kerning0
+Client receives the public key of the server (public key is included in the certificate)\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+Client generates a symmetric key\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
+Client encrypts the symmetric key with the public key of the server\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	4	}\expnd0\expndtw0\kerning0
+Client sends the encrypted symmetric key to the server\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	5	}\expnd0\expndtw0\kerning0
+Server decrypts the encrypted symmetric key (at this stage, client and server have the same key, so key exchange is done)\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	6	}\expnd0\expndtw0\kerning0
+Client and server use the symmetric key to encrypt their communication\cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+\
+\
+-------------------------\
+OPENSSL\
+-------------------------\
+\
+OPENSSL COMMANDS\
+\
+\
+1. Create a CA certificate\
+First create a key				-		openssl genrsa [-aes256] -out MY-CA.key 2048\
+Create certificate from the key		-		openssl req -x509 -new -nodes -key MY-CA.key -sha256 -days 1826 -out MY-CA.crt -subj \'91/C=NZ/L=WELLINGTON/O=Transpower/CN=TEMP CA DEVIDE03/emailAddress=gaz.banat@transpower.co.nz\'92\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\fs26 \cf2 \cb9 \expnd0\expndtw0\kerning0
+Create a config file for the ca		-		~/gazca/GAZ_CA.conf\
+Create directories accordingly	-		
+\f2\fs24 \cf4 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 mkdir ca; cd ca; mkdir ca.db.certs; touch ca.db.index; echo "1234" > ca.db.serial\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+ 
+\f0 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+2. Create a cert to be signed by the CA\
+Create a key					-		openssl genrsa [-aes256] -out SERVER.key 2048\
+Create a csr					-		openssl req -new -key SERVER.key -out SERVER.csr -subj \'93/C=NZ/ST=WELLINGTON/L=WELLINGTON/O=DR SCIENCE/OU=IT/CN=<domain>\'94\
+OR\
+with one command				-		
+\f2\fs26 \cf2 \cb10 \expnd0\expndtw0\kerning0
+openssl req -new -newkey rsa:2048 -nodes -keyout yourdomain.key -out yourdomain.csr -subj "/C=US/ST=Utah/L=Lehi/O=Your Company, Inc./OU=IT/CN=yourdomain.com"\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0 \cf2 \cb9 3. Sign the csr and return a crt \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs24 \cf4 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 openssl ca -config GAZ_CA.conf -in my_request_1/server.csr -out my_request_1/server.crt [-days 1862 -keyfile GAZ_CA.key -keyform PEM -cert GAZ_CA.crt]
+\f0\fs26 \cf2 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \
+\
+4. Create a self signed certificate
+\f2\fs24 \cf4 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+
+\f0\fs26 \cf2 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 With a new key\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs24 \cf4 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 openssl req -new -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt -subj "/CN=www.gaz.net/emailAddress=me@gaz.net"
+\fs26 \cf2 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+With an existing key\
+
+\fs24 \cf4 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 openssl req -new server.key -x509 -days 365 -out server.crt -subj "/CN=www.gaz.net/emailAddress=me@gaz.net"
+\fs26 \cf2 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+\
+}

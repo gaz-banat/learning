@@ -1,0 +1,590 @@
+
+
+
+PART I - MAIN KUBERNETES COMPONENTS
+
+Master																						Pod name on docker desktop k8s
+   Mandatory
+	API Server			respond to API requests from an authenticated source, is available at the svc https://kubernets.default.svc.cluster.local/	CONTROL PLANE COMPONENT	RUNS IN A CONTAINER	kube-apiserver
+	Controller Manager		manages controller processes								CONTROL PLANE COMPONENT	RUNS IN A CONTAINER	kube-controller-manager
+	Scheduler				schedules pods on various nodes							CONTROL PLANE COMPONENT	RUNS IN A CONTAINER	kube-scheduler
+	etcd					stores configuration										CONTROL PLANE COMPONENT	RUNS IN A CONTAINER	etcd-docker-desktop
+	DNS server			responds to DNS queries													coredns
+	Kubelet				main k8s service/agent on a node, it registers the node with the apiserver, 						this is a daemon
+	Kube-proxy			deals with individual host subnetting, manages iptables, expose services, forwards requests to pods/containers			As a daemonset OR linux host process
+	Container Runtime
+	CNI Provider
+	Systemd
+  Optional
+	Storage Provisioner		storage-provisioner
+	Cloud Controller Manager														CONTROL PLANE COMPONENT	RUNS IN A CONTAINER
+
+Worker
+  Mandatory
+	Kubelet																			this is a daemon
+	Kube-proxy																		As a daemonset OR linux host process	kube-proxy
+	Container Runtime
+	CNI Provider
+	Systemd
+
+
+
+API SERVER
+
+Admission Controller
+an admission controller is a piece of code that intercepts requests to the api server prior to persistence of the object but after the request is authenticated and authorized
+types
+	validating
+	mutating
+
+
+Admission controllers
+	DefaultStorageClass Admission Controller
+
+
+
+## Commands
+
+
+I want to see all the api’s available on the cluister
+kubectl get apiservices
+                                                                                                              
+
+I want to see all the resources that the API server is aware about
+kubectl api-resources -o wide
+
+
+What are all the admission controllers in a Kubernetes cluster
+https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers
+
+
+Which binary does the kube-apiserver start with
+In a kube api pod the binary is ‘kube-apiserver’, e.g. kubectl exec <kube-api-pod> -- kube-apiserver -h 
+
+
+
+
+CONTROLLER MANAGER
+
+The KCM (kube-controller-manager) is a set of control loops that run various components, called controllers, on a node that is on a control plane.
+It is a single binary, but operates multiple control loops and, thus, controllers.
+
+What is a controller:
+- a controller is a just an app running in a pod that connects to the Kubernetes API
+- a controller is a Kubernetes resource which manages other resources 
+- it works with Kubernetes API to watch the current state of the system
+- it uses a label selector to identify the resource to be managed
+
+
+Controllers:
+Node controller
+Route controller
+Service controller			-	 i think this is the component that reads a request for say a new LoadBalancer service and makes API calls needed to create a load balancer in the cloud.
+Volume controller
+
+
+
+SCHEDULER
+
+This component watches for newly created pods and places (schedules) them onto nodes
+
+Scheduling principles
+filtering - find a set of feasible nodes for the new pod (consider resources on nodes, etc)
+Scoring - give a score to the nodes and rank them. Place pod on highest ranking node
+
+
+Scheduling Policies
+
+Scheduling Profiles
+
+
+
+
+DNS SERVER
+
+.svc.cluster.local						-	the default suffix in a kubernetes installation
+
+<service-name>.<namespace>.<suffix>		-	e.g. api.project1.svc.cluster.local is the service ‘api’ from the namespace ‘project1’
+
+
+
+
+ETCD
+
+
+
+KUBELET
+
+main k8s service/agent on a node, it registers the node with the apiserver, monitors pods and reports their health information to the api server
+The API server is continually made aware that the kubelet on a node is healthy via a heartbeat in Kubernetes 1.17+. (The heartbeat is maintained by looking at the kube-node-lease namespace of a running cluster.)
+Master node kubelet and does not register for cluster work
+
+
+/etc/kubernetes/manifests 		-	this direcotry contains the yaml files for the control plane pods
+
+
+
+
+KUBE-PROXY
+
+provide ip addresses for pods
+provide ip addresses for services
+creates a NodePort service
+
+
+Can work in 3 modes - 
+	userspace
+	iptables				-	based on netfilter
+	IPVS					-	based on netfilter, implements transport layer load balancing, usually called Layer 4 LAN switching, as part of the linux kernel
+							it provides better scalability and performance for large clusters, supports more sophisticated load balancing algorithms than iptables
+
+
+
+
+CONTAINER RUNTIME INTERFACE (CRI)
+
+an API for a Kubernetes node to talk to a container runtime/engine
+
+
+
+CONTAINER NETWORK INTERFACE (CNI)
+
+Understand these terms:
+IPAM
+Dual Stack
+eBPF
+VxLAN
+Overlay
+
+
+Kubernetes can use CNI plug-ins to orchestrate networking. 
+Everytime a pod or service is initialized or removed the default CNI plugin is called with the default configuration.
+The CNI plugin is responsible for creating a pseudo interface, will attach the relevant underlay network, setup the IP routes for the pod namespace, and so on.
+
+
+## Commands
+
+I want to see the cni plugins that have been installed
+/etc/cni/net.d - this contains the CNI json configuraion file
+/opt/cni/bin - this contains the CNI binary
+
+
+
+
+
+CONTAINER STORAGE INTERFACE
+
+This is a standard for creating custom comonents to work with data storage.
+
+CSI defines a socket for communication between the kubelet and storage technologies
+
+
+A CSI plugin implements a CSI driver/provisioner. CSI drivers/provsioners are written by third party developers.
+
+A CSI driver/provisioner must contain at least these 2 components (each component is implemented as a pod)
+	Controller 		-	manages persistent external volumes . Implemented as a gRPC server. The kubernetes primitive is a StatefulSet
+	Node		-	mounts persistent external volume to a kubernetes node. Implemented as a gRPC server. The kubernetes primitive is a DeamonSet (a pod for each node)
+
+
+# Commands
+
+I want to see the available csi drivers
+kubectl get csidrivers
+
+
+I want to see the available storage classes
+kubectl get storageclass 
+
+
+
+
+CLOUD PROVIDER INTERFACE
+
+
+
+
+CLOUD CONTROLLER MANAGER
+
+think provisioning an IP address or storage volume on AWS vs Azure vs Google Cloud vs vSphere vs OpenStack and so on
+the CCM generically utilizes functionality from any vendor implementing the CPI 
+When running Kubernetes on a cloud platform, Kubernetes interacts directly with the public or private cloud APIs, and the CCM executes the majority of those API calls. 
+This component’s purpose is to run cloud-specific controller loops and to execute cloud-based API calls
+
+
+
+
+
+POD SECURITY ADMISSION CONTROLLER
+
+This controller enforces the Pod Security Standards (see below)
+
+Pod security standards are applied at either the cluster level and/or namespace level
+
+At this label to the namespace
+pod-security.kubernetes.io/<mode>=<profile>
+
+Modes
+	enforce			-	reject pods with policy violations
+	audit				-	allow pods with policy violoations but includes an audit annotation in the audit log event record
+	warn				-	allows pods with policy violations but warns users
+
+Profiles
+	privileged
+	baseline
+	restricted
+
+
+For e.g. 	a setting of ‘kubectl label namespace project1 pod-security.kubernetes.io/enforce=privileged' will allow pods to run with a privileged profile in the project1 namespace
+	 	a setting of ‘kubectl label namespace project1 pod-security.kubernetes.io/enforce-version=latest' will enforce the latest version of the policy
+
+
+----------------------------------
+
+
+
+PART II - ADDITIONAL COMPONENTS THAT CAN BE ADDED
+
+
+
+CLUSTER LEVEL LOGGING
+
+
+WEB UI
+
+
+DNS
+
+
+CONTAINER RESOURCE MONITORING
+
+
+METRICS SERVER
+
+
+---------------------------------
+
+PART III - CLUSTER CONFIGURATION 
+
+cluster-cidr
+podCIDR 				-	The CIDR range for the pods
+service-cluster-ip-range		-	
+
+
+## Commands
+
+I want the entire cluster configuration
+kubectl cluster-info dump
+
+
+
+
+
+
+
+
+
+----------------------------------
+
+PART IV - GENERAL KUBERNETES CONCEPTS
+
+
+POD
+
+Pod = IPC Linux Namespace { Network Namespace { CGroup { PID of container }, CGroup { PID of container } } }
+Pod = PID Namespace + network namespace + IPC namespace + cgroup namespace + mnt namespace + user namespace
+
+
+Status
+
+	Phase (where is the pod in its lifecycle)		status.phase	-	Pending. Running, Succeeded, Failed
+	Reason								status.reason
+	Condition								status.condition	-	condition could be of type - PodScheduled, Initialized, ContainersReady, Ready, Unschedulable
+
+
+
+
+CONTAINERS
+
+
+
+
+PAUSE CONTAINER
+
+a placeholder container run by the kubelet while the kubelet creates namespaces and cgroups for a container to run inside of
+
+
+
+POD SECURITY STANDARDS
+
+Think about it this way - is there anything in the PodSpec that will be allowed or prevented from running.
+
+The standard is made up of profiles. Profiles have controls and controls have policies. 
+A policy can be set at Pod level (PodSecurityContext, found directly under .spec) or Container Level (SecurityContext, found under .spec.containers[*].securityContext)
+A policy just allows a particular .spec to run, e.g. spec.hostNetwork or spec.containers[*].securityContext.capabilities.add
+
+Profiles
+	Privileged			-	Unrestricted policy, providing the widest possible level of permissions. This policy allows for known privilege escalations.
+		Control
+			policy
+			policy
+			...
+		Control	
+			policy
+			policy
+			...
+		...
+	Baseline			-	Minimally restrictive policy which prevents known privilege escalations. Allows the default (minimally specified) Pod configuration.
+		Control
+			policy
+			policy
+			...
+		Control	
+			policy
+			policy
+			...
+		...
+	Restricted			-	Heavily restricted policy, following current Pod hardening best practices.
+		Control
+			policy
+			policy
+			...
+		Control	
+			policy
+			policy
+			...
+		...
+
+
+Controls
+	HostProcess				-	mostly to do with Windows, we ignore for now
+	Host Namespaces			-	sharing the host namespace
+	Privileged Containers		-	Privileged Pods disable most security mechanisms
+	Capabilities				-	Adding additional capabilities 
+	HostPath Volumes
+	Host Ports
+	AppArmor					-	this is a Linux Kernel Security module that allows the ability to restirct programs capabilities with per-program profiles. Capabilities can be network access, raw socket access, permission to rwx files on matching paths, etc.
+	SELinux
+	/proc mount
+	Seccomp					-	the ability to allow/restrict system calls to the kernel from a container
+	Sysctls
+
+
+pod SecurityContext
+	runAsNonRoot
+
+container SecurityContext
+	runAsNonRoot
+	Capabilities
+	readOnlyRootFileSystem
+
+
+
+IPAM
+
+Kubernetes IPAM (IP Address Management) refers to the IP address management within a cluster.
+Think about how a pod gets an IP address, a subnet mask and default gateway and how it gets DNS. Same goes for Service.
+IPAM can be fulfilled through kube-proxy OR through 3rd party providers/plugins.
+
+
+
+
+
+ASSIGNING PODS TO NODES (NODE SELECTOR, AFFINITY, ANTI-AFFINITY, NODENAME, TAINTS, TOLERATIONS)
+
+
+nodeSelector
+
+
+pod/node affinity			-		these rules attract pods to a node that matches the rules
+pod anti-affinity				-		repels pods from nodes
+
+
+
+taint						-		this is a node repelling a set of pods
+	NoSchedule
+	NoExecute
+	PreferNoSchedule
+
+tolerations					-		allow the scheduler to schedule pods with matching taints
+
+
+
+# Commands
+
+I want to see the taints on a node
+k describe node <node>
+
+
+
+NETWORKPOLICY
+
+
+
+
+PKI (CERTIFICATES)
+
+https://kubernetes.io/docs/setup/best-practices/certificates/
+
+I want to see all the certificate authorities (signers) on the cluster (we can submit a csr to a signer)
+
+From: https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/
+kubernetes.io/kube-apiserver-client
+kubernetes.io/kube-apiserver-client-kubelet
+kubernetes.io/kubelet-serving
+kubernetes.io/legacy-unknown
+
+
+
+
+
+AUTHENTICATING WITH KUBERNETES
+
+
+client key and certificate
+username/password
+bearer token
+external providern (aka proxy)
+
+
+
+
+SYSTEM NAMESPACES
+
+defaultf
+kube-system				-		contains kubeadm-config
+kube-public
+kube-node-lease			-		should show the heartbeats of a nodes kubelet to the api server
+
+
+
+
+NETWORK PLUGINS
+
+
+
+STORAGE
+
+
+Persistent Volumes
+
+
+Persistent Volume Claims
+
+
+StorageClass
+	Provisioner 		-	this will point to a CSI driver (the CSI driver is part of the CSI plugin)
+
+
+
+
+
+VALIDATINGWEBHOOKCONFIGURATION
+
+
+
+USERS AND GROUPS
+
+
+Groups:
+system:masters
+
+
+
+---------------------------------
+
+PART IV - BINARIES AND LOCATIONS
+
+
+
+BINARIES
+
+kubeadm					-		
+kubectl
+
+
+Locations:
+/etc/kubernetes/admin.conf
+/etc/kubernetes/kubelet.conf
+
+
+Manifests:
+kubeadm-config			-		contains ClusterConfiguration object, it is read during ‘kubeadm join’, ‘kubeadm reset’ and ‘kubeadm upgrade’
+
+
+
+-------------------------------
+
+
+DEBUGGING
+
+kubectl debug -n kube-system -it --image alpine node/<node>
+
+
+-------------------------------
+
+
+KUBECONFIG
+
+
+
+**Kubeconfig**
+
+kubectl will find kubeconfig file by:
+$KUBECONFIG						-		colone delimited list of kubeconfig files, kubectl merges the files into an effective configuration (the list is semicolon delimted on windows). earlier file settings win over subsequent file settings
+$HOME/.kube/config
+--kubeconfig
+
+kubectl will determine context to use by:
+--context								-		namespace/cluster-server-url-with-dashes/username, e.g. default/api-crc-testing:6443/kubeadmin
+use the current-context value from config
+
+
+authentication with a cluster can be by:
+client-certificate + client key
+username + password
+token
+
+
+Structure of kubeconfig file:
+
+apiVersion: v1
+kind: Config
+preferences: {}
+proxy-url:
+current-context:
+clusters:
+  - name:
+    cluster:
+      server:
+      certificate-authority-data: 
+      certificate-authority:
+      extensions:
+         - name:
+           extension:
+               version:
+	       provider:
+	       last-update:
+contexts:
+  - name:
+    context:
+	cluster:
+	user:
+	namespace:
+users:
+  - name:
+    user:
+	token
+  - name:
+    user:
+	client-certificate-data:
+	client-key-data
+
+
+
+**Commands**
+
+I want to see the entire config
+kubectl config view
+
+I want to set the context while using kubectl command
+kubectl --context <context> .....

@@ -1,0 +1,76 @@
+lab: ex-commands and configuring vim in the vimrc
+
+agenda
+* the ex-commandline
+* how options work
+* the vimrc
+* common vimrc options
+* common ex-commands & address ranges
+
+
+# the ex-commandline
+<up>    previous history entry for the ex-commandline
+<down>  next history entry for the ex-commandline
+<tab>   complete current command (dos-like)
+ctrl-L  complete current command (linux-like)
+ctrl-D  show all possible completions
+ctrl-W  deletes the word before cursor
+ctrl-U  deletes the whole line before cursor
+
+# how options work
+:set all          list all options
+:options          list all options with a description
+:set [option]?    query current value of option
+:set [option]!    invert boolean option
+:set [option]...  set one or more options
+
+# the vimrc
+~/.vimrc        vimrc location on linux
+[vim]/_vimrc    vimrc location on windows
+:help vimrc     more detailed explanation of vimrc lookup path
+source $VIMRC   load current vimrc
+
+" comment
+:set number               show line numbers
+:set splitbelow           new splits open below current pane
+:set splitright           new splits open right of current pane
+:set showcmd              show command buffer
+:set tabstop=4            show 4 spaces per tab
+:set backup               create a backup~ for every file you save
+:set swapfile             create a swapfile while editing a file
+:set wrap linebreak       smarter line wrapping, keep words in one piece
+:set nowrap               disable line wrapping
+:set sidescroll=1         scroll right/left a single character at a time
+:set sidescrolloff=10     start scrolling before the window edge
+:let loaded_matchparen=0  don't highlight matching parentheses
+
+# commands that take a range
+:delete
+:yank
+:put
+:copy
+:move
+:substitute
+:normal
+
+# ranges
+.         current line
+.,.+[n]   current line + [n] lines
+[n],[m]   line [n] up to [m]
+0,$       beginning of document up to end of document
+/[regex]/ regex match
+%         whole document
+
+
+
+
+
+
+
+
+
+
+
+
+
+

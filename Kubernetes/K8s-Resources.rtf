@@ -1,0 +1,1659 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2821
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\fnil\fcharset0 Menlo-Regular;
+\f3\fswiss\fcharset0 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red61\green75\blue89;
+\red255\green255\blue255;\red26\green26\blue26;\red49\green49\blue49;\red0\green0\blue0;\red11\green12\blue12;
+\red255\green255\blue255;\red14\green33\blue91;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c0\c0;\cssrgb\c30588\c36863\c42353;
+\cssrgb\c100000\c100000\c100000;\cssrgb\c13333\c13333\c13333;\cssrgb\c25098\c25098\c25098;\csgray\c0;\cssrgb\c4706\c5098\c5490;
+\csgray\c100000;\cssrgb\c5882\c18824\c43137;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww31460\viewh16200\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\
+\
+\
+\
+RESOURCES\
+\
+\
+Pod\
+- is the layer of compute, is the substitute for a VM, runs one or more containers which are isolated proceses\
+- has an IP address\
+- one or more volumes, (emptyDir\{\} is common to all containers in the pod)\
+- virtual environment which creates shared networking and filesystem space for one or more containers\
+- containers within a pod can communicate with each other using the localhost address\
+- containers withina a pod can communicate with each other using IPC if shareProcessNamespace is set to true\
+- is not ready until all containers in a pod are not ready\
+\
+- containers are provided a token to communicate with API SERVER???\
+\
+\
+ReplicaSet	\
+- supports set-based selector requirements\
+\
+Note: Don\'92t use this directly, use Deployment object\
+\
+\
+\
+Deployment\
+- Uses a ReplicaSet\
+- does not support life cycle hooks just yet (when reading version 4)\
+- scaling a deployment means it updates the existing ReplicaSet, changing the pod spec means it replaces the existing ReplicaSet with a new one\
+- pod/s name contains a hash of the template in the pod spec for deployment, so if you make a change to the spec which matches a previous deployment then it will have the same template\
+  hash as a previous deployment\
+- Deployment adds labels of the pod to the replicaset\
+- Deployments retain 10 replicasets by default\
+- Strategies for deployment are \
+  - recreate		-	terminate the old version then release the new one [USE CASE - different versions of the app can\'92t coexist]\
+  - ramped 		-	release a new version in a rolling update fashion (DEFAULT), scale down old replicaset while scaling up new replicaset, provides service continuity and staggering\
+  - blue/green 		-	release a new version alongside an old version, then switch traffic\
+  - canary			-	release a new version to a subset of users, then proceed to a full rollout\
+  - a/b testing		-	release a new version to a subset of user in a precise way (HTTP headers, cookie, weight, etc.), a techniques for making business decisions based on stats, does not come out of the box with k8s\
+- Deployments do not replace pods that leave the ready state when a probe fails\
+\
+\
+\
+\
+Endpoints\
+\
+\
+\
+\
+Namespaces\
+- boundary to apply security and resource restrictions\
+- pods in different namespaces can communicate through services\
+- a controller looks for pods only its own namespace\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx12463\pardirnatural\partightenfactor0
+\cf0 ConfigMaps\
+- a resource which stores data that can be loaded into a pod\
+- data can be\
+	a set of key value pairs		- 		loads environment variables	[--from-literal, --from-env-file] \
+	blob of text				-		JSON, XML, YAML, TOML, INI\
+	binary file					-		binary data (e.g. license file)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 - when configmap is loaded as a volume in a pod, the \'91volumeMounts:\'92 in container section specifies the directory at which the volume is attached and each data item/key becomes a file in that directory. The value of that item/key becomes the content of the file\
+  it is possible to specify specific data items to load (with \'91items:\'92) as files rather than loading all the data items\
+\
+- if you want to change the name of the file in the container rather than using the key/item in the data section as the filename then \
+  in the volumeMounts specify the name of the volume built from the configmap, add \'91subpath: <key/item name>\'92 and for mountPath specify the file name\
+  volumeMounts:\
+    - name: volvo\
+      subpath: mykey			(this is a key in the configmap)\
+      mountPath: /path/to/file\
+\
+\
+\
+\
+Services\
+- is the virtualization for the network\
+- a service only sends traffic to pods which are Ready\
+\
+\
+ClusterIP			-		cluster wide IP address for the service\
+						the service can be accessed by name by a pod on any node, kube-dns will return the IP to the pod\
+						only works within the cluster, so only for communicating between pods\
+						a selector is mandatory when defining the service\
+						CluserIP ---> Pod\
+\
+NodePort			-		\cf2 \cb3 \expnd0\expndtw0\kerning0
+asks Kubernetes to open a static port in every cluster node on a high port between 30,000 and 32,767 (by default). It is exposed on the IP of each node and is automatically routed to a ClusterIP Service that is created for it.
+\f1\fs34 \cf4 \cb5 \
+						
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 NodePort services don\'92t require an external load balancer						every node in the cluster listens on the port specified using its own IP						need a different port for each NodePort service\
+						no load balancing between nodes since a node is reached directly from outside the cluster\
+						NodePort ---> CluserIP ---> Pod\
+\
+LoadBalancer		-		integrates with an external load balancer so traffic from outside the cluster can get into the cluster\
+						When you create a LB service Kubernetes detects the cloud platform and creates a LB in the infrastructure of the Cloud Provider (The LB has its own unique IP, publicly accessible that clients connect to)\
+						Both NodePort and ClusterIP services are automatically created.\
+						The LB load balances between nodes\
+						Load Balancer ---> Worker Node IP ---> NodePort ---> CluserIP ---> Pod\
+\
+\
+ExternalName		-		a service name resolves to an external URL\
+\
+\
+Headless			-		is a ClusterIP service without an IP address\
+						has a selector OR has an Endpoint resource\
+						The Endpoint resource has a static list of IP address(es)\
+						when a pod makes a call to that service(http call, tcp call) the traffic is routed to the Endpoint IP address\
+						the DNS entry for the service returns an IP address for each POD (if the POD is in a StatefulSet then each pod gets its own DNS entry)\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \cb3 Note: \expnd0\expndtw0\kerning0
+In a simplified form, the ClusterIP Service tells the client "Let me take care of routing that request for you." In contrast, a headless Service says "Here is a list of all the Pods that I know about and their IP addresses. Send and route your network requests however you want."\
+\kerning1\expnd0\expndtw0 \
+\
+Scenarios where a Service maybe without a selector\
+ - the service points to an external resource, e.g. a database\
+ - the service points to a service in a different namespace\
+ - the service points to a service in a different cluster\
+\
+\
+How to reach a service\
+\
+from a pod in the same namespace		-	<service-name>\
+from a pod in a different namespace		-	<service-name>.<namespace>.svc.<cluster_dns_domain>   (the dns domain when not specified becomes cluster.local)\cf0 \cb1 \
+\
+\
+\
+\
+\
+\cf2 \
+Secrets\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb5 \expnd0\expndtw0\kerning0
+Kubernetes Secrets are, by default, stored as unencrypted base64-encoded strings\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 stored only in memory for a container\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 key-value pair\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf2 \expnd0\expndtw0\kerning0
+are namespaced\
+\
+inside the container the secret is not encrypted\
+The secret data on nodes is stored in {\field{\*\fldinst{HYPERLINK "https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt"}}{\fldrslt tmpfs}} volumes\
+A per-secret size limit of 1MB exists\
+The API server stores secrets as plaintext in etcd\
+when a secret is surfaced as an environment variable, the environment variable can be read from any process in the pod container\
+\
+\pard\tx566\pardeftab720\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+Note: for service accounts Kubernetes automatically creates secrets containing credentials for accessing the API and modifies your pods to use this type of secret.\
+\
+\
+Secrets are accessed:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\cf2 - as files in a volume mounted by one or more containers\
+- as a container environment variable\
+- by the kubelet when pulling images for the pod\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+Types of Secrets\
+ - Opaque/Generic		-	the data is unstructured, just some key value pairs as text, arbitary\
+ - Service Account Token	-	authentication token for a service account\
+ - dockercfg			-	image pull secret\
+ - dockerconfigjson		-	image pull secret\
+ - basic-auth			-	credentials for basic authentication\
+ - ssh-auth			-	credentials for ssh authentication\
+ - tls				-	public certificate and private key\
+ - token			-	kubernetes.io/service-account-token (service account token)\
+					bootstrap.kubernetes.io/token (bootstrap token data)\
+					\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 Volumes\
+\
+pod-level					-	emptyDir\
+node-level					-	hostPath\
+cluster-level\
+ - file-sharing				-	nfs\
+ - cloud provider specific		-	awsElasticBlockStore, azureFile, azureDisk, gcePersistentDisk\
+ - distributed file system		-	glusterfs, cephfs\
+ - special-purpose			-	secret, gitRepo\
+\
+\
+emptyDir\
+- cannot specify resource consumption limits\
+- it has the lifecycle of the pod (very important to remember this, a container restart will not affect this type of volume), pod restart means volume is lost\
+- good for apps that use the filesystem for caching information\
+\
+\
+hostPath\
+- data is stored physically on the node, it is not replicated to other nodes\
+- works for single worker node clusters, since pods always run on the same node OR you force the pod to run on the same node\
+- Kubernetes does not restrict which directory on the node is available for hostPath, so using / will expose the system\
+- use case is when apps are need some temp storage for state\
+- pod restart does not remove the volume or data in it\
+\
+\
+Persistent Volume\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+- a pv is a cluster-wide resource that you can use to store data in a way that it persists beyond the lifetime of a pod\cf7 .\cf0 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 - not backed by locally attached storage\
+- backed by networked storage\
+- access modes		\
+	- RWO		- ReadWriteOnce, only one pod can read and write to the volume\
+- reclaim policy	\
+	- Retain		- retain the volume once the pvc claiming it has been deleted\
+	- Delete		- delete the volume once the pvc claiming it has been deleted\
+\
+\
+\
+\
+PersistentVolumeClaims\
+- a pvc needs to be bound to a pv before it can be used in a pod.\
+- if a pod is deployed with an unbound pvc then the pod will remain in the pending state\
+\
+\
+\
+Storage Class\
+- an abstraction of storage that can create volumes dynamically, the pv does not have to exist from before\
+- one storage class can be a default\
+- if storageClass field is omitted in pvc spec then the default storage class is used\
+- if storageClass field is specified in pvc but no value for it is given then a pv must exist\
+\
+Configuring\
+- provisioner				- 		the component which creates PVs on demand\
+- reclaimPolicy				-		what to do with dynamically created volumes when the claim is deleted\
+- volumeBindingMode		-		whether the PV gets created as soon as the PVC is created OR not until a pod is created which uses the pvcxfcr\
+\
+\
+\
+\
+DaemonSet\
+- a single replica of a pod on every node in the cluster (or on a subset of nodes if there is a selector in the spec)\
+- one use case is for collecting information from every node\
+- another use case is you want mulitple instances of an app where it is acceptable for each instance to have its own data store\
+- cascade=false delete can remove the daemonset without affecting the running pods, good for maintenance tasks\
+- Strategies for deployment are \
+  - ramped/rolling 	-	release a new version in a rolling update fashion (DEFAULT), scale down old replicaset while scaling up new replicaset, provides service continuity and staggering\
+					there is no surge option, since only 1 pod is per node, it is always delete then remove strategy\
+  - OnDelete		-	you deploy the update and the controller watches the pods, but does not terminate the pods, it waits until a POD is deleted by another process and then it replaces deleted Pods with Pods from new spec\
+\
+\
+\
+StatefulSet\
+- provides certain guarantees about the identity of the pods it is managing (predictable names for the pods)\
+- provides a startup order and ordered scaling and updating\
+- pods in statefulsets retain thier IP addresses on restart\
+- each pod can be accessed individually over DNS (each pod gets its own DNS entry) in the form of - \'93pod-name.service-name.namespace.svc.cluster.local\'94\
+- for network communication you need to create a headless service\
+- USE CASE is for clustered applications\
+- volumeClaimTemplates can give each pod its pv, when the pod is replaced the new pod will get the same pv as the previous pod\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf8 \CocoaLigature0 - updates to statefulset spec for fields other than 'replicas', 'template', and 'updateStrategy' are forbidden\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 - Strategies for deployment are \
+  - ramped/rolling 	-	release a new version in a rolling update fashion (DEFAULT), scale down old replicaset while scaling up new replicaset, provides service continuity and staggering\
+  - OnDelete		-	you deploy the update and the controller watches the pods, but does not terminate the pods, it waits until a POD is deleted by another process and then it replaces deleted Pods with Pods from new spec\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs22 \cf8 \CocoaLigature0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Jobs\
+- similar to replication controller\
+- for one time pods\
+- restartPolicy is required the pod spec\
+- jobs always add a label with key \'93job-name\'94 and value as <job-name> on the pod\
+- completions - how many times the job should run\
+- parallelism - how many pods to run in parallel\
+\
+Think of it as a supervisor/controller for pods carrying out a batch process - a process that runs for a certain time to completion.\
+\
+jobs succeed if the process in the container returns a successful exit status else the job fails and goes into its retry policy\
+\
+\
+\
+CronJobs\
+- this is a job controller, it creates jobs on a regular schedule\
+- therefore includes a job spec\
+- the job creates a pod as usual to do the needed work\
+- cronjobs can be suspended\
+- no automatic clean up for the jobs and pods that were created\
+- cronjobs don\'92t add labels on jobs the way jobs do on pods, so either add your own OR use a jsonpath query \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs22 \cf8 \CocoaLigature0 kubectl get jobs -o jsonpath="\{.items[?(@.metadata.ownerReferences[0].name==\'91<cronjob-name>\'92)].metadata.name\}" | sed 's| |\\n|g'
+\f0\fs24 \cf0 \CocoaLigature1  \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+ServiceAccount\
+- a ServiceAccount provides an identity for processes that run in a pod, meaning that a sa is used to authenticate machine level processes to get access to the Kubernetes cluster\
+- therefore the pod will use the service account to authenticate with the kubernetes api or an external service\
+- if a service account is not specified, a pod will use the \'91default\'92 service account for that namespace\
+\
+- meant to be used by in-cluster Kubernetes-created entities, like pods. (WHY???)\
+\
+Note: When a service account is created an authentication token for it is created automatically\
+\
+\
+\
+ResourceQuota\
+- if there is a quota on a namespace then every pod spec needs to include a resource section \
+- this allows Kubernetes to compare what the spec needs to be to what is currently in the namespace\
+\
+Note: Container limit settings are reactive, pods are restarted on breaching the limit. Resource quotas are proactive, they prevent pods from starting up if the pod breaches the limit\
+\
+\
+LimitRange\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0\cf9 \cb5 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+defaultRequest \'97 is how much CPU/Memory will be given to Container, if it doesn't specify it's own value\cb1 \
+\ls2\ilvl0\cb5 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+default \'97 is\'a0default limit\'a0for amount of CPU/Memory for Container, if it doesn't specify it's own value\cb1 \
+\ls2\ilvl0\cb5 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+max \'97 is maximum limit for amount of CPU/Memory that Container can ask for. I.e. it\'a0can't set it's own limit more than that\cb1 \
+\ls2\ilvl0\cb5 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+min \'97 is minimum limit amount of CPU/Memory that Container can ask for. I.e. it\'a0can't set it's own limit less than that
+\f1\fs30 \cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+\
+\
+ClusterRole\
+\
+\
+\
+\
+\
+ClusterRoleBinding\
+\
+\
+\
+\
+NetworkPolicy\
+\
+\
+\
+\
+Nodes\
+\
+\
+\
+Ingress\
+\
+pathType\
+	- Prefix			-		match any path that starts with the prefix specified in the \'91path\'92 field\
+\
+\
+\
+\
+\
+\
+ENVIRONMENT VARIABLES\
+ - are static for the life of the pod, you cant update values of a variable while the pod is running\
+ - a configuration change of an env variable means an update with a replacement pod\
+ - env variables specified with \'91env:\'92 override those specified with \'91envFrom:\'92 in a pod spec\
+ - can be specified directly, from a config map key reference or from a secret key reference\
+\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\pardirnatural\partightenfactor0
+\cf0 APPLICATION MANIFESTS FOR RESOURCES/YAML FILES\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 Containers					\'97>		- name:							
+\f3\i data
+\f0\i0 \
+									  image: 							
+\f3\i data
+\f0\i0 \
+									  imagePullPolicy:					
+\f3\i data				
+\f0\i0 # e.g. IfNotPresent (prefer the local image), \
+									  Limits: 							
+\f3\i data				
+\f0\i0 # OPTIONAL\
+									  Request: 						
+\f3\i data\
+									  
+\f0\i0 resources:										# OPTIONAL\
+										requests:\
+											cpu:\
+											memory:\
+										limits:\
+											cpu:						
+\f3\i data				
+\f0\i0 # e.g. 250m  - this means 250 millicores, one core is 1000 millicores, so 250m is 1/4 of a core\
+											memory:					
+\f3\i data
+\f0\i0 				# e.g. 50Mi   - this mean 50 Mebibytes, 1 Mebibyte is 2^20 bytes or 1,048,576 bytes  (1 MB or MegaByte is 10^6 bytes or 1,000,000 bytes)\
+									  securityContext:									# OPTIONAL\
+										privileged:						
+\f3\i data
+\f0\i0 				# e.g. True\
+										runAsUser:					
+\f3\i data
+\f0\i0 				# e.g. 101, run as used with uid 101\
+										allowPrivilegeEscalation:			
+\f3\i data	
+\f0\i0 			# e.g. True\
+									  ports:\
+										- containerPort:					
+\f3\i data\
+										  
+\f0\i0 name:						
+\f3\i data
+\f0\i0 				# OPTIONAL\
+								  	  env:\
+										- name:						
+\f3\i data
+\f0\i0 \
+									  	  value:						
+\f3\i data
+\f0\i0 \
+										- name:						
+\f3\i data
+\f0\i0 \
+										  valueFrom:									# means load from an external source\
+											configMapKeyRef:							[just need a key from a configmap]\
+												name:				
+\f3\i data
+\f0\i0 				[this is the name of the config map]\
+												key:					
+\f3\i data
+\f0\i0 				[name of the key in the config map]\
+										- name:						
+\f3\i data
+\f0\i0 \
+										  valueFrom:				\
+											secretKeyRef:			\
+												name:				
+\f3\i data
+\f0\i0 \
+												key: 					
+\f3\i data\
+										- 
+\f0\i0 name:						
+\f3\i data\
+	
+\f0\i0 									  valueFrom:\
+											fieldRef:\
+												fieldPath:				
+\f3\i data
+\f0\i0 				# e.g. metadata.namespace, this will provide the value of the namespace as an environment variable\
+									  envFrom:\
+										- configMapRef:									[referencing the entire config map]\
+											name: 					
+\f3\i data
+\f0\i0 				[name of the config map]\
+									  volumeMounts:\
+										- name: 						
+\f3\i data				
+\f0\i0 # name of the volume in the pod spec\
+										  mountPath:					
+\f3\i data
+\f0\i0 \
+										  readOnly:					
+\f3\i data				
+\f0\i0 # OPTIONAL, e.g. True\
+										  subPath:						
+\f3\i data
+\f0\i0 				# OPTIONAL, specify an existing sub-directory from \'91path:\'92 of the volume that is being mounted \
+									  command:						
+\f3\i data
+\f0\i0 				# OPTIONAL, the command to start in the container\
+									  args:							
+\f3\i data
+\f0\i0 				# OPTIONAL, the arguments to the command above, i saw this in the form of [\'93<arg1>\'94,\'94<arg2>\'94,\'94<arg3>\'94\'85.]\
+									  readinessProbe:									# OPTIONAL\
+										httpGet:\
+											path: 					
+\f3\i data
+\f0\i0 				# e.g. /rest/public/systemstatus\
+											port:						
+\f3\i data
+\f0\i0 				\
+										periodSeconds:					
+\f3\i data
+\f0\i0 				# e.g. 5, the probe will be every 5 seconds\
+										OR\
+										tcpSocket:										# OPTIONAL\
+											port:						
+\f3\i data
+\f0\i0 				\
+										periodSeconds:					
+\f3\i data
+\f0\i0 \
+									  livenessProbe:									# OPTIONAL\
+										httpGet:\
+											path:						
+\f3\i data
+\f0\i0 \
+											port:						
+\f3\i data\
+	
+\f0\i0 									periodSeconds:					
+\f3\i data
+\f0\i0 				# e.g. 10, the probe will run every 10 seconds\
+										initialDelaySeconds:				
+\f3\i data
+\f0\i0 				# e.g. 25, wait 25 seconds before running the first probe\
+										failureThreshold:				
+\f3\i data
+\f0\i0 				# e.g. 2, Allow 2 probes to fail before taking action\
+										OR\
+										exec:\
+											command:					
+\f3\i data
+\f0\i0 				# e.g. [\'93pg_isready\'94, \'93-h\'94, \'93localhost\'94]\
+
+\f3\i 	
+\f0\i0 									periodSeconds:					
+\f3\i data
+\f0\i0 				# e.g. 10, the probe will run every 10 seconds\
+										initialDelaySeconds:				
+\f3\i data
+\f0\i0 				# e.g. 25, wait 25 seconds before running the first probe\
+\
+\
+Pod	 						\'97>		apiVersion: v1\
+									kind: Pod\
+							 		metadata: \
+										name:						
+\f3\i data
+\f0\i0 \
+										labels:\
+											<key>:<value>\
+										annotations:\
+											<key>:<value>								# e.g. fluentbit.io/parser: dotnet-syslog   <\'97 this annotation on an app pod will make fluentbit use a parser called dotnet-syslog on the logs of the app pod\
+									spec: 	\
+										restartPolicy:					
+\f3\i data
+\f0\i0 				# OPTIONAL, e.g. Always, OnFailure, Never\
+										shareProcessNamespace:			true				# OPTIONAL, if you want different container processes to see each other, e.g. for IPC\
+										serviceAccountName:			
+\f3\i data
+\f0\i0 				# OPTIONAL, the service account name the pod should use\
+										securityContext:								# OPTIONAL\
+											runAsUser:				
+\f3\i data\
+											
+\f0\i0 runAsGroup:				
+\f3\i data
+\f0\i0 \
+											fsGroup:					
+\f3\i data\
+	
+\f0\i0 										sysctls:\
+												- name:				
+\f3\i data\
+												
+\f0\i0   value:				
+\f3\i data
+\f0\i0 \
+										imagePullSecrets:								# IF REQUIRED\
+											- name:					
+\f3\i data
+\f0\i0 \
+										nodeSelector:									# OPTIONAL, select only specific node/s to run on\
+											<key>:<value>								# those nodes must have this label/s\
+										volumes:\
+											- name: 					
+\f3\i data
+\f0\i0 				\
+											  configMap:								# This volume is from a Config Map\
+												name:				
+\f3\i data\
+												
+\f0\i0 defaultMode			
+\f3\i data
+\f0\i0 				# OPTIONAL, e.g 0755, which translates to rwx-r-x-r-x\
+												items:								# OPTIONAL, specify only if you want specific data items from the configmap\
+													- key:			
+\f3\i data				
+\f0\i0 # the key in the config map\
+						 							  path:			
+\f3\i data				
+\f0\i0 # the key should become this file in the container
+\f3\i \
+											- 
+\f0\i0 name:					
+\f3\i data
+\f0\i0 \
+											  secret:									# This volume is from a secret\
+												secretName:			
+\f3\i data
+\f0\i0 \
+												defaultMode:			
+\f3\i data
+\f0\i0 				# e.g. 0400\
+												items:\
+													- key:			
+\f3\i data
+\f0\i0 				# the key in the secret\
+													  path:			
+\f3\i data
+\f0\i0 				# the name of the file\
+											- name:					
+\f3\i data
+\f0\i0 	\
+											  emptyDir: \{\}\
+											- name:					
+\f3\i data
+\f0\i0 \
+											  hostPath:\
+												path: 				
+\f3\i data				
+\f0\i0 # the path on the node\
+												type: DirectoryOrCreate\
+											- name:					
+\f3\i data
+\f0\i0 \
+											  persistentVolumeClaim:\
+												claimName:			
+\f3\i data
+\f0\i0 				# name of the pvc\
+										initContainers: 									# OPTIONAL\
+											(container information)\
+										containers:\
+											(container information)\
+\
+\
+\
+Deployment 					\'97> 		apiVersion: apps/v1\
+									kind: Deployment\
+									metadata:\
+										name:						
+\f3\i data\
+										
+\f0\i0 namespace:					
+\f3\i data
+\f0\i0 				# OPTIONAL, the name of the namespace
+\f3\i \
+										
+\f0\i0 labels:\
+											<key>:<value>								# this label is on the Deployment resource itself\
+									spec: 			\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5617\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 										replicas:						
+\f3\i data				
+\f0\i0 # OPTIONAL, it defaults to 1 if not specified\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx10192\tx14737\pardirnatural\partightenfactor0
+
+\fs22 \cf8 \CocoaLigature0   
+\fs24 										minReadySeconds: 	
+\f3\i data	
+\f0\i0 # OPTIONAL, make the deployment wait these many secs to make sure Pods are stable, e.g. 30\
+  										progressDeadlineSeconds: 	
+\f3\i data
+\f0\i0 	# OPTIONAL, the deployment can run for these many secs before its considered to fail, e.g. 400 (default is 600, 10 minutes) \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 										selector:\
+											matchLabels:\
+												<key>:<value>\
+										strategy:						
+\f3\i \
+											
+\f0\i0 type:
+\f3\i 						data
+\f0\i0 				# OPTIONAL, e.g. Recreate, RollingUpdate (then specify the rolling update parameters), \
+												(if type is RollingUpdate then these follow)\
+											rollingUpdate:\
+												maxUnavailable:		
+\f3\i data
+\f0\i0 				# OPTIONAL, how many maximum can be unavailable e.g. 30% or 3 (default is 1)\
+												maxSurge:			
+\f3\i data
+\f0\i0 				# OPTIONAL, how many Pods can exist over the desired replica count, e.g. 40% or 2 (default is 1)\
+										template:\
+												(pod information, starting with metadata, name field from metadata not required)\
+\
+\
+\
+DaemonSet 					\'97>		apiVersion: apps/v1\
+									kind: DaemonSet\
+							 		metadata:\
+										name:						
+\f3\i data\
+										
+\f0\i0 namespace:					
+\f3\i data
+\f0\i0 				# OPTIONAL, the name of the namespace
+\f3\i \
+										
+\f0\i0 labels:\
+											<key>:<value>								# this label is on the DaemonSet resource itself\
+									spec: 			\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\tx10192\tx14737\pardirnatural\partightenfactor0
+
+\fs22 \cf8 \CocoaLigature0   
+\fs24 										minReadySeconds: 	
+\f3\i data	
+\f0\i0 # OPTIONAL, make the deployment wait these many secs to make sure Pods are stable, e.g. 30\
+  										progressDeadlineSeconds: 	
+\f3\i data
+\f0\i0 	# OPTIONAL, the deployment can run for these many secs before its considered to fail, e.g. 400 (default is 600, 10 minutes) \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5621\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 										selector:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 											matchLabels:\
+												<key>:<value>\
+										updateStrategy:									# OPTIONAL\
+											type:						
+\f3\i data
+\f0\i0 				# Either RollingUpdate or OnDelete\
+												(If rollingUpdate then the following can be specified)\
+											rollingUpdate:\
+												maxUnavailable:		
+\f3\i data
+\f0\i0 				# how many pods can be unavailable during the deployment\
+										template:\
+												(pod information, starting from metadata, name field from metadata not required)\
+\
+\
+\
+\
+\
+StatefulSet					\'97> 		apiVersion: apps/v1\
+									kind: StatefulSet\
+									metadata:\
+										name:						
+\f3\i data\
+										
+\f0\i0 namespace:					
+\f3\i data
+\f0\i0 				# OPTIONAL, the name of the namespace
+\f3\i \
+										
+\f0\i0 labels:\
+											<key>:<value>								# this label is on the Stateful set resource itself\
+									spec: 			\
+										replicas:						
+\f3\i data				
+\f0\i0 # OPTIONAL, it defaults to 1 if not specified\
+										selector:\
+											matchLabels:\
+												<key>:<value>\
+										serviceName:					
+\f3\i data
+\f0\i0 				# StatefulSets must be linked to a service, the service is  either HEADLESS OR LOADBALANCER\
+										updateStrategy:									# OPTIONAL\
+											type: 					
+\f3\i data
+\f0\i0 				# Either RollingUpdate or OnDelete\
+												(if type is RollingUpdate then following can be specified)\
+											rollingUpdate:\
+												partition:				
+\f3\i data
+\f0\i0 				# how many pods to be updated in total, e.g. 1 or 2 or 3 (remember that pods are updated from latest to earliest)\
+										template:\
+												(pod information, starting from metadata, name field from metadata not required, DO NOT INCLUDE VOLUME INFORMATION FOR POD IF USING A VOLUMECLAIMTEMPLATE!)\
+										volumeClaimTemplates:							# Each pod gets its own volume based on this template, the volumeMount name in container spec\
+											- metadata:								# will be the name of this volumeClaimTemplate\
+												name:				
+\f3\i data				
+\f0\i0 # the pvc name will be <this-name>-<statefulset-name>-<int>, the volume name will the value of this name field
+\f3\i \
+
+\f0\i0 											  labels:\
+												<key>:<value>							# this label is on the volume claim template
+\f3\i \
+											  
+\f0\i0 (pvc information starting from spec:)\
+		\
+\
+\
+\
+Service						\'97>		apiVersion: v1\
+									kind: Service\
+									metadata: \
+										name:						
+\f3\i data
+\f0\i0 \
+										labels:\
+											<key>:<value>\
+									spec: \
+										ports:\
+											- port:					
+\f3\i data
+\f0\i0 				# the port at which the service is available\
+											  name:					
+\f3\i data	
+\f0\i0 			# a friendly name for the port\
+											  targetPort:				
+\f3\i data				
+\f0\i0 # the port at which the container is available\
+										selector:						\
+											<key>:<value>\
+										type: 						
+\f3\i data
+\f0\i0 				# OPTIONAL, e.g. ClusterIP, LoadBalancer, ExternalName, NodePort\
+										OR\
+										clusterIP: None									# ClusterIP headless\
+\
+\
+Endpoint						\'97>		apiVersion: v1\
+									kind: Endpoint\
+									metadata:\
+										name: 						
+\f3\i data
+\f0\i0 				# the name of this endpoint\
+										labels:\
+											<key>:<value>\
+									subsets:\
+										- addresses:\
+											- ip: 						
+\f3\i data
+\f0\i0 				# the ip address of this endpoint\
+										  ports:\
+											- port:					
+\f3\i data
+\f0\i0 				# the port of this endpoint\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Secret						\'97>		apiVersion: v1\
+									kind: Secret\
+									metadata:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7352\tx7923\tx10175\tx14714\pardirnatural\partightenfactor0
+\cf0 										name:				
+\f3\i data\
+										
+\f0\i0 labels:\
+											<key>:<value>\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 									type:								
+\f3\i data				
+\f0\i0 # e.g. Opaque, \
+									stringData:										# for plain text data\
+										<key>: <value>\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx14717\pardirnatural\partightenfactor0
+\cf0 									data:				# for base64 encoded data\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 										<key>:<value>\
+	\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx9091\tx10207\tx12489\tx13591\tx14741\pardirnatural\partightenfactor0
+\cf0 \
+ConfigMap					\'97>		apiVersion: v1\
+									kind: ConfigMap\
+									metadata:\
+										name:			
+\f3\i data\
+										
+\f0\i0 namespace:		
+\f3\i data
+\f0\i0 			# OPTIONAL, if not specified the current context namespace will be used\
+										labels\
+											<key>:<value>\
+									data:\
+										<key>: <value>					# use \'91|-\'91 after to put value on next line\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 Job							\'97>		apiVersion: batch/v1\
+									kind: Job\
+									metadata: \
+										name:						
+\f3\i data
+\f0\i0 				# Job will put a label on each pod with \'93job-name=<this-name>\'94
+\f3\i \
+										
+\f0\i0 labels\
+											<key>:<value>\
+										annotations:									# OPTIONAL\
+											<key>:<value>	
+\f3\i 			
+\f0\i0 				#  e.g. \'93helm.sh/hook\'94 : test OR pre-upgrade\
+											<key>:<value>								#  e.g. \'93helm.sh/hook-weight\'94: 10\
+									spec:\
+										completions:					
+\f3\i data
+\f0\i0 				# run to this many completions, e.g. 10\
+										parallelism:					
+\f3\i data	
+\f0\i0 			# OPTIONAL run these many pods in parallel, e.g. 3\
+										backoffLimit:					
+\f3\i data
+\f0\i0 				# OPTIONAL, think of it as the number of retries, e.g. 0 - the job should run once and not retry\
+										template:\
+											(pod information, starting from metadata, name field from metadata not required)\
+												restartPolicy:				
+\f3\i data
+\f0\i0 		# This field is required in a job and is part of the pod spec, e.g. OnFailure, Never\
+\
+\
+\
+CronJob						\'97>		apiVersion: batch/v1beta1\
+									kind: CronJob\
+									metadata:\
+										name: 						
+\f3\i data\
+									
+\f0\i0 spec:\
+										schedule: 						
+\f3\i data				
+\f0\i0 # Cron Schedule, \'93minute hour day-of-month month day-of-week\'94\
+										concurrencyPolicy:				
+\f3\i data	
+\f0\i0 			# concurrency policy, e.g. Forbid (don\'92t let 2 of these jobs run at the same time)\
+										suspend:						
+\f3\i data
+\f0\i0 				# either True or False\
+										successfulJobsHistoryLimit:		
+\f3\i data
+\f0\i0 				# e.g. 7\
+										failedJobsHistoryLimit:			
+\f3\i data
+\f0\i0 				# e.g. 5\
+										jobTemplate:\
+											spec:\
+												template:\
+													(Job information starting from metadata, skip the name because the cronjob will assign the name to the job)\
+\
+\
+\
+\
+PersistentVolumeClaim			\'97>		apiVersion: v1\
+									kind: PersistentVolumeClaim\
+									metadata:\
+										name:						
+\f3\i data\
+										
+\f0\i0 labels:\
+											<key>:<value>
+\f3\i \
+									
+\f0\i0 spec:\
+										accessModes:\
+											- <list of access modes>						# e.g. ReadWriteOnce\
+										resources:\
+											requests:\
+												storage:				
+\f3\i data
+\f0\i0 				# e.g. 40Mi, 5Gi\
+										storageClassName:				
+\f3\i data
+\f0\i0 				# OPTIONAL, if not included then the default class is used, if specified but value left blank it means a PV needs to exist\
+\
+\
+\
+\
+PersistentVolume				\'97>		apiVersion: v1\
+									kind: PersistentVolume\
+									metadata: \
+										name:						
+\f3\i data\
+										
+\f0\i0 labels:\
+											<key>:<value>\
+									spec:\
+										capacity:\
+											storage:					
+\f3\i data				
+\f0\i0 # amount of storage, e.g. 50Mi, 5Gi\
+										accessModes:\
+											- <list of access modes>						# e.g. ReadWriteOnce, ReadWriteMany	\
+										nfs:\
+											server:					
+\f3\i data				
+\f0\i0 # server name\
+											path:						
+\f3\i data				
+\f0\i0 # path to nfs share\
+\
+										local:\
+											path:						
+\f3\i data
+\f0\i0 \
+										\
+										nodeAffinity:									# the volume has an affinity for one or more nodes\
+											required:\
+												nodeSelectorTerms:\
+													- matchExpressions:\
+														- key: 		
+\f3\i data
+\f0\i0 \
+														  operator:		
+\f3\i data\
+														  
+\f0\i0 values:\
+															- <value>\
+\
+\
+\
+\
+\
+Namespace					\'97> 		apiVersion: v1\
+									kind: Namespace\
+									metadata:\
+										name:						
+\f3\i data\
+										
+\f0\i0 annotations:\
+											<key>:<value>\
+										labels:\
+											<key>:<value>\
+									spec:\
+										finalizers:\
+											- list item 1								# e.g. kubernetes\
+\
+\
+\
+ServiceAccount					\'97>		apiVersion: v1\
+									kind: ServiceAccount\
+									metadata\
+										name:						
+\f3\i data				
+\f0\i0 # name of the service account\
+										labels:\
+											<key>:<value>\
+									automountServiceAccountToken:		
+\f3\i data
+\f0\i0 				# e.g. true or false\
+\
+\
+\
+\
+\
+ClusterRole					\'97>		apiVersion: rbac.authorization.k8s.io/v1\
+									kind: ClusterRole\
+									metadata:\
+										name: 						
+\f3\i data
+\f0\i0 \
+										labels:\
+											<key>:<value>\
+									rules:\
+										- apiGroups: 					
+\f3\i data
+\f0\i0 				# e.g. [\'93\'94]  <\'97 what does this mean?\
+										  resources:									# e.g. [\'93namespaces\'94, \'93pods\'94] OR\
+											- <resource1>								# e.g. namespaces\
+											- <resource2>								# e.g. pods\
+											. . .\
+											- <resourceN>\
+										  verbs:						
+\f3\i data
+\f0\i0 				# e.g. [\'93get\'94, \'93list\'94, \'93watch\'94]\
+\
+\
+\
+\
+ClusterRoleBinding				\'97>		apiVersion: rbac.authorization.k8s.io/v1\
+									kind: ClusterRoleBinding\
+									metadata:\
+										name: 						
+\f3\i data
+\f0\i0 \
+										labels:\
+											<key>:<value>\
+									roleRef:\
+										apiGroup:						
+\f3\i data
+\f0\i0 				# e.g. rbac.authorization.k8s.io\
+										kind:							ClusterRole\
+										name:						
+\f3\i data
+\f0\i0 \
+									subjects:\
+										- kind: 						
+\f3\i data
+\f0\i0 				# e.g. ServiceAccount\
+										  name:						
+\f3\i data\
+										  
+\f0\i0 namespace:					
+\f3\i data
+\f0\i0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\
+Ingress						-->		apiVersion: networking.k8s.io/v1\
+									kind: Ingress\
+									metadata:\
+										name:						
+\f3\i data
+\f0\i0 \
+										labels:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 											<key>:<value>\
+										annotations:\
+											nginx.ingress.kubernetes.io/rewrite-target: /				# this makes the nginx proxy rewrite the path in the incoming request (e.g. /api) to just /\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+									spec:\
+										rules:\
+										- host:						
+\f3\i data
+\f0\i0 				# e.g. www.gaz.net\
+										  http:\
+											paths:\
+												- path:				
+\f3\i data
+\f0\i0 				# e.g. / or /v1 or /api or /rest/session\
+												  pathType:			
+\f3\i data				
+\f0\i0 # e.g. Prefix, \
+												  backend:\
+													service:\
+														name:		
+\f3\i data
+\f0\i0 				# the name of the service\
+														port:\
+															number:	
+\f3\i data
+\f0\i0 				# e.g. 443	\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 ResourcreQuota				\'97>		apiVersion: v1\
+									kind: ResourceQuota\
+									metadata:\
+										name: 						
+\f3\i data
+\f0\i0 				# name of this resource quota\
+										namespace:					
+\f3\i data
+\f0\i0 				# the namespace to which this applies\
+									spec:\
+										hard:\
+											limits.memory				
+\f3\i data
+\f0\i0 				# e.g. 250Mi\
+											limits.cpu					
+\f3\i data
+\f0\i0 				# e.g. 500m meaning 500 millicores OR 2 meaning 2 cores\
+											configmaps				
+\f3\i data
+\f0\i0 				# e.g. \'93150\'94\
+											pods						
+\f3\i data
+\f0\i0 				# e.g. \'9350\'94\
+											secrets					
+\f3\i data
+\f0\i0 				# e.g. \'93100\'94\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7381\tx7949\tx8496\tx9068\tx10171\tx11315\tx11349\tx12448\tx14711\pardirnatural\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\
+LimitRange					-->		apiVersion: v1\
+									kind: LimitRange\
+									metadata:\
+										name:						
+\f3\i data
+\f0\i0 \
+										namespace:					
+\f3\i data
+\f0\i0 \
+									spec:\
+										limits:\
+											- type:					
+\f3\i data
+\f0\i0 				# e.g. Container OR Pod\
+											  defaultRequest:							YOU DID NOT ASK HERE IS HOW MUCH YOU GET TO START WITH\
+												cpu:					
+\f3\i data
+\f0\i0 				# e.g. 25m\
+												memory:				
+\f3\i data
+\f0\i0 				# e.g. 128Mi\
+											  default:									YOU DID NOT ASK SO YOU CANT GET MORE THAN THIS\
+												cpu:					
+\f3\i data
+\f0\i0 				# e.g. 2\
+												memory:				
+\f3\i data
+\f0\i0 				# e.g. 4Gi\
+											  min:									YOU ASKED, YOU CANT ASK FOR LESS THAN THIS\
+												cpu:					
+\f3\i data
+\f0\i0 				# e.g. 2\
+												memory:				
+\f3\i data
+\f0\i0 				# e.g. 4Gi\
+											  max:									YOU ASKED, YOU CANT ASK FOR MORE THAN THIS\
+												cpu:					
+\f3\i data
+\f0\i0 				# e.g. 2\
+												memory:				
+\f3\i data
+\f0\i0 				# e.g. 4Gi\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 INIT CONTAINERS\
+\
+- used to prepare a container running in a pod\
+- configure things at runtime, e.g. init data in a database, add some things to a shared volume that the application container will have access to later on like clone a git repo\
+- app containers will not run till init container complete successfully\
+- logs from initContainers remain even after they have exited\
+- are run when the pod is replaced\
+- if you deploy a Pod spec change to the app container image(s), the app container are replaced but the init containers are not executed again\
+\
+\
+\
+\
+ROLLOUT and ROLLBACK\
+\
+Deployment\
+- rollout involves creating a new ReplicaSet\
+- rollout is not done until a change is done to a POD spec, e.g. scaling up can be done with the current replicaset \
+\
+- under normal circumstances, a change to the configmap is updated in the pod after a while but the deployment which manages the pod has \'93not\'94 done a rollout and moved to another replicaset, so a rollback cannot be applied (Config objects are mutable)\
+- Config objects can be made immutable wherein they are locked into the deployment so the rollout history is available even for config changes\
+\
+\
+- kubernetes restarts failed pods by creating replacement containers but it adds a pause between reach restart. That pause is the backoff time and it increases exponentially\
+	10 seconds for first restart\
+	20 seconds for second restart\
+	40 seconds for third restart\
+	up to a maximum of 5 minutes (progressDeadlineSeconds)\
+\
+\
+DaemonSet\
+ - only maxUnavailable from rollingUpdate is available\
+\
+\
+StatefulSet\
+ - no maxSurge or maxUnavailable settings for StatefulSets, update is always one pod at a time\
+ - since pods are managed in order, updates are also managed in order\
+ - rollout proceeds backwards from last Pod in the set to the first\
+ - \
+\
+\
+Rollouts can be affected by Readiness probes\
+\
+\
+\
+HEALTH CHECKS/PROBES\
+\
+Readiness probe			\
+- takes action at the network level\
+- if the container is unhealthy it is taken out of the ready state and removed from the list of active pods for a Service\
+\
+\
+Liveness probe\
+- takes action at the compute level\
+- if the container becomes unhealthy it is replaced with a new one\
+- note it is the container not the Pod that is replaced\
+- kubernetes will not indefinitely keep restarting/replacing a container\
+\
+\
+\
+LOGGING\
+\
+2 types of Logs\
+ - node system logs\
+ - container logs\
+\
+Node System Logs\
+ - journalctl -xe -u kubelet\
+\
+Container Logs\
+ - stored as filenames that include namespace, pod and container names in the format \'91pod-name_namespace_container-name-container-id.log\'92\
+ - Fluentd adds Pod labels and the image tag as additional metadata\
+\
+\
+Events				-	OpenShift Events in a namespace\
+\
+\
+Operators for logging\
+- Cluster Logging operator		-	ClusterLogging Custom Resource, a CR by the name of \'91instance\'92 already exists\
+- ElasticSearch Operator		-	\
+\
+\
+Components\
+- logstore				-	Elasticsearch\
+- collection				-	Fluentd		uses journald as the system log source (log messages from the operating system, container runtime and OpenShift platform) available from \'91systemd journal and /var/log/containers\'92\
+- visualization			-	Kibana\
+- curation				-	Curator\
+- EventRouter			-	forwards events to log of the pod where the event occurred (so events get to cluster logging)\
+\
+\
+\
+\
+\
+MONITORING AND ALERTING\
+\pard\pardeftab720\partightenfactor0
+\cf7 \
+  \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\
+\
+\
+\
+RBAC\
+\
+default roles			-		view, \
+\
+     \
+verbs				-		get, list, watch			(GET) \
+						create					(POST)\
+						update				(PUT)\
+						patch					(PATCH)\
+						delete, deletecollection		(DELETE)\
+\
+\
+clusterrole + clusterrolebinding		-	all namespaces\
+\
+clusterrole + rolebinding			-	particular namespaces\
+\
+role + rolebinding				-	one namespace\
+\
+\
+\
+\
+\
+\
+CUSTOM RESOURCES AND CUSTOM CONTROLLERS\
+\
+Custom Resource Definition		-		the blueprint for a custom resource\
+								deleting a CRD will delete all its resources\
+Custom Resource				-		a resource created by a user to become a part of kubernetes\
+								can be added in 2 ways, using a CRD or using API Aggregation\
+Custom Controller				-		a controller for a custom resource so that the custom resource can be kept in a desired state\
+\
+\
+\
+Custom Resource Definition example:\
+apiVersion: 							apiextensions.k8s.io/v1\
+kind: 								CustomResourceDefinition\
+metadata:\
+	name: 						data							# The name of the custom resource definition - as 
+\f2 \cf8 \kerning1\expnd0\expndtw0 \CocoaLigature0 spec.names.plural+"."+spec.group
+\f0 \cf2 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+spec:\
+	group:							data							# Classifies a set of CRDs, the apiVersion field in the resource will have this value followed by version\
+	scope:							data							# e.g. ClusterWide or NameSpaced\
+	names:													# the names by which the resources are referred to in YAML an kubectl\
+		plural: 					data \
+		singular:					data\
+		kind:						data\
+		shortNames:\
+		  - name1\
+		  - name2\
+versions:														# A list of versions for this custom resource definition\
+	- name:						data							# e.g. v1\
+	  served:						true							# makes the resource available in the API of Kubernetes\
+	  storage:						true							# will save the resources in etcd\
+	  schema:\
+		openAPIV3Schema:										# schema defines the structure of the resources to be created\
+			type:					object\
+	\'97		properties:											\
+	|		  spec:\
+	\'97		    type:				object\
+	\'97			properties:\
+	|			  item:\
+	|			    type:			string\
+	|			  dueDate:\
+	|			    type:			string\
+	\'97			    format:			date\
+	  additionalPrinterColumns:										# the additional columns that will be printed on get\
+	    - name:  Item\
+	      type: string\
+	      description: What to do\
+	      jsonPath: .spec.item\
+	    - name: Due\
+	      type: string\
+	      description: When to do it\
+	      jsonPath: .spec.dueDate\
+\
+\
+Resulting Custom Resource should be:\
+apiVersion:\
+kind:\
+metadata:\
+  name: \
+spec:\
+  item: \
+  dueDate:\
+\
+\
+\
+\
+\
+\
+\
+\
+CI/CD CONSIDERATIONS\
+\
+\
+git server to host the source code\
+\
+jenkinsfile in the source code repo\
+	stage to prep\
+	stage to build image and push image to a registry					-	as a shell script\
+	stage to deploy image to kubernetes namespace					-	as a shell script\
+\
+secrets\
+	a secret to push the image to a registry, type dockercfg\
+\
+service account\
+	to talk to the kubernetes api and deploy the image\
+\
+clusterRole\
+	the role is allowed to do things\
+\
+clusterRoleBinding\
+	binds the clusterRole to the service account \
+\
+jenkins server 		\
+	service\
+	deployment\
+		service account\
+\
+		image\
+			cmd  -  start.sh\
+					setup kubectl config\
+					export variables \
+					start jenkins\
+\
+buildkit server OR other pod with something to build images\
+	service\
+	deployment\
+\
+jenkins job\
+	poll the scm on a timer\
+	pull the jenkinsfile and run its stages\
+\
+\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx11312\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 IMAGE BUILDING\
+\
+Docker\
+\
+BuildKit			-		command is buildctl\
+Buildpacks		-		looks like S2I from OpenShift\
+Pack				-		figures out the runtime for a source code\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\
+\
+\
+\
+\
+HOW A DEPLOYMENT TAKES PLACE\
+\
+Pull the image\
+	if the image does not have an explicit tag in the name (i.e. the images uses the default of \'91:latest\'92) then kubernetes will always try to pull the image\
+	otherwise it will use the local image if it exists\
+Run the pod\
+\
+\
+\
+\
+\
+\
+CONFIGURATION MANAGEMENT FOR KUBERNETES\
+\
+1. Apply the manifests directly to kubernetes. Change the values in the manifests for installation requirements like namespace and service port change\
+\
+2. Create a Helm chart from the manifests. Use the helm chart to install into Kubernetes\
+\
+3. Use Ansible\'92s k8s module - provide the manifest directly in-line OR via a lookup\
+\
+4. Use Ansible k8s module - HOW DO I USE A ROLE IN ANSIBLE TO APPLY THE MANIFESTS TO KUBERNETES\
+\
+5. Kustomize\
+\
+6. Jsonnet\
+\
+7. Use the Kubernetes SDK and write your own utility\
+\
+8. Use the kubectl command line tool wrapped in your own utility\
+\
+9. Write an Operator for your application \
+\
+\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb10 KUBECTL COMMANDS\
+\
+wait for a condition\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 kubectl wait --for=condition=<Ready|ContainersReady> pod -l app=pi-web
+\f0\fs24 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+copy to a pod\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs22 \cf2 kubectl cp <file> <pod>:/path/to/file\
+\
+\
+setup a cluster in ~/.kube/config\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf8 \kerning1\expnd0\expndtw0 \CocoaLigature0 kubectl config set-cluster default --server=https://kubernetes.default.svc.cluster.local --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt\
+kubectl config set-context default --cluster=default\
+kubectl config set-credentials user --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\
+kubectl config set-context default --user=user\
+kubectl config use-context default\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+get all pods in a namespace\
+kubectl get pods -n kube-system -o jsonpath=\'91\{.items[*].metadata.name\}\'92\
+\
+\
+set up a context\
+kubectl config set-context <context-name> --cluster=<cluster-name> --user=<user-name> --namespace=<namespace-name>\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2 \cf8 \kerning1\expnd0\expndtw0 \CocoaLigature0 e.g. kubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop --namespace=default
+\f0 \cf2 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+use a context\
+kubectl config use-context <context-name>\
+\
+\
+port forward traffic\
+kubectl port-forward svc/<svc_name>  <host_port>:<svc_port>\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 KUBERNETES ERRORS\
+\
+\
+CrashLoopBackOff			-	pod restarted too many times\
+\
+\
+\
+\
+\
+POD AFFINITY\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \
+======================\
+OPERATORS\
+======================\
+\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf6 \cb5 \expnd0\expndtw0\kerning0
+Operators are clients of the Kubernetes API that act as controllers for a\'a0{\field{\*\fldinst{HYPERLINK "https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/"}}{\fldrslt \cf11 Custom Resource}}.
+\f1\fs32 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \cb1 \
+\
+What are operators: \
+- a method of packaging, deploying and managing a Kubernetes application\
+\
+Why do we need operators:\
+- an operator can install its application\
+- an operator monitors its application as it runs\
+- can backup data and state for its application\
+- recover its application from failure\
+- upgrade the application\
+- scale the application\
+\
+\
+How:\
+- a k8s operator watches a CR type (its own application as type really) and takes application specific actions\
+- this helps to match the current state to the desired state\
+\
+\
+Think of operators as custom resource + controller for that custom resource\
+\
+\
+\
+\
+Operator Framework:\
+ - Operator SDK\
+ - Operator Lifecycle Management\
+ - Operator Metering\
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \
+\
+		apiVersion: 			data							-	e.g. etcd.improbable.io/v1alpha1\
+		kind: 				data							-	e.g. EtcdCluster\
+		metadata:\
+			name:			data							-	e.g. my-first-etcd-cluster\
+			namespace:		data							-																			OPTIONAL\
+			labels:																													OPTIONAL\
+				<key:value>\
+				\'85\
+				<key:value>\
+			annotations:																												OPTIONAL\
+				<key:value>\
+				\'85\
+				<key:value>\
+		spec:\
+			replicas:		data							-	e.g. 3							The number of replicas of the custom resource \
+			version:		data							-	e.g. 3.2.28}

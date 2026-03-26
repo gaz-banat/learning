@@ -1,0 +1,529 @@
+
+
+
+======================
+BUILD
+======================
+
+CLASSPATH
+- used for user packages and 3rd party libraries/packages
+- not used for java internal API classes
+- it specifies the directory that is to be used for searching for classes
+- set classpath to say ~/Users/gaz/MyJavaPackages. Then in that directory the package structure directories exist, e.g. for net.gaz.myfirstclass will be net/gaz/myfirstclass.class
+
+
+LIBRARY --> PACKAGE1 --> CLASSES and INTERFACES
+	--> PACKAGE2 --> CLASSES and INTERFACES
+
+
+
+
+=====================
+SYNTAX AND OOP
+=====================
+
+EXPRESSIONS AND STATEMENTS
+
+expressions - is a construct made up of variables, operators, and method invocations, that evaluates to a single value
+e.g. 1 + 2 + 3   		returns the value 6
+     simpleMethod(1, 2)		returns whatever simpleMethod would return after processing 1 and 2
+     "java"			returns the string java
+
+statements - is a unit of execution, so something the compiler executes
+e.g. int x = 1 + 2 + 3;
+     long x = simpleMethod(1, 2)
+     String lang = "java";
+
+types of statements are:
+expression statements
+declaration statements
+control flow statements
+
+
+
+PRIMITIVES
+
+byte	- 1 byte	8 bits		decimal -128 to 127
+short	- 2 bytes	16 bits		decimal -32768 to 32767
+int	- 4 bytes	32 bits		decimal -2,147,483,648 to 2,147,483,647
+long	- 8 bytes	64 bits
+
+
+float	- 4 bytes
+double	- 8 bytes
+
+boolean	
+
+char	- 2 bytes
+
+
+
+CHARACTERS
+
+Java uses UTF-16 to encode characters internally (UTF-16 is Unicode)
+Character can be initialized with Unicode sequence, e.g. Char c = '\u0041'; (A)
+
+
+
+
+BOXED PRIMITIVES
+
+== and != are identity comparisons (comparing object references)
+<, <=, >, >=, will result in auto-unboxing first and therefore are proper numeric comparisons
+
+
+
+
+STRINGS
+
+- java uses a character array to store string data, so that makes a java string a sequence of unicode characters
+- Strings created using literal value (the common way) are created in the String pool (heap memory area). This is not the case for Strings created with new keyword
+- Strings created with new keyword get an object in the heap. The value of the string literal for that object is still created in the string pool (if it is not already there)
+- the comparison == is asking if 2 variables are referencing the same object , e.g. obj1 == obj2
+- the comparison .equals() is asking if the string literal is the same for the 2 objects, e.g. obj1.equals(obj2);
+
+
+String.valueOf(1.3) returns "1.3"
+
+
+String Intern
+But, without  final, the concatenation will happen only at run-time and anything concatenated at run-time MUST go outside string pool (unless they are forced to go into String pool by invoking intern()). Essentially, anything string-related (including concatenation) known at compile-time (created by literal) will go on string pool while the rest string-related things (including concatenation) known at runtime will go outside string pool (unless of course intern() is used).
+
+
+
+
+STATIC
+- static variables are also known as class variables
+- static methods cannot access instance variables
+- static methods cannot access instance methods
+
+
+STATIC INITIALIZATION BLOCK
+- static initialization block can be marked private
+- code in static initialisation block cannot reference instance members
+- can have more than one, executed in the order in which they appear
+- mainly used when static members cannot be initialised in one line, e.g. a try/catch block is needed
+
+
+
+INSTANCE RELATED INITIALIZATION BLOCK
+- instance initialisation block enclosed in { } without static keyword.
+- it can hold code that is common to all instance constructors
+- can have more than one
+- code in it can reference static members 
+
+
+** Initialisation blocks are only executed at run time and not at compile time
+
+
+
+FINAL
+- implies something cannot be changed
+- final variable with primitive value cannot be changed
+- final variable with reference to object cannot have its reference changed
+- obviously cannot get a default value (to give it it's real value it would need to be modified!)
+- a final instance variable must be initialised in a declaration, constructor or instance initialiser block (can not be done in a method because the method may not be called)
+- blank final - a final instance variable that is initialised in a constructor or initialisation block
+- final local variable is constant for the life of the block
+- final static variable must be initialised in declaration or static initialiser block
+
+
+
+CONSTANT
+- constant variable is also called compile-time constant because the value is known at compile time
+- for a variable to be a constant it must be
+  - declared final
+  - have a value of a primitive or String
+  - be initialised in a declaration statement (so not in constructor or initialisation block because those are run time constructs)
+  - initialised with a compile-time constant (the value should be known at compile time)
+
+
+
+CASTING
+- implicit casting is done when something smaller is assigned to something larger, e.g. float var1 = 25;
+- explicit casting is needed when something greater is assigned to something smaller, e.g. int var2 = (int) 42L;
+
+
+
+
+COMPARISON PARADOX
+
+- if this object is less than the argument object then return negative int
+- if this object is greater than the argument object then return positive int
+- return 0 if they are equal
+
+"hello".compare("HELLO") will return a positive int. Why? "hello" is lexicographically after "HELLO" in Unicode.
+
+
+
+
+ACCESS MODIFIERS
+
+Class level
+ - public (available outside the package)
+ - default when unspecified is package level access only
+
+Member level
+ - public
+ - private	(only for members of the class, i.e. fields and methods, but not for variables inside a method)
+ - package-private (default, does not need to be specified, package classes and sub classes can access the member)
+ - protected (accessible to any subclass regardless of whether the subclass is in the same package or not. However the variable is not accessible via a reference
+to the subclass object if the accessing class is not in the same package as the super class, i.e. the class defining the variable)
+
+
+
+
+INHERITANCE (one class extends another)
+
+- private members of a superclass are not inherited by the subclass
+- members with no access specified (default) can be inherited and seen only by sub-classes in the same package, one subclass can access another subclass default member
+- public members of a superclass can be inherited by non package classes as well
+- protected members are visible to subclasses outside a package as well, subclass of parent class in the same package can access protected members of a subclass which is outside the package
+- use IS-A test for inheritance
+- instanceof operator looks at the object type and not the object reference type
+- to prevent a class from being extended mark it as final OR make its constructor private
+
+
+
+COMPOSITION (one class has another class as its member)
+- use HAS-A test for composition
+
+
+
+POLYMORPHISM (a variable/object reference of a supertype class can reference an object of a subtype class)
+- when variable is of type superclass, only those methods which are in the superclass can be called for the subclass
+- JVM will try to invoke the most specific version of a method for an object reference. JVM starts from subclass and climbs the inheritance tree towards superclass to find a method implementation
+- JVM looks at the reference type for which methods can be invoked and at the object type for which particular method should be invoked
+- for static method though the reference types static method is used
+
+
+
+
+OVERRIDING
+
+Methods
+- when overriding a method from a superclass make sure that the same parameters and compatible return types (for non-primitive types) are used AND the overridden method should not be less accessible
+- super keyword can't be used in a static method of a subclass (it relates to objects/instances of a class)
+- super keyword can be used to access a hidden field, i.e. the same field name was used in the subclass as well
+
+- final method cannot be overridden 
+- static method cannot be overridden
+
+
+Fields
+- instance and static fields cannot be overridden
+
+
+
+METHOD BINDING
+- the binding of a method call to a method declaration (signature binding) and its implementation (implementation binding)
+- static method binding for both signature and implementation is by compiler based on reference type (compile time/early)
+- instance method signature is compile time binding and implementation is run time binding
+- fields are early bounded
+
+
+
+
+OBJECT CLASS
+- defines core methods like toString(), hashCode(), equals(), getClass(), clone()
+- hashCode() is a method that returns an objects memory address in hexadecimal format
+
+
+
+
+
+CONSTRUCTOR
+- superclass constructor is invoked implicitly (JVM inserts it if it is not there)
+- constructor of a class can invoke a constructor of super class with super() but that should be the first statement
+- constructor of a class can invoke another constructor of the same class  with this() but it should be first statement
+- so a constructor can use this() or super() but never both
+- marking a constructor as private will make the class non-extensible AND the class cannot be instantiated e.g. Math class
+
+
+
+
+TAGGED CLASS
+- a tagged class is a single class that imitates a class hierarchy
+- the constructor initializes only certain fields in a given constructor to imitate a type
+- there is one field that is a tagged field that denotes the type the class is imitating
+
+going from tagged class to class hierarchy
+- mark the tagged class as abstract
+- make every method whose behaviour depends on the tagged field as an abstract method
+- any fields that are used by all types of the tagged class then those fields should be in the abstract class
+- define a concrete class for each type being imitated and move its members into it
+
+
+
+
+ABSTRACT
+- an abstract class may or may not have an abstract method
+- an abstract method cannot be static
+- if there is even just one abstract method in a class the class becomes abstract and must be declared abstract
+- subclass of an abstract class can also be abstract
+- abstract class cannot be instantiated (an instance would end up having a method that can't be used)
+- so one of the ideas of writing an abstract class is to ensure that it cannot be instantiated, forcing the extending class to be instantiated instead
+- abstract class can implement an interface
+- subclass of a parent abstract class can make a parents method that has an implementation into an abstract method by giving it an abstract signature
+
+
+
+
+INTERFACES
+- will not have any state, no instance variables
+- are not instantiable 					(except if it is a functional interface, because i saw that in Comparator<T>)
+- no constructors
+- mostly only public abstract methods, can have default methods and static methods (with method bodies)
+- default methods cannot be final, have the keyword 'default' in the method signature 
+- can only have static fields and those fields will be final. No need to specify static final 
+- like classes can only have public or default access modifier (default means for classes in package only)
+- can have nested types
+- members of an interface are implicitly public (can't be private or protected)
+- can extend one or more interfaces (note that classes can extend only one other class)
+- methods are public abstract by default and don't need the abstract keyword
+- can have static methods but static methods are not inherited, can only be invoked via interface name
+- an interface is a collection of abstract methods, the methods don't need to carry the abstract keyword in this case
+
+
+regular interfaces		-	define core capability
+mixins				-	generally end with 'able'
+markers				-	no methods or fields declaration, merely marks a class as having some property, e.g. java.util.RandomAccess, java.io.Serializable
+functional			-	an interface with exactly one abstract method (there could be other methods which are default or static) e.g. Runnable
+
+
+What is source compatibility vs binary compatibility - source compatibility makes dependant code work with a recompile, binary compatibility does not require dependant code to be recompiled
+
+
+
+
+
+ABSTRACT OR INTERFACE?
+- if you need to define core identity of a subclass with some state then prefer abstract class
+- if your type is going to evolve over time then prefer abstract classes
+- if you need to define additional capability for a class without the need for state then prefer interfaces
+
+
+
+DEFAULT METHODS
+- is a default implementation of interfaces method, introduced from Java 8 onwards
+- they help to evolve interfaces, eliminate utility classes (Collections.sort(List) can become list.sort()), 
+- have a 'default' modifier in front of the method
+- only in interfaces, not in classes
+- are instance methods, cannot be called from a static context
+- cannot be 'final' or 'synchronized'
+- cannot be in abstract class
+
+
+
+CONFLICT RESOLUTION FOR METHODS IN A CLASS
+- a method in a superclass gets higher preference than a default method in an interface (let's say both methods have the same name)
+  therefore an interface cannot override a method from Object class
+- for a class to prefer a default interface method over a superclass method the class would need to use the method as 'Interface_name.super.method_name()'
+- a method in a subinterface (more specific) will win over a method in parent interface (less specific)
+- a subinterface can make a parent interfaces method into an abstract method by giving it an abstract signature. This will force a new implementation for any class implementing the subinterface
+
+
+
+
+ANONYMOUS CLASS
+- a way of making code more concise
+- declare and instantiate a class at the same time
+- similar to a local class but do not have a name
+- use them if you need to use a local class only once
+e.g. when implementing comparator 
+
+
+
+LAMBDA
+- implementation of a functional interface (an interface that has exactly one method)
+- normally we would write a class which implements the interface, then write the method of the interface in said class and instantiate that class into an object, then invoke the object's method
+  lambda's skip all that, they provide a method body directly where an object reference is expected, and the method can then be invoked
+- parenthesis not required for single parameter
+- without {} use an expression
+- with {} use a statement
+
+() -> {}									// Takes no parameter and returns a void
+
+(TYPE param1, TYPE param2, ....) -> { statement 1; statement 2; };  	// with one or more statements use curly braces {}
+(TYPE param1, TYPE param2, ....) -> { return statement 1; };		// with return use curly braces {}
+(TYPE param1, TYPE param2, ....) -> expression                      	// When only one statement is there you can use it as an expression and curly braces are not required
+
+Closure - capturing an instance variable in lambda (whether primitive or object reference), the variable will become final, can't modify it.
+this does not affect static variables because only a single copy of static variable is maintained
+
+
+
+LAMBDA OR ANONYMOUS?
+- anonymous classes are instantiated on every use, but lambdas are not instantiated to an object at all
+- anonymous class can override multiple methods from the class from which it inherits, lambdas can only implement one method
+- lambdas are bound to functional interface
+
+
+
+
+
+METHOD REFERENCE
+- a way of passing a reference to a method where it is being expected (as opposed to calling the method)
+- static methods can be referenced as 		ClassName::staticMethodName
+- instance methods can be referenced as 		objectName::instanceMethodName
+- instance methods can also be referenced as	ClassName::instanceMethodName
+
+
+
+DEFERRED EXECUTION
+- a lambda is executed only when the functional interface abstract method is called
+
+
+
+
+CONSTRUCTOR REFERENCE
+- reference to a constructor
+- assigned to a functional interface, same like lambda
+
+Supplier<String> supplier = String::new;
+
+
+
+
+
+STREAMS
+- have 3 parts - data source, zero or more intermediate operations, zero or one terminal operation
+- not a data structure like a collection, rather a bunch of operations on a data structure
+- streams do not mutate data, the original collection which is the source of the stream cannot have its objects be changed by a stream, but state in those objects can be changed
+
+working with Streams
+a. setup a stream source (e.g. tables in SQL, an ArrayList, etc.)
+b. run zero or more intermediate operations 		-- lazy
+c. run zero or one terminal operation 			-- eager
+
+Stream<T> aStream
+
+Intermediate operations		--> 		filtering, mapping, slicing
+Terminal operations		--> 		matching and finding, reduction, collect
+ 
+
+slicing
+- distinct	-	uses the object's equals method to determine if two objects being compared are equal, so we are creating a set with distinct
+- limit		-	limits the stream operations to the first n elements
+- skip		-	skips the first n elements and then begins stream operations
+
+
+reduce - reduce the stream elements to a single value
+
+
+
+
+GENERICS
+
+Some objects only work on other types of objects, e.g. Lists have to work on Strings, ints, bytes, doubles, custom types.
+
+Generics code can appear in the following ways
+
+
+// the class is generic
+class ClassName<T>					-	I am a class and i can work on any generic types
+e.g. class GenericBox<T> 
+
+
+class ClassName<T extends Type>				-	I am a class and i can work on T as long as it extends Type
+e.g. class GenericBox<T extends Number>
+
+
+// the method is generic
+access-modifier <generic spec> return-type method-name	-	I am a generic method declaration
+e.g. public <U extends Number> void inspect()
+
+
+// the method parameter is generic
+method-name(ClassName<?> instanceName)			-	I am a method declaration
+								I have a parameter of a class that works on generic types
+								but i don't know the type of that class at method declaration time (compile time)
+								so i am using a wild card for now
+
+
+
+
+Class<T>
+
+- it is a 'Class' Object for a particular 'class'
+- convention is to name 'Class' objects as clazz
+- since this type works on other classes that are not know at runtime it is generic
+
+
+
+===================
+KEY FEATURES
+===================
+
+
+ITERATOR
+
+
+
+
+COMPARATOR
+
+
+
+
+CLONING AN OBJECT
+- implement the Cloneable interface
+- call Object classes clone() method
+
+Shallow Copy 	-	default for object.clone(), good for primitive fields, 
+			primitive fields in the original object are copied into the fields of the cloned object
+			object fields are passed by reference to the clone
+Deep Copy	-	override the clone method
+			copies of referenced objects are made from the original and given to the clone
+
+
+
+
+
+JAVA.UTIL.FUNCTION
+
+
+
+Function
+
+
+
+Consumer
+
+
+
+Supplier
+
+
+
+Predicate
+
+
+
+UnaryOperator
+
+
+
+
+
+STRINGBUILDER
+- not thread safe (it is not synchronised)
+
+
+
+
+===============
+TRIVIA
+===============
+
+
+'implements' keyword is always after 'extends' keyword in class declaration
+
+Naming rules for classes/methods/variables
+- first character can be letter, underscore or $
+- remaining can be letter, underscore $ or numbers
+- no reserved keywords can be used
+
+
+Java is case-sensitive
+

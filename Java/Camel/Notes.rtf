@@ -1,0 +1,455 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww30800\viewh14300\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+CAMEL ARCHITECTURE\
+\
+Context				-		a place for Camel\'92s common facilities\
+Component				-		Factory of endpoint instances. Note: the File component will appear as a URI of \'93file:/path/to/dir?\'94\
+Exchange\
+Message\
+Camel Registry\
+Type Converters\
+\
+Processor				-		a class that implements that interface org.apache.camel.Processor from camel-api\
+							only a single method, process() that works on an exchange\
+Data Format				-		a class that implements org.apache.camel.spi.DataFormat\
+							2 methods - marshal and unmarshal\
+Endpoint				-		is a URI of some sort like \'93direct:start\'94, \'93seda:Gaz\'94 that is provided by a component\
+Producer				-		a class that implements the Producer interface and can send data from a route to an external system		[the external system could be another route]\
+							it appears at the end of a route\
+Consumer				-		a class that implements the Consumer interface and can receive data from an external system 			[the external system could be another route]\
+							it appears at the beginning of a route\
+Expressions				-		org.apache.camel.Expression, interface, \
+Predicates				-		org.apache.camel.Predicate, interface, \
+Beans\
+\
+Builder\
+ExpressionBuilder\
+ValueBuilder\
+\
+RouteBuilder				-		a class in camel, org.apache.camel.builder.RouteBuilder that has methods which will return RouteDefinitions which are used to build routes\
+RouteDefinition\
+\
+ProcessorDefinition\
+\
+ExpressionClause\
+\
+ProducerTemplate\
+FluentProducerTemplate\
+\
+\
+Connector				-		a simplified and preconfigured component (set up for a specific use-case)\
+\
+\
+\
+CONTEXT\
+found something called ModelCamelContext??\
+\
+\
+\
+COMPONENTS\
+\
+File based\
+	File				-		by default Camel scans twice per second for incoming files\
+	FTP\
+Asynchronous Messaging\
+	JMS\
+TCP/UDP/IP based\
+	Netty4\
+Database\
+	JDBC\
+	SQL\
+	JPA\
+	Hibernate\
+	MyBatis\
+In-memory\
+	Direct			synchronous, single camel context\
+	Direct-VM		synchronous, multiple camel contexts within JVM\
+	SEDA			asynchronous\
+	VM			asynchronous\
+Automating\
+	Timer			simple recurring tasks\
+	Scheduler		simple recurring tasks\
+	Quartz		lots of control\
+\
+A component is a class that implements the Component interface (which is an interface that extends CamelContextAware)\
+\
+\
+\
+\
+EXCHANGE AND MESSAGE\
+\
+Exchange		=	ID + Pattern + Exception + Properties  + Message\
+Message		=	Headers + Attachments + Body (java.lang.object) + Fault Flag\
+\
+ \
+Exchange Pattern\
+InOnly			-	producer will create the message and fohgetboutit\
+InOut			-	producer will create the message and want a response, the Out message is the response back to the producer\
+\
+\
+\cf0 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 EXPRESSIONS AND PREDICATES\
+\
+Expressions \
+ - Expression is a functional interface in Camel that has a method called evaluate\
+ - evaluate is a generic method with a generic return type\
+ - it works on an Exchange and a Class<T> \
+\
+An Expression can be in any one of these languages\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx13578\tx14687\tx18111\pardirnatural\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+Bean							-		method()					[Java DSL]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx13578\tx14687\pardirnatural\partightenfactor0
+\cf2 									.expression(BeanLanguage())\
+									use a method from a bean, the bean name is resolved using a registry, e.g. the Spring ApplicationContext\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx13578\tx14687\tx18110\pardirnatural\partightenfactor0
+\cf2 \
+Java DSL				    		-	     	body().contains(\'93Camel\'94)			[Java DSL, fluent builder style - chaining methods together ]\
+\pard\tx3952\tx5087\pardeftab720\partightenfactor0
+\cf2 \
+\pard\tx3952\tx5087\tx18116\pardeftab720\partightenfactor0
+\cf2 Header	-	header(\'93CamelFileName\'94).regex(<regex pattern>)	[Java DSL]	\
+\pard\pardeftab720\partightenfactor0
+\cf2 						\
+\pard\tx1107\tx2274\tx3409\tx3938\tx4523\tx5081\tx5649\tx6775\tx7912\tx9049\pardeftab720\partightenfactor0
+\cf2 Constant				-		constant()\
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+ExchangeProperty/Property\
+\
+JSonPath\
+\
+Ref Language		\
+	\cf0 \kerning1\expnd0\expndtw0 \
+\pard\tx3937\tx4508\tx5052\tx18106\pardeftab720\fi-1\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+Simple	-		simple(\'93Hello $\{body\}\'94)	[ Camel\'92s scripting language ]\
+\pard\tx3937\tx4508\tx5052\pardeftab720\fi-1\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 Spring Expression Language\
+	\
+JXPath\
+\
+MVEL\
+\
+OGNL \
+\
+PHP\
+\
+BeanShell\
+\
+JavaScript \
+\
+Groovy \
+\
+SQL\
+\
+Tokenizer\
+\
+\pard\tx3936\tx5063\pardeftab720\partightenfactor0
+\cf2 XPath	- 	xml expressions\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 XQuery \
+\
+VTD-XML\
+\
+\
+\
+Predicates\
+- Predicate is a functional interface that has a method called matches\
+- matches works on an Exchange and returns a boolean\
+\
+Note: Think of a predicate as a specialized expression that always returns a boolean.\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+DATA FORMATS\
+- XmlJsonDataFormat\
+- BindyCSVDataFormat\
+- JacksonDataFormat\
+\
+Full list - https://camel.apache.org/manual/latest/data-format.html\
+\
+\
+\
+\
+TYPE CONVERTERS\
+\
+Type Converter registry\
+- TypeConverterRegistry is where all the type converters are registered when Camel is started\
+- ~350 type converters in Camel\
+\
+\
+\
+\
+CAMEL REGISTRY\
+\
+- an abstraction between the requester and the real registry that is provided by a framework (e.g. Spring ApplicationContext)\
+- the registry is just org.apache.camel.spi.Registry interface\
+\
+Implementations in Camel\
+- JndiRegistry\
+- SimpleRegistry\
+- ApplicationContextRegistry	-	works with Spring to look up beans in the Spring ApplicationContext, used automatically when Camel is used in a Spring App\
+- OsgiServiceRegistry\
+- BlueprintContatinerRegistry\
+- CdiBeanRegistry\
+\
+\
+\
+BEANS\
+\
+The following built-in types are automatically bound to methods in beans\
+\
+Exchange\
+Message\
+CamelContext\
+TypeConverter\
+Registry\
+Exception\
+\
+\
+\
+Parameter binding annotations for beans\
+\
+@Body\
+@Header(name)\
+@Headers					-	parameter in bean method must by java.util.Map\
+@ExchangeProperty(name)		\
+@ExchangeProperties			-	parameter in bean method must be java.util.Map\
+@ExchangeException			-	binds the parameter to the exception set on the exchange\
+@Attachments				-	for message attachments, parameter in bean method must be a java.util.Map\
+\
+\
+\
+\
+\
+SUPPORTING METHODS\
+\
+set the route ID			-		.routeID(<String>)\
+set a header				-		.setHeader(<String>)\
+set the body of a Message		-		.setBody()\
+\
+\
+\
+\
+TRANSFORMATION\
+\
+marshal				-		from pojo to a text or binary format (xml, json, yaml, etc.)\
+unmarshal				-		from a text or binary format (xml, json, yaml, etc.) to pojo\
+\
+\
+Data Format		Data Model				Artifact					Marshal 				<\'97> 		Unmarshal							\
+Bindy			CSV, FIX, fixed length		camel-bindy					List<Map<String, Object>>  	<\'97>  		OutputStream\
+JAXB			XML					camel-jaxb\
+Jackson		JSON					camel-jackson\
+Serialization		Object					camel-core\
+XStream		XML, JSON				camel-xstream\
+Base64		Base64 String			camel-base64\
+GSon			JSON					camel-gson\
+\
+\
+- fixed length\
+- XML\
+- JSON\
+- CSV\
+\
+Transforming XML with\
+- XSLT style sheets\
+- Object Marshaling\
+	- XStream\
+	- JAXB				-		Java Architecture for XML Binding\
+\
+\
+\
+LOGGING IN ROUTES \
+\
+when using .log()\
+$\{id\}							-		the route id\
+$\{body\}						-		the message body\
+$\{header.<name>\}					-		the header in the message that has <name>, e.g. header.CamelFileName\
+\
+The below does not work and I think that is because the log component only has access to the message and not to the exchange\
+$\{property.CamelAggregatedCompletedBy\}	-		the exchange property CamelAggregatedCompletedBy\
+\
+\
+when using .to(\'93log:<endpoint>\'94)\
+if no option is specified it seems the exchange is logged\
+\
+\
+\
+\
+TESTING ROUTES\
+\
+How to Test\
+\
+- MyTest class extends CamelTestSupport\
+- setUp() method is for preparation										DEUTSCH WARNING, call super.setUp() once you have finished your own setup tasks\
+- createRouteBuilder returns a RouteBuilder									return an instance of the route you wrote\
+- in the test method (annotated with @Test)\
+	get a mock end point that route will send data to using getMockEndpoint(mock uri)\
+	use template which is a producer to send body, header, etc.\
+	assert that the mock end point is satisfied in some way\
+\
+- if you want to debug routes then Override\
+	isUseDebugger() method with return true\
+	debugBefore() method if you want to see what is happening before processing step\
+	debugAfter() method if you want to see what is happening after processing step\
+\
+ \
+\
+\
+maven artifact					Test support class with Debugger\
+\
+camel-test						org.apache.camel.test.junit4.CamelTestSupport\
+camel-test-spring					org.apache.camel.test.spring.CamelSpringTestSupport\
+camel-test-blueprint					org.apache.camel.test.blueprint.CamelBlueprintTestSupport			[OSGi]\
+camel-test-karaf					org.apache.camel.test.karaf.CamelKarafTestSupport\
+camel-test-cdi\
+\
+\
+Note: Mock component, ProducerTemplate and FluentProducerTemplate come from camel-core\
+\
+\
+\
+\
+ANNOTATIONS\
+\
+@EndpointInject			-		give a producer that follows an endpoint\
+@Handler				-		make a bean method as the default one\
+\
+\
+\
+SPRING INTEGRATION\
+\
+\
+Spring integration\
+\
+camel integration with spring			-		camel-spring-javaconfig\
+\
+\
+\
+- how to write the app\
+A java main class to start the application\
+@Configuration class to bootstrap Spring Java Config\
+\
+\
+\
+\
+\
+Spring Boot Integration\
+\
+- What maven dependencies do we need\
+some spring boot service				-		spring-boot-starter-web			[we are doing a web project]\
+camel integration with spring			-		camel-spring-boot-starter\
+camel servlet to respond to web requests	-		camel-servlet-starter\
+\
+- how to write the app\
+the camel route class is a @Component\
+there is a class that is marked as a @SpringBootApplication which has the main method that calls SpringApplication.run()\
+application.properties in the resources folder defines any spring properties\
+\
+\
+\
+\
+\
+ENTERPRISE INTEGRATION PATTERNS\
+\
+Content Based Router		-		.choice().when()					[uses a predicate to determine how to process a message]\
+Multicast				-		.multicast()\
+Wiretap				-		.wireTap()\
+RecipientList				-		.recipientList(), .bean(RecipientListBean)	[uses an expression to determine how to process a message]\
+Message Filter			-		.filter()							[uses a predicate to determine how to process a message]\
+Content Enricher			-		.pollEnrich(), .enrich()\
+Message Translator			-		.process(), .bean(), .transform()\
+Service Activator			-									[the Camel Bean component is the Camel implementation of the Service Activator Pattern]\
+DynamicTo				-		.toD()							[uses an expression to determine how to process a message, used for single destinations]\
+Routing Slip				-		.routingSlip()						[For routing messages dynamically based on some logic, this EIP computes the slip up front]\
+Dynamic Router			-		.dynamicRouter					[For routing messages dynamically based on some logic]\
+Load Balancer			-		.loadBalance()\
+Idempotent Consumer		-									[uses an expression to determine how to process a message]\
+Aggregator				-		.aggregate()\
+Splitter				-		.split()\
+Composed Message Processor	-									[combination of aggregator and splitter]\
+\
+\
+\
+\
+AGGREGATOR EIP\
+\
+Correlation Identifier		-	an \'91expression\'92 which determines which messages belong together\
+Completion Condition		-	a \'91predicate\'92 OR time based condition that determines when the result message should be sent		[size, timeout, interval, predicate, force, strategy, consumer]\
+Aggregation Strategy		-	a strategy that specifies how to combine the messages into a single message\
+\
+aggregate is a place where incoming messages are stored\
+\
+Camel enriches the published Exchange with the completion details\
+\
+Repositories for Persistence and Recovery\
+Interface							Implementation\
+AggregationRepository				-	MemoryAggregationRepository\
+RecoverableAggregationRepository		-	JdbcAggregationRepository, CassandraAggregationRepository, LevelDBAggregationRepository, HazelcastAggregationRepository\
+OptimisticLockingAggregationRepository	-	MemoryAggregationRepository\
+RecoverableAggegationRepository		-	\
+\
+\
+\
+\
+SPLITTER EIP\
+\
+- works using an iterator over the message body\
+- the iterator supports types of \
+	Collection\
+	Iterator\
+	Iterable\
+	org.w3c.dom,\
+	NodeList\
+	String (separated by commas) and arrays\
+- will set properties on the Exchange - SPLIT_INDEX, SPLIT_SIZE, SPLIT_COMPLETE\
+\
+\
+\
+\
+LOAD BALANCER EIP\
+\
+Strategies\
+- random\
+- round robin\
+- sticky\
+- topic\
+- failover\
+- custom\
+\
+\
+\
+\
+\
+\
+\
+\
+DEBUGGING\
+\
+org.apache.camel.spi.Debugger		-		the main interface for debugging routes\
+org.apache.camel.impl.Debugger		-		default implementation of the debugger\
+\
+}

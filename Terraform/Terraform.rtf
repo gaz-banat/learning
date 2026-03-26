@@ -1,0 +1,414 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red0\green0\blue0;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000;\csgray\c0\c0;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww32040\viewh17160\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+TERRAFORM EDITIONS\
+\
+https://developer.hashicorp.com/terraform/intro/terraform-editions\
+\
+Terraform Community Edition	-	the downloadable tool that works on the cli\
+Terraform Cloud			-	is now HCP Terraform\
+HCP Terraform 				-	\cf2 \cb3 \expnd0\expndtw0\kerning0
+is an application that helps teams use Terraform together, available at https://app.terraform.io\
+							In this case terraform runs in a stable remote environment and securely stores state and secrets.\
+	free edition\
+	plus edition\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+Terraform Enterprise			-	self-hosted distribution of HCP Terraform.\
+\
+\
+ENVIRONMENT VARIABLES FOR TERRAFORM PROCESS\
+\
+TF_LOG=[TRACE | DEBUG | INFO | WARN | ERROR]\
+TF_LOG_PATH=/path/to/logfile.txt\
+\
+\
+\
+\
+WORKING DIR\
+\
+main files and directories\
+	.terraform/								-	do not commit to version control\
+		providers/\
+		modules/\
+\
+	.terraform.lock.hcl						-	has provider dependency selections, always commit to version control\
+\
+	terraform.tfstate							-	state file, do not commit to version control instead put in gitignore, \
+	terraform.tfstate.*						-	backup state files, do not commit to version control, put in gitignore,\
+\
+	.terraform.tfstate.lock.info					-	created and deleted automatically when you run terraform apply\
+\
+	*.tfvars								-	if it contains sensitive information do not commit to git repo\
+\
+	*.tftest.hcl								-	test files\
+	*.tftest.json\
+\
+various opinonated .tf files\
+	main.tf								-	data, resource and module blocks\
+	terraform.tf							-	a single terraform block with required_version and required_providers\
+	variables.tf							-	variables in alphabetical order\
+	backend.tf								-	the backend configuration\
+	outputs.tf								-	outputs in alphabetical order\
+	providers.tf							-	provider blocks\
+	locals.tf								-	local variables and values\
+	override.tf								-	override definitions for your configuraiton (\cf2 \cb3 \expnd0\expndtw0\kerning0
+Terraform loads this and all files ending with\'a0\cb1 _override.tf\cb3 \'a0last)\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+\
+\
+Example .gitignore file for terraform repo - https://github.com/github/gitignore/blob/main/Terraform.gitignore\
+\
+\
+\
+HashiCorp Configuration Language (HCL)\
+\
+\
+Language Elements:\
+\
+1. Blocks and Arguments\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 \expnd0\expndtw0\kerning0
+<BLOCK TYPE> "<BLOCK LABEL>" \'93[<BLOCK LABEL>]\'94 \{		# BLOCK HEADER\
+  # Block body\
+  	NAME = <EXPRESSION>					# ARGUMENT (aka ATTRIBUTE)\
+\}
+\f1\fs19\fsmilli9750 \cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+NOTE: \cf2 \cb3 \expnd0\expndtw0\kerning0
+Argument names, block type names, and the names of most Terraform-specific constructs like resources, input variables, etc. are all identifiers.\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+2. meta-arguments\
+  depends_on\
+  count				-	the number of resources to create if the resources are identical\
+  for_each				-	the number of resources to create when the resources are not identical, for_each accepts a set or map value\
+  provider				-	used for resources\
+  providers				-	used for modules\
+  lifecycle\
+    create_before_destroy	-	if the resource needs to be replaced then first create before destroying (the default behaviour is to destroy then create)\
+	ignore_changes\
+	prevent_destroy\
+\
+\
+3. parameter ?\
+  sensitive \
+\
+\
+4. Objects\
+\
+It seems that objects are things enclosed by \{ \} but not all the time. Maps are also enclosed by \{ \} but are not objects.\
+\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7929\tx9073\tx10197\tx11340\tx12470\tx13594\pardirnatural\partightenfactor0
+\cf0 Configuration Blocks:\
+\
+Terraform Block			terraform \{ \}\
+Provider Block			provider \'93<provider_name>\'94 \{ \}\
+Resource Block			resource \'93<resource_type>\'94 \'93<resource_name>\'94 \{ \}\
+Data Block			data \'93<data_type>\'94 \'93<data_name>\'94				calling:  data.<type>.<name>.<attribute>\
+Input Variables Block		variable \'93<variable_name>\'94 \{ \}					calling:  var.<variable_name>, \'93$\{var.<variable_name>\}\'94\
+Local Variables Block	locals \{ <variable_name> = <value> \}				calling:  $\{local.<variable_name>\}\
+Output Values Block		output \'93<output_name>\'94\
+Modules Block			module \'93<module_name>\'94						a module is a reusable container of resources that are frequently used\
+Dynamic Block	\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 Variables:\
+\
+1. Variable Precedence from high to low\
+\
+Command Line: -var and -var-file\
+*.auto.tfvars OR *.auto.tfvars.json\
+terraform.tfvars.json\
+terraform.tfvars\
+Environment Variables					-	export TF_VAR_<variable_name> (e.g. variable \'93vpc_name\'94 in configuration would become TF_VAR_vpc_name)\
+Variable defaults\
+\
+\
+2. Special Variables\
+\
+terraform.workspace\
+local_file\
+\
+\
+3. Variable types\
+primitive\
+  number\
+  string\
+  bool\
+complex/collection\
+  list		-	a sequence of similar types\
+  tuple	-	a sequence of types that need not be similar\
+  set\
+  map	-	map(string), 			- the value of each key is a string, the key name is up to you\
+			map(number), 			- the value of each key is a number, the key name is up to you\
+			map(bool),			- the value of each key is a bool, the key name is up to you\
+			map(list(string)),		- the value of each key is a list of strings, the key name is up to you\
+			map(set), 				- the value of each key is a set, the key name is up to you\
+			map(object( \{ ... \} ))		- the value of each key is an object, the key name is up to you			\
+			calling: $\{var.<map_variable_name>[\'93<key>\'94]\}\
+\
+\
+4. Variable Validation\
+\
+validation \{ \}\
+\
+\
+\
+Example variable block\
+\
+variable \'93some_var\'94 \{\
+	type = \
+	description =\
+	default = \
+	sensitive =\
+	validation \{ \}\
+\}\
+\
+\
+\
+Functions:\
+\
+1. length()\
+var \'93aList\'94 \{ type = list(string) \}\
+resource \'93type\'94 \'93name\'94 \{\
+	count = length(var.aList)				# count is a meta-argument\
+	<identifier> = var.aList[count.index]\
+\}\
+\
+2. tolist()\
+3. toset()\
+4. index()\
+5. can()\
+6. cidrsubnet()\
+7. slice()\
+8. lower()\
+9. regex()\
+10. jsonencode()\
+\
+\
+Loops:\
+\
+1. for loop\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 \expnd0\expndtw0\kerning0
+\{ for k, v in aws_instance.web : k => v.private_ip \}
+\fs20 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\{ for key, value in var.<map_variable> : name => \'93$\{key\}-bucket\'94 \}\
+\
+\
+Conditions:\
+\
+1. Terenary condition\
+var.<variable_name> ? <action_if_true> : <action_if_false>\
+e.g. count = var.enable_metrics ? 1 : 0\
+\
+\
+\
+Language Constructs:\
+\
+in 		-	keyword\
+=>		-	used to separate a key from a value in an expression when using a for loop on a map\
+:\
+\
+\
+\
+\
+Linter:\
+\
+TFLint\
+\
+\
+\
+\
+\
+PROVIDERS\
+\
+https://registry.terraform.io\
+\
+aws provider				-	registry.terraform.io/hashicorp/aws\
+\
+\
+\
+\
+PROVISIONERS\
+\
+local-exec\
+remote-exec\
+\
+\
+\
+MODULES\
+\
+What:\
+a way to package resources into configuration files\
+\
+\
+Where can I source a module from:\
+Local Path			-	./modules/<module>\
+Terraform Registry		-	https://registry.terraform.io/, also look at https://developer.hashicorp.com/terraform/cloud-docs/registry\
+						module repository must be in the form \'93terraform-<PROVIDER>-<NAME>\'94\
+GitHub\
+Bitbucket\
+Mercurial\
+HTTP URL\
+S3 Bucket\
+GCS Bucket\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7929\tx9073\tx10197\tx11340\tx12470\tx13594\pardirnatural\partightenfactor0
+\cf0 MODULE REPOSITORY and REGISTRY\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+STATE\
+\
+Lock file for state:\
+.terraform.tfstate.lock.info				-	a json file that describes who is in the process of modifying the state file.\
+\
+Backends for state:\
+  Standard Backends (state is stored remote but terraform exectuion is local)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7941\pardirnatural\partightenfactor0
+\cf0 \
+  	s3	 										-	supports locking if dynamodb is used  [ think about versioing, encryption and locking ]\
+	http\
+  	gcs											-	supports locking\
+  	azurerm	 									-	supports locking\
+\
+\
+  Enhanced Backend (state is stored remote and terraform execution is remote OR state is store local and terraform execution is local)\
+	local											-	supports locking  [ this is the default backend when no other is specified ]\
+	remote										-	supports locking							\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+State sharing:\
+\
+tfe_outputs data source				-	when you are using HCP Terraform or Terraform Enterprise and need to reference resources across workspaces\
+\
+\
+\
+\
+CREDENTIALS FILE\
+\
+$HOME/.terraform.d/credentials.tfrc.json\
+\
+\
+\
+SECRETS MANAGEMENT\
+\
+basically the state file contains sensitive data\
+\
+Terraform Community	-	\
+HCP Terraform			-	hashicorp vault for state encryption, use of dynamic provider credentials is recommended\
+Terraform Enterprise		-	hashicorp vault for state encryption, use of dynamic provider credentials is recommended\
+\
+\
+provider credentials\
+dynamic provider credentials\
+Terraform vault provider\
+\
+\
+\
+TESTS\
+\
+\
+\
+POLICIES\
+\
+\
+\
+WORKSPACES\
+\
+\
+\
+\
+COMMANDS\
+\
+terraform version					-	show version of terraform and providers\
+terraform providers					-	show required providers and modules\
+\
+terraform init						-	initialize working directory, gets providers and modules, create or update the .terraform.lock.hcl dependency file, setup the backend for storing the state file\
+									(this command does not touch state or configuration files)\
+terraform init -upgrade				-	when you add a new provider or upgrade an existing provider to an existing TF project\
+terraform init -migrate-state			-	migrate the state file to a new location specified in the terraform \{ \} block\
+terraform init -reconfigure				-	something changed in the terraform configuration and the state needs to be reconfigured, e.g. you changed the backend where terraform state should be kept\
+\
+terraform fmt [-recursive]\
+\
+terraform validate					-	validate the configuration, checks if the code is \cf2 \cb3 \expnd0\expndtw0\kerning0
+syntactically valid and internally consistent\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+terraform validate -json\
+\
+terraform plan						-	create execution plan, compare configuration file to terraform state\
+terraform plan -refresh-only			-	a way of finding changes to terraform managed resources outside of terraform, so a way of detecting drift.\
+terrafrom plan -destroy				-	create an execution plan for destroying\
+\
+terraform apply	[ <plan_file> ]			-	will apply the plan, optionally you can provide a plan file\
+terraform apply --replace=<resource>\
+terraform apply -refresh-only			-	update one or more resources in the state with configuration drift (config changes that were made outside of terraform)\
+terraform apply --destroy\
+terraform apply --lock-timeout=<n>s\
+\
+terraform show						-	show the terraform state in an easy to read format\
+terraform state list					-	list the resources in the current state\
+terraform state show <resource>		-	show a resource, good way of getting all resource arguments that make up the resource\
+terraform refresh					-	first it compares state with what is actually deployed\
+									helps to update terraform state with resource configuration drift that may have happened outside terraform\
+									THIS COMMAND HAS BEEN DEPRECATED, use terraform plan -refresh-only\
+									this command automatically updates state\
+\
+\
+terraform output [-json] [<output_name>]	-	list the outputs in the current state (remember that sensitive objects that did not display at cli after tf apply due to being sensitive can still be retrieved from the state file)\
+\
+terraform destroy\
+\
+terrraform taint\
+\
+terraform workspace\
+\
+terraform console\
+\
+terraform login\
+\
+terraform test\
+\
+\
+\
+\
+SOLUTIONS\
+\
+A resource configuration changed outside terraform and i want to bring the configuraiton into the state and configuration file\
+terraform plan -refresh-only\
+terraform apply -refresh-only\
+then update the configuration in the proper configuration file\
+\
+\
+\
+I want to see the documentation of a resource of a provider\
+https://registry.terraform.io/providers/<provider_org>/<provider_name>/latest/docs\
+e.g. https://registry.terraform.io/providers/hashicorp/aws/latest/docs\
+\
+\
+\
+I want to see the documentation of a module\
+https://registry.terraform.io/modules/<module_path>/latest\
+e.g. https://registry.terraform.io/modules/terraform-aws-modules/iam/aws/latest\
+\
+}

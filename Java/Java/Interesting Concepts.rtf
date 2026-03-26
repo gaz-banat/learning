@@ -1,0 +1,66 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2577
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww27940\viewh15520\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+===============\
+COMPILE TIME\
+===============\
+\
+\
+\
+\
+===============\
+RUN TIME\
+===============\
+\
+\
+\
+\
+\
+===============\
+REFLECTION API\
+===============\
+\
+This concept is that the \'91java.lang.reflect\'92 package and the \'91java.lang.Class\'92 are together the Reflection API \
+\
+\
+\
+\
+===============\
+The CLASS class\
+===============\
+\
+An object of class Class can be accessed with\
+- objectRef.getClass() method				-	\'93foo\'94.getClass() will return the String Class\
+- Class.forName(String className)			-	does not work with primitives\
+- Class literals							-	append .class to type/class name, works with primitives, e.g. boolean.class, void.class \
+- using TYPE field on a boxed primitive		-	e.g. Class theClassObject = Boolean.TYPE;\
+\
+\
+\
+=======================\
+REFLECTION\
+=======================\
+\
+Inspect known/unknown code\
+Get meta information about a class at run time\
+\
+\
+Where is Reflection used?\
+- Class browsing in IDE\'92s - the fields of a class are listed while typing an object of that class followed by dot\
+- Processing annotations - ORM (Object Relational Mapping) frameworks, JUNIT reads annotation of @Test on test methods, Dynamic proxies\
+\
+\
+\
+======================\
+TRIVIA\
+======================\
+\
+System.in and System.out are streams\
+\
+}

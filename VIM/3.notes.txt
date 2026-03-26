@@ -1,0 +1,70 @@
+
+lab: files, buffers and splits
+
+agenda
+* vi features
+* buffers
+* edit and write revisited
+* splits
+* help
+
+
+# vi features
+:w            write the current file to disk
+:w [file]     write the current file to disk as [file]
+:file [file]  set the file name for the current buffer
+:e [file]     edit (open) the specified [file]
+
+# buffers
+:buffers      lists open buffers
+:ls           lists open buffers
+:bn           buffer next
+:bp           buffer previous
+:buffer [b]   switch to buffer [b]  
+:b [b]        switch to buffer [b]
+:bd [b]       deletes current buffer or [b] if passed as an argument
+
+# airline
+docker pull udemierik/airline
+docker run --rm -it udemierik/airline bash
+
+# edit and write revisited
+:saveas [file]    set the filename and write the buffer to the file
+:write >> [file]  append to a file
+:e!               reload buffer from disk
+
+# splits
+:split [file]     horizontal split
+:vsplit [file]    vertical split
+:new              horizontal split with a new file
+:vnew             vertical split with a new file
+:close            close active pane
+:only             closes all other panes
+
+ctrl-w, w         move to next pane
+ctrl-w, ctrl-w    move to next pane
+ctrl-w, <arrow>   move to next pane (in the direction of the arrow key)
+ctrl-w, [hjkl]    move to next pane (in the direction of the hjkl key)
+
+:qall             exit vim
+:wall             write outgoing changes in all panes
+:wqall            write outgoing changes in all panes and exit vim
+:xall             write outgoing changes in all panes and exit vim
+
+:set splitbelow            new horizontal splits split below the previous pane
+:set splitright            new vertical splits split right of the previous pane
+:resize +-[rows]           resize pane add/remove rows
+:vertical resize +-[cols]  resize pane add/remove cols
+
+# help
+:viusage            show all keyboard shortcuts
+<F1>                show integrated help
+:help [topic]       show integrated help for optional topic
+:help ctrl-[char]   show help help for key combination (normal mode)
+:help i_ctrl-[char] show help help for key combination (insert mode)
+:help :[command]    show integrated help for an ex command
+:help -[flag]       show integrated help for a vim startup flag
+
+
+
+

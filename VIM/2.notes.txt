@@ -1,0 +1,111 @@
+
+Lab: Basic editing and moving around
+
+
+Agenda
+* navigating a document
+* normal mode editing commands
+* insert mode key mappings
+* vim additions
+
+
+navigating a document
+gg        jump to beginning of a document
+G         jump to end of a document
+
+H         move cursor to top of screen (high)
+M         move cursor to middle of screen (middle)
+L         move cursor to bottom of screen (low)
+
+ctrl-Y    scroll viewport up a single line
+ctrl-E    scroll viewport down a single line (end)
+ctrl-U    scroll up a half page
+ctrl-D    scroll down a half page
+pgup      scroll a whole page up
+pgdn      scroll a whole page down
+
+/[query]  regex search (? for backward search)
+n         next result
+N         previous result
+
+
+editing in normal mode
+i         go to insert mode on cursor position (insert)
+a         go to insert mode after cursor position (append)
+I         go to insert mode at line start
+A         go to insert mode at line end
+
+x         delete single character under cursor
+X         delete single character before cursor
+r         replace a single character
+R         go to replace mode
+~         change case of a single character
+
+yy        yank a single (copy)
+dd        delete a single line (cut)
+cc        change a single line
+p         paste after cursor
+P         paste before cursor
+
+u         undo last change
+.         repeat action
+
+C         change from current cursor position up to the end of the line
+D         delete from current cursor position up to the end of the line
+Y         yank a single line
+
+o         insert new line after cursor -> go to insert mode
+O         insert new line before cursor -> go to insert mode
+>>        indent one level more
+<<        indent one level less
+
+
+vim additions
+ctrl-r    redo
+ctrl-a    increment number
+ctrl-x    decrement number
+
+*         search for word under cursor
+#         search for word under cursor (backwards)
+
+`"        last exit current buffer
+`.        last insert location
+`[        first character of last yanked or changed text
+`]        last character of last yanked or changed text
+
+# creating custom marks
+https://vimhelp.org/usr_03.txt.html#03.10
+
+
+revisiting insert mode
+ctrl-w     deletes word before cursor (word)
+ctrl-u     deletes everything before cursor
+
+ctrl-d     decrease indentation (decrease)
+ctrl-t     increase indentation (tab)
+
+ctrl-o     executes a single command in normal mode (only one command)
+
+ctrl-y     copy character above cursor
+ctrl-e     copy character below cursor
+
+ctrl-n     complete with next match
+ctrl-p     complete with previous match
+ctrl-e     abort the autocomplete menu (end)
+
+https://vimhelp.org/insert.txt.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

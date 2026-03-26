@@ -1,0 +1,149 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww33100\viewh14660\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+STRUCTURE\
+\
+Table\
+	Chain\
+		Rule\
+		Rule\
+	Chain\
+		Rule\
+		Rule\
+		Rule\
+Table\
+	Chain\
+		Rule\
+\
+\
+\
+INBUILT TABLES and CHAINS\
+\
+Filter			- 	DEFAULT TABLE, if none other specified\
+\
+	Input			- right before being handed to a local process\
+\
+	Output		- right after being created by a local process\
+\
+	Forward		- for packets coming in one interface and leaving from another\
+	\
+\
+Nat			- 	rewrite source or destination and/or track connections\
+\
+	Prerouting		- immediately after being received by an interface\
+\
+	Postrouting	- right before leaving an interface\
+\
+	Output		- right after being created by a local process\
+\
+\
+Mangle		- 	otherwise modify packets, e.g. modify portions of a TCP header \
+\
+	Prerouting\
+\
+	Postrouting\
+\
+	Input\
+\
+	Output\
+\
+	Forward\
+\
+Raw\
+\
+\
+Security\
+\
+\
+\
+\
+\
+FLOW (with Mangle)\
+\
+Destination is localhost		-	Interface \'97 Mangle/Prerouting \'97 Nat/Prerouting \'97 Routing decision \'97 Mangle/Input \'97 Filter/Input \'97 Local Process\
+\
+Source is localhost			-	Local Process \'97 Routing Decision \'97 Mangle/Output \'97 Nat/Output \'97 Filter/Output \'97 Mangle/Postrouting \'97 Nat/Postrouting \'97 Interface\
+\
+Forwarded packets			-	Interface \'97 Mangle/Prerouting \'97 Nat/Prerouting \'97 Routing Decsion \'97 Mangle/Forward \'97 Filter/Forward \'97 Mangle/Postrouting \'97 Nat/Postrouting \'97 Interface\
+\
+\
+\
+FLOW DESCRIPTION (with Mangle)\
+\
+\'97Coming In from network\'97\
+Packets coming in from network go through PREROUTING (Mangle, NAT)\
+Make a routing decision\
+	Decision is localhost - go through INPUT (Mangle, Filter) and hand to local process\
+	Decision is to forward - go through FORWARD (Mangle, Filter) then POSTROUTING (Mangle, NAT) and send it out the interface\
+\
+\'97from Local Process\'97\
+take a routing decision then go through OUTPUT (Mangle, NAT, Filter) then POSTROUTING (Mangle, NAT) and send it out the interface \
+\
+\
+\
+\
+FLOW DESCRIPTION (without Mangle)\
+\
+Coming in from network for Localhost 	\'97	NAT/PREROUTING and then FILTER/INPUT and then local process\
+Coming in from network to be forwarded 	\'97	NAT/PREROUTING and then FILTER/FORWARD  and then NAT/POSTROUTING and send it out the interface\
+Coming from Local Process			\'97	NAT/OUTPUT and then FILTER/OUTPUT and then NAT/POSTROUTING and send it out the interface\
+\
+\
+\
+\
+TARGETS\
+\
+Accept		-		all good\
+DNAT		-		rewrite the destination IP address, only valid in Nat/Prerouting and Nat/Output\
+Drop			-		it like its hot\
+Log			-		uses the kernel logging facility (syslog, rsyslog, etc)\
+Mark			-		only valid in Mangle table\
+Masquerade	-		rewrite the source IP address, only valid in Nat/Postrouting\
+Queue\
+Redirect\
+Reject		-		like Drop but let the sender know\
+Return		-		stop evaluation of this chain and either return to parent chain or go to policy for this chain\
+SNAT		-		only valid in NAT/Postrouting\
+TOS\
+TTL			-		only valid in Mangle\
+ULOG\
+\
+\
+\
+NOTES\
+\
+The default action for a chain is called its policy\
+On forwarded packets no Input chain is touched\
+If a packet is Accepted in a rule on a chain then no more chains are processed in that table, however it could still get a drop on other rules in chains in a different table\
+\
+\
+\
+\
+COMMANDS\
+\
+I want to see all the chains in the default table\
+iptables -L \
+\
+I want to see chains in a specific table\
+iptables -t <table> -L \
+\
+I want to see all chains in all tables\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \CocoaLigature0 for table in filter nat mangle raw security; do echo == $table ==; iptables -t $table -L; echo -----------; done\cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+I want to see rules in a specific chain\
+iptables -t <table>  -S <chain>\
+\
+Get me the whole config of iptables\
+iptables-save\
+\
+\
+\
+\
+}

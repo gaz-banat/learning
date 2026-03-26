@@ -1,0 +1,370 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2821
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red34\green35\blue37;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c17647\c18431\c19216;\csgray\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww31240\viewh22440\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7931\tx9072\tx10196\tx11331\tx12490\pardirnatural\partightenfactor0
+\cf0 AWS Pricing \
+------------------\
+\
+Compute			-		pay for compute time					EC2, AWS Lambda\
+\
+Storage			-		pay for data stored in the cloud			S3\
+\
+Networking		-		pay for data transfer out of the cloud \
+\
+\
+\
+\
+AWS Global Infrastructure\
+-----------------------------------\
+\
+Region							-		a collection of three or more availability zones\
+										e.g. us-east-1, eu-west-3, ap-southeast-2\
+\
+	Availability Zone				-		each region has many availability zones (3 to 6),\
+										each availability zone is one or more discrete data centers with redundant power, networking and connectivity\
+										az\'92s are connected with high bandwidth, utlra-low latency networking\
+										e.g. ap-southeast-2a, ap-southeast-2b, ap-southeast-2c\
+\
+		Data Centre\
+\
+\
+\
+Points of Presence\
+	Edge Locations\
+	Regional Caches\
+\
+\
+Local Zones\
+\
+\
+\
+\
+Network\
+\
+\
+\
+\
+AWS Global Services\
+-----------------------------\
+\
+IAM\
+Route 53 (DNS)\
+CloudFront (CDN)\
+Web Applicaiton Firewall\
+\
+\
+\
+\
+Shared Responsibility Model\
+---------------------------------------\
+AWS			-		Infrastructure (global network security), Configuraiton and vulnerability analysis, Compliance Validation\
+YOU			-		Users, groups, roles, policsies, management and monitoring, enable of MFA, rotation of keys, use IAM tools to apply permissions, analyze access patterns and review permissions\
+\
+\
+\
+\
+AWS ACCOUNT\
+----------------------\
+\
+root account vs iam account\
+\
+Account\
+	Name\
+	Account ID\
+	Canonical User ID\
+Organization\
+Service Quotas\
+Billing and Cost Management\
+Security Credentials\
+\
+\
+\
+\
+IAM\
+-----------\
+\
+User\
+	Access Key			-		identifies the user\
+	Secret Key			-		used to sign payloads, like a private key\
+	ARN					-		the identifier for this user resource\
+\
+Groups\
+	contain users only\
+\
+\
+Policies\
+json documents that outline permissions for users or groups\
+	Version\
+	Statement\
+		Effect				-		allow, deny\
+		Action				-		<service>:<verb>			verbs - Get*, List*, Search*\
+		Resource\
+\
+Security\
+	Password Policy\
+	MFA\
+\
+\
+Roles\
+a role is a set of policy permissions for an entity in AWS to access your account\
+the most common type of entity is AWS Service\
+e.g. EC2 instance roles, Lambda function roles, Roles for CloudFormation\
+\
+\
+Entity Types\
+	AWS Service\
+	AWS Account\
+	Web Identity\
+	SAML 2.0 Federation\
+	Custom Trust Policy\
+\
+\
+Audit/Security Tool\
+	IAM Credentials Report (account-level)\
+	IAM Access Advisor (user-level)	\
+\
+\
+\
+\
+\
+ACCESSING AWS\
+-------------------------\
+\
+AWS Management Console\
+AWS CLI using an access key and secret key\
+AWS SDK using an access key and secret key\
+\
+\
+\
+\
+\
+EC2 \
+----------\
+\
+Concepts:\
+\
+ELB					-	Elastic Load Balance				distributing load across machines\
+ASG					-	Auto Scaling Group				scaling services\
+EC2 Instance Connect	-	\
+EC2 User Data			-	bootstrap script at first boot\
+Storage				-	EBS, EFS, EC2 Instance Store \
+Filesystem		\
+\
+\
+Instance types:\
+\
+instance class		-	m and t (General Purpose), R and X(memory optimized), C(compute optimized), I and D and H1 (Storage Optimized)\
+generation		-	2, 5\
+separator			-	. (a dot)\
+size				-	nano, micro, small, medium, large, 2xlarge\
+\
+Note: https://instances.vantage.sh is a good website for comparing instances\
+\
+\
+\
+Instance Configuration:\
+\
+	Region\
+	Name\
+	Image\
+	Architecture\
+	Boot Mode\
+	Instance Type\
+	Key Pair\
+	Network\
+		VPC\
+		Subnet\
+		Public IP\
+		Security Group\
+	Storage					-		EBS volume, EC2 Instance Store, EFS, EFS-IA, FSx (Windows, Lustre) \
+	Backup\
+	IAM Role\
+\
+\
+Tenancy\
+	Host\
+	Dedicated\
+	Default\
+\
+\
+Purchasing Options\
+\
+	on demand			-		short workload, uninterrupted\
+								predictable pricing, pay by second, highest cost, no upfront payment, no long term commitment\
+								use case - you don\'92t know how the application will behave\
+	reserved				-		long workloads (1 and 3 years)\
+								~70% discount compared to on demand, reservation period is specified, payment can be no upfront, partial upfront or all upfront\
+								specific instance attributes are reserved (instance type, region, tenancy, OS) and the instance reservation scope is regional or zonal\
+								buy and sell in the Reserved Instance Marketplace\
+								use case - steady state applications (database)\
+	convertible reserved		-		long workloads with flexible instances\
+								like a reserved instance but you can change the instance type, instance family, OS, scope and tenancy\
+								~66% discount compared to on demand\
+	Savings plan			-		long workloads (1 andd 3 years)\
+								commitment to an amount of usage (e.g. $10/hour for 1 or 3 years)\
+								usage beyond the savings plan is billed at On Demand price\
+								locked to a specific instance family  and region (e.g. M5 in us-east-1) but flexible across size and OS and tenancy\
+	Spot Instances			-		short workloads\
+								~90% discount compared to on demand\
+								can lose instance (less reliable) if your max price is less than current spot price\
+								CHEAPEST OPTION\
+								use case - workloads that are resilient to failure (batch jobs, data analysis, image processing, distributed workloads)\
+	dedicated host			-		book an entire physical server\
+								control instance placement\
+								can be purchased on demand or reserved\
+								MOST EXPENSIVE OPTION\
+								use case - compliance requirements (e.g. server bound software licenses on per socket, per-core, per VM)\
+	dedicated instance		-		an instance that runs on hardware dedicated to you\
+								no other customers will share your hardware\
+								other instances in the same account can share the hardware\
+								no control over instance placement (can move hardware after start or stop)\
+	capacity reservation		-		reserve on-demand instances capacity in a specific AZ for any duration\
+								you always have access to EC2 capacity when you need it\
+								no time commitment (create/cancel any time)\
+								no billing discounts\
+								combine with regional reserved instances and savings plans to benefit from billing discounts\
+								you\'92re charged at on-demand rate whether you run instances or not\
+								use case - short term uninterrupted workloads that need to be in a specific AZ\
+\
+\
+\
+EC2 Image Builder:\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+EC2 Image Builder is an automated pipeline for the creation, maintenance, validation, sharing, and deployment of Linux or Windows images for use on AWS and on-premises.
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7931\tx9072\tx10196\tx11331\tx12490\pardirnatural\partightenfactor0
+\cf0 EC2 Image Builder		----> 		Builder EC2 Instance		---->  	New AMI		-----> 	Test EC2 Instance\
+\
+\
+\
+AMI\
+\
+built for specific region and copied across regions\
+provides information to launch an instance\
+your own software license\
+your own configuration\
+your own OS\
+\
+\
+\
+Storage Tiers:\
+	Standard\
+\
+\
+Storage Options:\
+\
+EBS					-	Elastic Block Store	 	storing data on virtual drives\
+\
+think of it as a network drive\
+good but limited performance\
+used for data persistence even after instance has terminated\
+only be mounted to one instance at a time\
+they are bound to a specific AZ\
+Snapshot\
+	archive			-	ebs snapshot can be moved to an archive tier - about 75% cheaper\
+						but takes 24 to 72 hours for restoring from the archive\
+	recycle bin		-	rules to retain deleted snapshots so you can recover, retention period needs to be specified from 1 day to 1 year\
+\
+\
+EC2 Instance Store\
+\
+high performance hardware disk \
+when you need better IO performance\
+ephemeral (storage is lost if they are stopped)\
+risk of data loss if hardware fails (so you need to take care of backups)\
+use case - buffer, cache, scratch data, temporary content\
+\
+\
+\
+EFS					-	Elastic File Storage		Managed NFS\
+\
+managed NFS that can be mounted on 100s of EC2 instances\
+works only with Linux EC2 instances\
+multi AZ capable\
+highly available, scalable, expensive (3 x gp2), pay per amount of storage, no need to capacity plan\
+EFS-IA  -  EFS infrequent Access is a storage class that is cost-optimized for file not accessed every day (around 92% less cost)\
+\
+\
+\
+S3\
+\
+Concepts:\
+infinitely scaling storage\
+allows storing of objects (files) in buckets (directories)\
+bucket is defined at regional level and the name must be unique\
+\
+key - full path to bucket e.g. s3://gaz-bucket/file1\
+s3://gaz-bucket/folder2/folder3/file1				-	folder2/folder3 is prefix\
+											file1 is object name\
+\
+object value (content of the object)\
+metadata (text key/value pairs)\
+Tags (Unicode key/value pairs) - up to 10\
+Version ID\
+\
+\
+S3 Glacier:\
+\
+for archival\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7931\tx9072\tx10196\tx11331\tx12490\pardirnatural\partightenfactor0
+\cf0 Security Groups:\
+\
+	only allow rules\
+	can reference \
+		an IP \
+		other security groups					-		this is a bit confusing, looks like it is for EC2 to EC2 traffic use case\
+	inbound and outbound rules\
+	locked down to a region/VPC combination\
+	by default - all inbound is blocked and all outbound is allowed\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7931\tx9072\tx10196\tx11331\tx12490\pardirnatural\partightenfactor0
+\cf0 \
+\
+VPC:\
+\
+  CIDR Block\
+  SECURITY GROUPS\
+  SUBNETS\
+	Public Subnets			-	allows direct access to the Internet, direct route to Internet Gateway\
+	Private Subnets			-	no direct access to the Internet, no direct route to an Internet Gateway, need a NAT device/gateway to access the Internet\
+	VPN-only subnet\
+	Isolated subnet			-	no routes to destinations outside the VPC\
+  ROUTE TABLES\
+	Route_Table_1\
+		route   			-- 	destination CIDR for the route AND either nat_gateway OR gateway (internet gateway)\
+  INTERNET GATEWAYS\
+  NAT GATEWAYS\
+	Public NAT Gateway\
+	Private NAT Gateway\
+  ELASTIC IPs\
+\
+\
+\
+	Public_Subnet_1	 -- associates to ---> 	a Route Table  --------> 	Internet Gateway\
+		EC2_Instance_Public_1\
+			Security_Group_1\
+			Security_Group_2\
+	Public_Subnet_2	---associates to --->	a Route Table --------->  	Public NAT Gateway (elasctic IP address)	 [ other options are Transit Gateway, Virtual Private Gateway ]\
+	Private_Subnet_1	---associates to --->	a Route Table ---------> 	Private NAT Gateway \
+		EC2_Instance_Private_1\
+	Private_Subnet_2\
+\
+\
+\
+\
+\
+\
+\
+CLOUDWATCH\
+----------------------}

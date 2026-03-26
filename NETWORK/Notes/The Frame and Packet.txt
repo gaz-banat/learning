@@ -1,0 +1,382 @@
+
+Ethernet Frame 802.3	= 14 Bytes Header + 1500 Bytes MTU (Min 20 Bytes IP Header + Min 20 Bytes of TCP Header + 1460 Bytes of TCP Segment) + 4 Bytes CRC = 1518 Bytes Frame
+Ethernet Frame 802.1q	= 18 Bytes Header + 1500 Bytes MTU (Min 20 Bytes IP Header + Min 20 Bytes of TCP Header + 1460 Bytes of TCP Segment) + 4 Bytes CRC = 1522 Bytes Frame
+Ethernet Frame 802.1ad	= 26 Bytes Header + 1500 Bytes MTU (Min 20 Bytes IP Header + Min 20 Bytes of TCP Header + 1460 Bytes of TCP Segment) + 4 Bytes CRC = 1526 Bytes Frame
+Ethernet Preamble	= 8 Bytes
+Ethernet Interframe Gap	= 12 Bytes
+
+
+Ethernet Overhead		= Preamble + Frame (Header and Data) + Interframe Gap
+Maximum Ethernet overhead	= Preamble (8) + Ethernet 802.1ad Frame (26) + Interframe Gap (12) = 46 Bytes
+
+
+                   | 		MAC HEADER ( 802.1q)				| IP HEADER | TCP HEADER |  TCP Segment | CRC (4 Bytes) |
+		   ----------------------------------------------------------------------------------------------------------------------
+ Preamble with SFD |	Dest	  |	Source	  |	Vlan Tag |	Type    |							|	12 bytes Interframe Gap 	|
+  	8 bytes	   | 	6 bytes	  |	6 bytes	  |  	4 bytes	 | 	2 bytes |							|					|
+		   |		  |		  | (3 bits COS) |		|							|					|
+		   ----------------------------------------------------------------------------------------------------------------------
+
+
+
+| MAC HEADER |								IP HEADER								 | TCP HEADER | TCP Segment | CRC |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	     | Ver | Header Len	|   TOS  | Total Len | ID | IP Flags | Frag Offset | TTL | Protocol | Header CS | Source Add | Dest Add | IP Opt |
+	     |4 bit|  4bit	| 1 Byte |   2 Byte  |	  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+| MAC HEADER | IP HEADER |											TCP HEADER				  				   | TCP Segment | CRC  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	     		 |  SP    |  DP    | Seq No | Ack No | Header Len  |  Reserved  | URG | ACK | PSH | RST | SYN | FIN | Window Size | TCP Checksum | Urg Pointer | Options | Padding |
+	     		 | 2 Byte | 2 Byte | 4 Byte | 4 Byte |    4 bit    |   6 bits   |1 bit|1 bit|1 bit|1 bit|1 bit|1 bit|  2 bytes    |   2 Bytes    |  2 Bytes    |  Var    |   Var   |     
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+Physical Layer
+
+	- Ethernet 	
+			- Baseband Technology
+			- 10BaseT, FastEthernet, GigabitEthernet, 1000Base-SX
+	
+	- DSL		
+			- Broadband Technology
+			- uses existing phone wiring, can be used at the same time as the telephone
+			- the data channel is at frequency higher than 3.4Khz as compared to the voice channel which is between 300Hz to 3400 Hz
+			- shared technology, meaning subscribers contend for resource in the providers network somewhere along the way
+			  Multiple DSL phone lines connect to a DSL access multiplexer (DSLAM) which connects upstream through a single port
+			- signal degrades with distance
+			- only copper media (so if fibre is involved in local loop then DSL won’t run)
+			- download and upload speeds can be different
+			
+			- DSL Technologies
+				Asynchronous (ADSL)
+					- ANSI T1.413
+					- G.DMT - ITU G.992.1 
+					- G.Lite - ITU G.992.2 
+					- ADSL2
+					- ADSL2+
+					- VDSL
+					- VDSL2
+					- G.fast
+
+				Synchronous (SDSL)
+					- ISDN Digital Subscriber Line (IDSL)
+					- High bit rate Digital Subscriber Line (HDSL)
+					- HDSL2, HDSL4
+					- SDSL
+					- G.SHDSL
+					
+
+	- T1/T3
+			- Broadband Technology
+			- uses dedicated wiring
+			- 24 Channels x 64Kbps/channel = 1.54Mbps
+			- dedicated bandwidth from end to end
+			- signal does not degrade due to distance
+			- can be delivered over copper or fibre
+			- download and upload speeds will be the same
+
+
+	- E1
+
+	- ISDN
+
+	- IRDA
+
+	- OTN
+
+	- Cable Modem
+
+
+
+
+Frame/Link Layer/Encapsulation
+
+	- Ethernet
+		- FastEthernet, GigabitEthernet, TenGigabitEthernet
+
+	- ATM
+
+	- PPP		
+		- Serial Encapsulation Protocol
+		- PPPoA (over ATM), PPPoE (over Ethernet), Multilink PPP (MLP)
+		- Authentication is supported with PAP, CHAP, EAP
+
+	- Frame Relay
+		- Serial Encapsulation Protocol
+		- mostly over T1
+		- uses PVC's
+
+	- HDLC					
+		-Serial Encapsulation Protocol
+
+
+
+
+Packet/IP
+
+	- Header
+		- Ver	
+					
+			- IPv4, IPv6
+	
+		- Protocol	
+
+			- ICMP, IGMP, TCP, IGRP, UDP, GRE, ESP, AH, SKIP, EIGRP, OSPF, L2TP
+	
+		- IP Flags
+		
+			- x is reserved, D for Do Not Fragment, M for more fragments to follow
+
+
+
+Control/ICMP
+
+	- Header	- 8 bytes
+
+
+
+Transport/TCP
+
+	- Header
+
+		- Source Port
+
+		- Destination Port
+		
+		- Sequence Number
+				
+			-- (Seq) indicates how many bytes have been transmitted before this packet
+			— TCP Segment Length (Len) indicates the length of the TCP Segment
+			- the ACK coming back will be Seq + Len
+
+		- Acknowledgement Number	
+		
+			-- indicates how many bytes have been received so far
+
+		- Header Length
+
+		- Window Size (RWND)			
+		
+			-- announces the number of bytes still free in the receiver buffer
+			—- in bytes, specifies the receive window of the host, each TCP segment contains the current value
+			-- receiver tells sender please don’t send more than the number of bytes specified in the receive window
+			—- the number of bytes the sender can still send without needing an acknowledgement from the receiver
+
+		- Checksum
+		
+		- Flags
+
+			- SYN
+			- ACK
+			- PSH					— get this data to the network/app straight away, don’t buffer
+			- RST
+			- ECN
+			- CWR (Congestion Window Reduced)
+			- FIN
+			- Urgent
+
+		- Options
+
+			- 0 - EOL
+			- 1 - NOP					- provides padding around other options
+			- 2 - MSS					-- in bytes
+			- 3 - WSOPT (Window Scale)
+			- 4 - TCP SACK Permitted			— len 2
+			- 5 - SACK					— len N
+			- 8 - TSOPT (Time Stamp)			- len 10
+
+
+	- Congestion Window (CWND)				
+
+			-- sender imposed window
+			—- number of packets that can be in transit without being acknowledged, increases by 2 per ACK received,
+			-- sender will not go beyond the limit of the receive window of the receiver even if congestion window allows it
+			—- if sender detects packet loss it will cut the window in half
+
+
+	- TCP Retransmission
+
+			— Retransmission Timeout has initial value of 3 seconds
+			- After each retransmission value of RTO is doubled
+			- Maximum of 3 retransmissions (so send packet, wait 3 secs, send packet, wait 6 seconds, send packet, wait 12 seconds, give up)
+
+
+	- Congestion control
+	
+		- slow start
+
+
+		- congestion avoidance
+
+
+		- fast retransmit			-- 3 ACKS received with the same number, lets retransmit from that number 
+
+
+		- fast recovery
+
+
+
+
+	- TCP Flow
+
+		The packets associated with application layer request or reply messages can be considered a flow
+		When grouped together their payload represents the entire application-level message
+
+
+	- TCP Turn
+		
+		Exchanges of packets and subsequent ACKs are TCP turns or TCP round trips
+
+
+
+	- TCP States (example where client initiated setup and close)
+
+		Server Side
+			1. LISTEN	- waiting to receive a SYN
+			3. SYN-RECEIVED	- received a SYN and sent a SYN, waiting for ACK for the SYN that was sent 
+			4. ESTABLISHED	- connection established
+			6. CLOSE-WAIT	- received close request (FIN) from peer, sent ACK, waiting on local app
+			8. LAST-ACK	- Local app gave signal to shut, sent FIN in response, waiting for ACK to the FIN sent, received ACK
+			9. CLOSED
+
+
+		Client Side
+			2. SYN-SENT	- sent a SYN waiting for ACK
+			4. ESTABLISHED	- connection established
+			5. FIN-WAIT-1	- initiated FIN, waiting for ACK
+			7. FIN-WAIT-2	- received ACK for initiated FIN, waiting for FIN from server, received FIN from server, sent ACK in response
+			8. TIME-WAIT	- waits for time equal to double the Maximum Segment Life, timer expires
+			9. CLOSED
+
+
+
+
+	- TCP Connection setup and closing
+
+		Setup (3 way handshake)
+			SYN —>
+			    <— SYN ACK
+			ACK —>
+
+		Closing (a pair of 2 way handshakes)
+			
+			
+
+	- Some notes on TCP
+
+		Both sides of the TCP Connection use the lower of the 2 MSS values
+		the sender's effective transmission window is always the lower of CWND and RWND
+		TCP connections can be kept alive by using TCP Keepalive (generally 2 hours)
+
+
+
+
+Transport/UDP
+
+
+
+
+
+
+
+MTU Sizes of Link Layer (Encapsulation) Protocols
+
+	Ethernet		- 1500
+				- 1501 to 9198 for Jumbo Frames
+
+	PPP			- 576 (dial up)
+				- 1500 (T1)
+
+	PPPoE			- 1492 (also heard about 1480)
+
+	PPPoA			- 1500
+
+
+
+
+Important Concepts
+
+	MTU	- from interface, in bytes, this is the largest size of "IP packet" I can transmit, anything over will be fragmented,
+		  if DF bit set in the packet then send back a message indicating "fragmentation needed and DF set" (type 3, code 4)
+
+	MSS	- receive MSS is from a host, in bytes, this is the largest amount of TCP payload the host can receive		(hosts send their "receive mss" in the SYN packet)
+		  send MSS is on a host, in bytes, derived from the lowest value between buffer, MTU, receive MSS and PMTUD	(hosts don’t send their "send mss")
+
+
+	PMTUD	- If PMTUD is enabled on a host, and it almost always is, all TCP/IP packets from the host will have the DF bit set.
+		  Only supported by TCP
+
+	Bandwidth Delay Product		- in bytes is calculated as --> Bandwidth in Bits/8 (bits per byte) * RTT in ms/1000 (milliseconds per second)
+
+
+
+
+VPN Technologies
+
+	GRE
+		- adds 24 bytes to a packet
+
+
+	IPSec
+
+		- Tunnel mode
+			the entire original IP packet is protected (encrypted, authenticated, or both) and encapsulated by the IPsec headers and trailers.
+			Then a new IP header is prepended to the packet, specifying the IPsec endpoints (peers) as the source and destination.
+
+			can be used with any unicast IP traffic and must be used if IPsec is protecting traffic from hosts behind the IPsec peers
+
+			52 bytes overhead (IPSec header, trailer and additional IP header)
+
+		- Transport mode
+			only the payload of the original IP packet is protected (encrypted, authenticated, or both). The payload is encapsulated by the IPsec headers and trailers.
+			The original IP headers remain intact, except that the IP protocol field is changed to be ESP (50), and 
+			the original protocol value is saved in the IPsec trailer to be restored when the packet is decrypted.
+
+			is used only when the IP traffic to be protected is between the IPsec peers themselves
+
+			Normally IPsec transport mode is only used when another tunnelling protocol (like GRE) is used to first encapsulate the IP data packet, 
+			then IPsec is used to protect the GRE tunnel packets. 
+	
+	SSL
+
+
+	L2TP
+
+
+
+VPN Technology overhead
+
+	L2TP			- (1460
+	
+	PPTP (PPP/GRE/IP)	- (1372
+
+	GRE			- 24 bytes (1476 bytes of original IP + 4 bytes GRE header + 20 bytes of new IP header = 1500 bytes)
+
+	IPSec			- 52 to 58 bytes (
+		
+
+
+Call Control Protocols
+	- SCCP (Skinny Call Control Protocol)
+	- H.323
+	- H.225
+	- SIP
+	- MGCP (Media Gateway Control Protocol)
+
+
+
+
+Broadband
+When 2 or more signals share a medium
+	in data 			-	a high bandwidth connection say over Fibre, much faster than say a dial up connection
+	in data communications		-	data transmission where multiple pieces of data are sent simultaneously to increase effective rate of transmission
+	in telecommunications		-	a signalling method that includes or handles a relatively wide range of frequencies, which may be divided into channels
+

@@ -1,0 +1,2064 @@
+
+SETTING UP A SYSTEM
+
+hostname
+IP address
+disk partitioning
+root user password
+users
+system time and time zone
+software selection - minimal, full
+yum repositories
+subscription manager
+software package
+ssh keys
+
+
+then:
+ - add extra repositories to the system
+ - add cron jobs
+ - configure syslog/rsyslog
+ - logrotation 
+ - secure the system		
+	- update the system, 
+	- iptables/firewalld, 
+	- set minimum password length (libpam-cracklib in ubuntu)
+	- disable non-essential services (systemctl list-units), check which ports are open, 
+	- if needed any ca certs to /etc/pki/ca-trust/source/anchors
+
+
+
+
+
+
+AUTOMATED INSTALLATION
+
+Kernel Parameters
+inst.ks		-	location of kickstart file
+inst.repo	-	location of repository content
+
+
+
+
+
+
+GENERAL
+
+/etc/redhat-release
+/etc/machine-id			-	the id of the machine
+
+
+
+
+
+GRUB2 (GRand Unified Bootloader)
+
+What:
+GRUB is the program on Linux systems that manages (boot manager) the boot process and loads (bootloader) the kernel
+The boot manager 	is part of GRUB and is the menu that allows you to select different operating system kernels to load.
+The boot loader 	is the part of GRUB that loads the kernel of the operating system into memory (from /boot/vmlinuz*)
+
+
+
+GRUB2 stage1:
+
+
+GRUB2 stage 2:
+Stage 2 provides 
+- a list of kernels that can be loaded
+- a rescue option
+- a recovery option (if configured)
+
+Once kernel is selected Stage 2 loads the kernel and initramfs
+/boot/vmlinuz*
+/boot/initramfs*
+
+
+Locations:
+/boot/grub2 is STAGE 2 of GRUB2 (not stage 1 and not stage 1.5)
+/boot/grub2/grub.cfg				-	generated configuration file (do not modify by hand)
+/boot/grub2/i386-pc/				-	runtime kernel modules that are loaded as necessary
+/etc/default/grub				-	configuration file for GRUB2
+/boot/loader/entries/<machine-id-kernel>.conf	-	information about kernel version and location, the initrd to be used, kernel parameters (options)
+
+
+Binaries:
+grub2-*
+grubby
+
+
+
+Solutions:
+
+I want to change a kernel parameter for all kernel entries in the bootloader
+edit /etc/default/grub and update the kernel parametes line in GRUB_CMDLINE_LINUX
+then run grub2-mkconfig > /boot/grub2/grub.cfg (I have heard that sudo update-grub also works)
+or
+grubby --update-kernel=ALL --args=<NEW_PARAMETER>
+
+
+I want to change the kernel parameter for a single kernel entry
+grubby --update-kernel=/boot/vmlinuz-<kernel_verision> --args=<NEW_PARAMETER>			this will update the /boot/loader/entries/<machine-id-kernel>.conf file for the respective kernel
+grubby --update-kernel=/boot/vmlinuz-<kernel_verision> --remove-args=<NEW_PARAMETER>
+
+
+
+
+KERNEL
+
+Configuration			-	the overall setting of the kernels features and modules (sometimes available at /proc/config.gz)
+Command line Parameters		-	specific arguments passed to the kernel during boot (the way to control the kernels behaviour at boot time) 
+Parameters			-	can configure linux kernel with all options (the way to control the kernels behaviour at run time)
+
+
+Some Kernel Command Line Parameters:
+root=<device_file>
+ro
+resume=<device_file>		-	i think this one is about SWAP
+rd.md.uuid
+rd.lvm.lv
+console
+net.ifnames=0
+rhgb
+quiet
+emergency
+noapic
+
+
+System Calls:
+ioctl
+						_________________________________
+						| Linux Kernel 			|
+						|				|
+</>Process  ----- execve() ------> Syscall ------------ Scheduler 		|
+						|  | 				|
+						| eBPF				|
+						---------------------------------
+
+
+
+Kernel Technologies: (THIS NEEDS IMPROVEMENT)
+routing and routing table
+netfilter
+eBPF
+device mapper
+
+
+Kernel Subsystems
+kernel.org/doc/html/<version>/subsystem-apis.html
+
+
+Locations:
+/boot/vmlinuz*				-	kernel binary file
+/etc/sysctl.conf			-	kernel parameters at boot time	
+/etc/sysctl.d/*.conf			-	more kernel parameters at boot time
+/run/sysctl.d/*.conf
+/usr/local/lib/sysctl.d/*.conf
+/usr/lib/sysctl.d/*.conf
+/lib/sysctl.d/*.conf
+/proc/sys
+
+
+Binaries:
+sysctl					-	utility for modifying kernel parameters at runtime
+
+
+
+Solutions:
+
+I want to see the kernel configuration
+cat /boot/config-$(uname -r)
+or
+cat /proc/config.gz | zgrep -E “<PATTERN>”		# but not always available, only available if kernel built with CONFIG_IKCONFIG_PROC
+
+
+I want to see the kernel command line parameters
+cat /proc/cmdline
+
+
+Show the kernel logs
+sudo journalctl -k
+
+
+I want to see if a kernel component is built-in to the kernel or a module or not there
+cat /boot/config-$(uname -r) | grep -i <component>
+y - it is built into the kernel, part of the kernel image file (vmlinuz), available from boot
+m - it is a loadable kernel module, in a separate module file (.ko)
+n - it is not there
+
+
+
+
+
+
+KERNEL SPACE vs USER SPACE (userland)
+
+Think of each as a body of software code and memory area that the code executes in
+kernel space 	-	an area in memory that only the kernel has access to - code in kernal space has direct access to the hardware, filesystem, etc.
+kernel mode	-	unrestricted access to memory and cpu
+
+user space 	-	code does not have direct access to the hardware and goes through kernel system calls
+user mode	-	restricted access to a subset of memory and safe CPU operations
+
+kernel space	-	kernel, kernel extensions, device drivers
+			Kernel, IPC
+			Process Scheduling
+			Memory Management
+			Networking Subsystem
+			Virtual Files subsystem
+			Netfilter
+			Security Modules (SELinux modules)
+
+user space	-	application software (programs and libraries) that interact with kernel via calls , some drivers
+			Standard C library (glibc or musl or uClibc, etc)
+			Init daemon (systemd)
+			System Daemons (sshd, udevd)
+			Window Managers (X11) 
+			Graphics 
+			Shells (bash)
+			Utilities (iptables)
+
+
+
+
+
+FILE HIERARCHY STANDARD
+
+Essential 
+  binaries:
+  	/bin 		- Binaries needed for normal/standard system functioning at any run level. For binaries that need to be available in single user mode.					e.g.
+  	/sbin 		- System level binaries needed for booting, low-level system repair, for system administrators or maintenance work							e.g.
+
+  libraries:
+  	/lib		- essential system libraries, support for /bin and /sbin binaries, but now just a link to /usr/lib 
+  	/lib64		- 64 bit system libraries, but now just a link to /usr/lib64																	
+	  
+
+User (userland)
+  For the distribution:
+    binaries: 
+	/usr/bin 	- Application/distribution binaries meant to be accessed by locally logged in users, these are considered non-essential and are not needed in single user mode.		e.g.
+	/usr/sbin 	- Application/distribution binaries that support or configure stuff in /sbin, non-essential binaries for system administration						e.g. daemons for network services
+
+    libaries:
+	/usr/lib	- libraries for binaries in /usr/bin and /usr/sbin
+
+		modules/<kernel>	- kernel modules
+
+	/usr/lib64	- 64 bit versions of /usr/lib, dynamically loaded libraries														e.g. C library, math, threading, crypto
+
+		libc-X.yy.so		- the standard C library which provides an interface to the kernels system calls
+		
+
+    shared:
+	/usr/share/
+	  	bin 			- Application/distribution binaries or scripts meant to be accessed via the web, i.e. Apache web applications
+
+    include files
+	/usr/include	- looks like header files used by the C compiler that come as part of devel packages 
+
+  Local to this host:
+	/usr/local/
+	  bin		- Binaries not part of a distribution; locally compiled or manually installed. This is where users put their stuff
+	  sbin		-
+	  lib		- Support libs for /usr/local/bin
+	  share		-
+
+
+Configuration
+	/etc
+
+Writable parts 
+	/var
+	  log/
+	  lib/		- It holds state information, which comprises persistent data that programs modify as they run
+
+	    	containerd		- so as an example this would be for containerd
+	/tmp
+
+
+
+Other
+	/proc		- process interface
+	/run		- runtime data specific to the system, e.g. pid’s, socket files, etc.
+	/sys		- device and system interface
+	/boot		- kernel bootloader files and kernel configuration
+	/dev
+
+
+
+
+
+PROCESSES
+
+Things to know about a process
+Name
+PID
+PPID
+
+
+Streams stdin, stdout, stderr:
+These are ‘standard I/O streams’ given to every process
+
+These I/O streams get attached to file handles/descriptors
+stdin is attached to fd 0
+stdout is attached to fd 1
+stderr is attached to fd 2
+
+
+to know where the file descriptors for the I/O streams of a process are connected to find the process number and ls -l /proc/<process_number>/fd/
+you will see where file descriptors 0, 1 and 2 are connect to.
+
+
+Generally speaking for a bash process that you are in via a terminal, the process will have its I/O streams connected to that terminal, e.g. /dev/pty/X or /dev/pts/X
+yep all 3 get attached to the same device file representing the terminal
+
+
+These streams can be redirected to a file, a socket, another process via a pipe, etc.
+stdin  		- 	‘<‘ is a way of redirecting the stdin I/O stream for a process
+stdout 		-	‘>’ or ‘1>’ is a way of redirecting stdout I/O stream of a process
+stderr 		-	‘2>’ is a way of redirecting stderr I/O stream of a process
+
+
+
+What are some common /dev files
+/dev/null
+
+these 3 are a bit odd
+/dev/stdin		-	a process when accessing /dev/stdin will be sent to its own fd 0 (but /dev/stdin will be given another fd number, which eventually goes back to fd 0)
+/dev/stdout		-	a process when accessing /dev/stdout will be sent to its own fd 1
+/dev/stderr		-	a process when accessing /dev/stderr will be sent to its own fd 2
+
+
+Now look at theses 2 lines
+ln -sf /dev/stdout /var/log/nginx/access.log
+ln -sf /dev/stderr /var/log/nginx/error.log
+
+The nginx process writes logs to /var/log/nginx/access.log. With the above this file is now actually just a symlink to /dev/stdout.
+So what nginx now writes to its access log will come to /dev/stdout which will go the nginx process’es fd 0 (because /dev/stdout is a link to /proc/self/fd/0).
+The container orchestrator will read the stdout of the nginx container process and pickup the logs 
+Same for /dev/stderr and error.log
+
+
+
+Signaling to processes:
+SIGINT			2	Interrupt signal, typically by Ctrl+c
+SIGTERM			15	Is meant to be caught by a process so that the process may gracefully terminate itself
+SIGKILL			9	Cannot be caught by a process so that the process may handle it, no the kernel does not allow that, the exception is /sbin/init which catches and ignores a SIGKILL
+SIGSTP			20	Stop signal, sent by passing Ctrl+z
+
+
+Binaries:
+ps
+
+
+
+Solutions:
+
+ps (UNIX)
+
+no options		-	processes in the current shell
+
+-e or -A		-	all processes
+-a			-	all Terminal attached processes except session leader processes
+
+-F or -f		-	full format (the formats vary between -F and -f)
+
+-U <user>		- 	select by real userid (the user who created the process)				
+-u <user>		-	select by effective userid (the user whose file permissions are being used)
+
+-L <pid> or -T <pid>	-	show threads of process
+
+-G <group>		-	select processes by group
+
+---
+
+ps (BSD)
+
+x			-	your processes
+ax			-	all processes
+u			-	detailed information
+f			-	forest
+w			-	wide output, use 2 ww for more wide
+
+
+
+
+
+SOCKETS
+
+
+Types:
+
+STREAM 			 	-	sockets provide a reliable, connection-based communication channel.
+DGRAM 				-	sockets offer a connectionless UDP-based channel.
+RAW 				-	sockets allow direct access to the underlying networking protocols. THINK ICMP (PING AND TRACEROUTE)
+SEQPACKET (Sequenced packet) 	-	guarantee that the sent packets will arrive in the original order. CONNECTION ORIENTED LIKE Stream sockets
+
+
+Protocols:
+
+unix				-	Unix Domain Socket (IPC), an inter-process communication mechanism that allows bidirectional data exchange between processes running on the same machine
+tcp
+tcp6
+udp
+udp6
+
+
+
+State:
+
+Listening
+Connected
+
+
+NOTE: UNIX domain sockets are subject to file system permissions, while TCP sockets can be controlled only on the packet filter level.
+
+
+
+
+
+MEMORY
+
+	RSS
+
+	PSS
+
+	USS
+
+	Swap
+
+
+Binaries:
+swapoff
+
+
+
+
+
+
+SHARED MEMORY (shm)
+
+
+
+
+
+INTERPROCESS COMMUNICATION
+
+
+Methods:
+
+Socket
+Pipe
+Shared Memory
+
+
+binaries:
+socat
+
+
+
+
+BLOCK DEVICES, PARTITION TABLES, LVM and FILESYSTEMS
+
+
+Block Devices:
+
+Run lsblk to see the block devices
+		  
+
+
+Partition Table Types:
+
+Master Boot Record (MBR)
+Globally Unique Identifier Partition Table (GPT)
+loop							-	not a real partition table, associated with linux software raid
+
+
+Partition Types:
+
+mbr
+  primary
+  extended
+  logical
+
+
+gpt
+  primary
+
+
+
+Flags on a partition:
+
+boot
+lvm
+
+
+
+Example Disk:
+
+  Parition Table
+
+	Partition	
+		raid device (md0)				/dev/md0
+		  vg1-lv1					/dev/mapper/vg1-lv1
+		  vg1-lv2					/dev/mapper/vg1-lv2
+		  vg1-lv3					/dev/mapper/vg1-lv3
+
+	Partition
+		raid device (md0)				/dev/md0
+		  vg1-lv1					/dev/mapper/vg1-lv1
+		  vg1-lv2					/dev/mapper/vg1-lv2
+		  vg1-lv3					/dev/mapper/vg1-lv3
+
+	Partition	lvm flag
+		vg2
+		  vg2-lv1					/dev/mapper/vg2-lv1	---- mount ------ /path/to/mount
+		  vg2-lv2					/dev/mapper/vg2-lv2	---- mount ------ /path/to/mount
+  		  vg2-lv3					/dev/mapper/vg2-lv3	---- mount ------ /path/to/mount
+
+
+Binaries:
+
+parted
+gparted
+fdisk
+
+
+
+
+Logical Devices:
+
+Logical devices are virtual devices that have been mapped to physical storage using the devmapper component of the kernel (dm_mod module)
+
+
+E.g. /dev/dm-0 device file represents a virtual block device created by the kernel’s device mapper 
+It represents a virtual hard disk that has been mapped to a physical storage device
+sudo dmsetup info /dev/dm-0
+
+
+E.g. /dev/mapper/sysvol device file could be a volume group on which many logical volumes are present
+E.g. /dev/mapper/sysvol-root could be the logical device on which the logical volume sysvol-root is present
+
+
+/dev/dm-* devices are raw devices meant for use by the kernel and can change for a device on reboot
+/dev/mapper/* devices are meant for use by humans and remain persistent across reboots
+
+
+
+Commands
+
+dmsetup ls
+dmsetup info /dev/mapper/<logical-volume>
+
+
+
+Filesystems Types:
+
+tmpfs			-	the backing store is memory (including swap) and is lost on reboot
+devtmpfs		-	kernel maintained filesystem of automated device nodes
+/proc (fs type is proc)	-	a way of exposing particular attributes of processes to userspace
+/sys (fs type is sysfs)	-	a way of exposing particular attributes of devices to userspace
+squashfs		-	a type of ro filesystem where content is stored in a compressed format and extracted on demand through a loopback device
+cgroup			-	kernel feature, 
+cgroup2
+ext4
+xfs
+iso9660
+btrfs
+overlay			-	a filesystem that merges directories into a composite (i believe in layers)
+
+
+There are 4 considerations when looking at the mounting of a filesystem
+what is the source  (the device that represents the partition or volume where the filesystem is)
+where is it mounted
+what is its type
+what options is it mounted with
+
+
+
+Filesystem Structure:
+
+Broadly speaking 
+- a pool of data blocks to store data
+- a database system that manages the data pool		-	aka an inode table where each entry is an inode
+
+
+inode describes a file or directory including type, permissions and where the f or d might reside in the data pool
+a file inode links to a data block where the file begins
+a directory inode links to a data block, that data block contains a list of subdirs and files along with the inode number for each subdir and file, the inode number can be looked up in the inode table
+
+
+
+Commands:
+
+Show me all partition tables across all disks (try all 3 of the following commands to see the information you want)
+lsblk
+or
+sudo parted --list 		# mbr partition table on a disk will be shown as msdos
+or
+sudo fdisk -l
+
+
+Show a mount tree from a given path
+findmnt -R /path/to/mnt
+
+Show a block device, its uuid and corresponding filesystem
+sudo blkid 
+
+
+Show device files for block devices by uuid
+ls -l /dev/disk/by-uuid
+
+
+Show device files for block devices by id
+ls -l /dev/disk/by-id
+
+
+Show device files for lvm devices
+ls -l /dev/mapper
+
+
+I want to mount a tmpfs filesystem
+sudo mount -t tmpfs -o size=100M tmpfs /path/to/mnt/dir
+
+
+
+
+
+
+
+
+NAMESPACES
+
+This is a linux kernel feature
+
+What:
+a way to cordon off a process or processes so that they can’t reach outside of the cordoned off boundary
+OR
+Namespaces are a feature of the Linux kernel that partitions kernel resources such that one set of processes sees one set of resources while another set of processes sees a different set of resources
+
+
+Types of namespaces:
+
+
+
+pid		-	PID namespaces isolate the process ID number space, which means that processes in different PID namespaces can have the same PID
+			A pid namespace has its own set of process ID’s starting with 1
+			(don’t forget that each process on a system has a pid in its main parent namespace as well)
+			
+user		-	A user namespace has its own set of user IDs and group IDs for assignment to processes. 
+			In particular, this means that a process can have root privilege within its user namespace without having it in other user namespaces.
+
+net		-	Network namespaces isolate system resources that are associated with networking, namely a network stack
+			Those resources include network devices, IPv4 and IPv6 addresses, protocol stacks, IP routing tables, firewall rules, socket listings, connection tracking table, 
+
+mnt		-	the list of mount points that are seen by the processes in each namespace instance
+			So a mount namespace has an indepent list of mounts as seen by processes in that namespace
+			you can mount and unmount filesystems in a mount namespace without affecting the host filesystem
+
+uts		-	Unix Time Sharing namespaces isolate two system identifiers: the hostname and the NIS domain name
+			So the hostname and domain name can be different per uts namespace
+
+ipc		-	each IPC namespace has its own IPC resources, e.g. POSIX messaging queues
+
+cgroup
+
+
+
+Commands:
+
+I want to see the namespaces on my system:
+sudo lsns --list
+
+I want to enter all namespaces of a process on my system:
+sudo nsenter -a -t <pid>
+
+I want to create a new namespace and start bash in it
+unshare --user --pid --map-root-user --mount-proc --fork bash		-	same as ‘<runtime> exec -it <image> /bin/bash’ 
+
+
+I want to see all the network namespaces
+ip netns list
+
+
+
+NOTE: namespaces don’t solve the problem of resource consumption by processes, for this we have CGROUPS
+
+
+
+
+
+
+CGROUPS
+
+This is a linux kernel feature that allows for isolating linux processes from each other
+
+What:
+Control groups, usually referred to as cgroups, are a Linux kernel feature which allow a process or a group of processes to be organized into hierarchical groups 
+And Then 
+ - the usage of various types of resources (cpu, memory, i/o, network) can be limited 
+ - the usage of resources can be prioritized 
+ - the usage of resources can be monitored/accounted.
+ - the status (frozen, stopped, restarted) of all processes in a cgroup can be changed with a single command
+ - also allows for a user to pin a process to a specific CPU core or a set of CPU cores
+
+NOTE: a group of processes would be the ones running in a container
+
+NOTE: By default, the operating system terminates a process when it exceeds a resource limit defined by its cgroup
+
+
+CGroup Hierarchy (cgroup tree):
+Cgroups tend to be in a hierarchy. 
+
+Here is one hierarchy
+  /user.slice
+	/user-1000.service
+		/session-c1.scope
+	/user-10001.service
+		/session-c2.scope
+		/myservice.service
+
+Here is another hierarchy
+  /system.slice
+
+Each leaf in the hierarchy is a cgroup
+
+
+CGroup Resource Controllers:
+
+cpu
+pids
+blkio
+memory
+rdma
+devices
+
+cpuset
+cpuacct
+freezer
+net_cls
+perf_event
+net_prio
+hugetlb
+misc
+
+
+CGroup Manager:
+cgroup manager=cgroupfs means that the filesystem /sys/fs/cgroup is used to manage the cgroups (control groups)
+
+
+CGroup Driver:
+Cgroup drivers are the architectural components in Linux that are used to allocate cgroup resources
+  cgroupfs 
+  systemd - typically we use systemd as the Linux driver.
+
+
+
+Solutions:
+
+What is the version of cgroup
+stat -fc %T /sys/fs/cgroup
+tmpfs - cgroup v1
+cgroup2fs - cgroup v2
+
+
+I want to see all processes and the associated cgroup information
+ps xawwf -eo pid,user,cgroup,args
+systemctl status
+
+I want to see the cgroups a specific process is a part of
+pid=<pid number>
+ps -o cgroup ${pid} | tr ',' '\n' 	-	look for name (resource controllers attached to / are not shown)
+OR
+cat /proc/${pid}/cgroup			-	look for name (all resource controllers are shown)
+
+I want to see the limits for a resource controller for a cgroup
+cd /sys/fs/cgroup/<resource_controller>/path/to/cgroup
+cat <relevant_file>
+
+This will only show if it was set!
+e.g. cd /sys/fs/cgroup/memory/user.slice/user-1000.slice
+cat memory.limit_in_bytes
+
+
+I want to create a new cgroup, add limits for memory and assign a process to it
+mkdir /sys/fs/cgroup/memory/<cgroup>
+echo “10” > /sys/fs/cgroup/memory/<cgroup>/memory.limit_in_bytes
+echo “0” > /sys/fs/cgroup/memory/<cgroup>/memory.swappiness
+echo PID > /sys/fs/cgroup/memory/<cgroup>/tasks
+
+
+
+
+
+
+SYSTEMD
+
+--SystemD--
+
+What systemd does 				-	it is a ‘system and service’ manager, it is the fundamental init system in the operating system.
+
+Systemd features				-	startup ordering, socket activation, service ready notification, mounting filesystems from /etc/fstab (including swap)
+
+When systemd starts				-	mounts the filesystems from /etc/fstab
+							reads /etc/systemd/system/default.target to see which target state the system should be brought into
+
+Systemd works with units. Units can be
+	target					-	like runlevels in sysvinit, they are just a bunch of units that go together, e.g. multi-user.target, reboot.target, graphical.target, network.target, etc.
+	service
+	socket
+	path
+	mount
+	automount
+	swap
+	timer
+	device
+	slice					-	A .slice unit is associated with Linux Control Group nodes, allowing resources to be restricted or assigned to any processes associated with the slice. 
+							The name reflects its hierarchical position within the cgroup tree. Units are placed in certain slices by default depending on their type.
+	snapshot
+	scope
+Units are described in unit files which have the format - <resource_name>.<unit_type>
+e.g. sshd.service in /usr/lib/systemd/system
+e.g. podman.socket in /usr/lib/systemd/system
+e.g. halt.target in /usr/lib/systemd/system
+
+Templates
+<basename>@.service				-	 this is a template. An instance from this template will be created as a service when there is a connection to it
+systemtctl start <basename>@<instancename>.service (i found instancename needs to be an integer ??)
+e.g. systemctl start foo@0.service
+
+
+Locations:
+
+/etc/systemd/					-	configuration directory for systemd itself and its components, like journald, bootchart, system, user, login
+	system/					-	custom configurations of units that apply to the whole system 
+		<unit>
+		<unit.d>/			-	looks like override config for a unit (aka drop-in config). The directory is scanned for .conf files in alphabetical order and merged into the base file
+		<target>.wants/			-	directory for a particular target, contains symlinks to unit files that need to be activated
+							e.g. Created symlink from /etc/systemd/system/multi-user.target.wants/ntpd.service to /usr/lib/systemd/system/ntpd.service.
+	user/
+
+/run/systemd/
+	system/
+
+	user/
+
+/lib/systemd/
+	system/					-	unit files for system wide units (usually for apps that are preinstalled and managed by the distro)
+
+	user/
+
+/usr/lib/systemd/				-	the unit file resides here, (usually used by the package manager for additional packages you install)
+	system/
+
+	user/
+
+
+NOTE: get the full list of directories for units and the search order here - https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+
+
+/etc/sysconfig					-	the directory in which we put configuration files for passing options to various daemons (convention)
+
+
+
+User overrides for systemctl units:
+It is possible to have per user overrides for systemctl units
+
+Run this command
+systemctl --user edit <service>
+add what you like and save
+you will get ~/.config/systemd/user/<service.d>/override.conf
+
+
+e.g. 
+systemctl --user edit podman
+[Service]
+ENVIRONMENT=“HTTP_PROXY=localhost:3128”
+ENVIRONMENT=“HTTPS_PROXY=localhost:3128”
+The file ~/config/systemd/user/podman.service.d/override.conf will now contain the above proxy settings
+
+
+Commands:
+
+systemctl 
+	mask <service>			-	service will be linked to /dev/null, so other services wont be able to start it
+	cat <unit>			- 	will display the unit file
+	list-dependencies <unit>
+	daemon-reload			-	read all unit files again
+	enable	<unit>			-	make the unit start on boot (dont forget the unit can be a service, socket, mount, etc.)
+
+
+
+--JournalD--
+
+systemd-journald
+
+What:
+- it is a component of systemd 
+- centralized location for all messages logged by different components in a systemd enabled system (kernel, boot, syslog, services, etc.)
+  OR a better way of saying it is that it is the log for systemd managed units
+- does not need logrotate like rsyslog (smiley face)
+- if the journal is in-memory then the location is /run/log/journal and if the journal is persistent then location is /var/log/journal
+
+Commands:
+
+journalctl
+
+
+
+--LoginD--
+
+systemd-logind
+
+What:
+it is a system service that manages user logins. 
+It is responsible for: • Keeping track of users and sessions, their processes and their idle state. 
+This is implemented by allocating a systemd slice unit for each user below user.
+
+Files:
+/var/log/journal
+
+Commands:
+loginctl				-	manage the systemd-logind service
+
+
+
+--UdevD--
+
+systemd-udevd
+
+
+
+
+--MachineD--
+
+
+
+
+--Systemd and CGroups--
+
+systemd heavily relies on cgroups (but systemd codebase and cgroups code base are different)
+
+3 unit types are relevant for resource control
+slice
+scope
+service
+
+How:
+To begin with systemd creates some top level hierarchies
+- init.scope		-	in here goes the first process of systemd itself 
+- system.slice		-	a top level hierarchy for processes started by root
+- user.slice		-	a top level hierarchy for processes started by users
+- machine.slice		-	a top level hierarchy for when this OS is running containers or vm’s
+
+Then lets say it needs to start the sshd.service unit
+It creates a cgroup /system.slice/sshd.service
+The ssh process goes into that cgroup (in cgroup terminology it is a task)
+Now you can set resource control on that cgroup
+
+But the cgroup creation may not be that simple. Look at this cgroup
+/user.slice/user-1000.slice/session-1.scope
+
+
+
+Commands:
+
+systemd-cgls					-	show the entire cgroup hierarchy along with processes
+systemd-cgls /path/of/tree			-	show a specific path in the cgroup hierarchy, e.g. /user.slice/user-1000/session-c1.scop
+systemd-cgls <cgroup resource controller>	-	show resource controller point of view, e.g. systemd-cgls memory
+
+systemd-cgtop
+
+
+Solutions:
+
+Set a memory limit for a specific point in the cgroup hierarchy
+systemctl set-property user-${uid}.slice MemoryMax=1G
+e.g. systemctl set-property user-1001.slice MemoryMax=1G
+
+
+Show the cgroup hierarchy and processes for a systemd unit
+systemctl status <unit>
+e.g. systemctl status httpd.service
+
+
+
+HARDWARE
+
+Commands:
+
+lshw
+lscpu
+lsblk
+lsscsi
+lspci
+dmidecode -t <type>		-	type could be system, cpu
+
+
+
+
+
+TERMINALS AND CONSOLES
+
+
+Terminals
+
+A terminal is a ‘device’ that can provide input from keyboard and output to a monitor for a process. 
+A terminal emulator is the implementation of a terminal device in software but using the physical keyboard and monitor 
+
+When a linux system boots up, by default, it will make 8 terminals (/dev/tty*) available
+
+When connecting via ssh, sshd will provision a psuedo terminal - something like /dev/pts/0 (aka pts/0)
+
+
+Terminal Types
+xterm-256color
+
+xterm
+konsole
+terminator
+alacritty
+
+
+
+Consoles
+
+Think of a console as something where a system prompt can be accessed without having to remote connect to the system, so a local connection
+A console can run in Graphics mode or Text mode
+A console can be virtual 
+
+Linux kernel can be configured to provide a console at a particular terminal
+cat /proc/cmdline | sed ’s| |\n\g’  - and look for console line
+
+
+/sbin/agetty is a program that manages terminal lines especially for serial consoles and provides a login prompt
+
+
+systemd allocates virtual consoles on demand, with the first one often being a graphical environment
+
+
+
+
+DEVICES
+
+			Kernel
+			|
+			|
+			|
+			V
+Application -----> Device Driver ------> Device
+
+
+
+There are 4 types of devices:
+
+character		-	ls -l /dev and these will start with c, e.g. terminals
+				communication is like a stream of bytes, sequential access, no random access
+
+block			-	ls -l /dev and these will start with b, e.g. disks
+				it is possible to have random access to a block in the device
+
+pipe			-	ls -l /dev and these will start with p
+				think of these as named pipes, similar to character devices, at the end of the I/O stream of a pipe is a another process and not a kernel driver
+
+socket			-	ls -l /dev and these will start with s
+
+
+
+network			-	generally a corresponding node file in /dev will not exist (but tun interface can have it)
+				accessed by name rather than a device node file
+				kernel uses a set of functions related to packet transfers to communicate with network device drivers which differ from read() and write() methods of char and block devices
+
+Devices have numbers:
+
+devices have a primary number and a secondary number. The primary number distinguishes between major types of devices and secondary between devices of the same type.
+do ls -l /dev and you will see the primary and secondary numbers, e.g. a tty is of primary type 4, ide hard disks are of primary type 3, scsi hard disks are of primary type 8
+the system selects the driver for a device based on primary number and secondary number
+if you want to see the primary numbers that have been allocated for devices run `cat /proc/devices`
+When the driver runs, it creates a device object for each device it finds that it can drive and assigns it a minor-device number to distinguish between different devices. So that when an application accesses a device node, the driver knows which device it is accessing based on the minor number.
+
+
+How are devices discovered:
+
+The kernel detects devices and puts them into /sys accordingly. /sys is a memory based file system
+The kernel (it seems) also creates a /dev node file
+The kernel sends a uevent to a netlink socket
+udev (systemd-udevd) listens to the uvent on the netlink socket and loads all the attributes in the event
+then udevd parses its rules, filters and updates the uevent based on those rules and then acts on the /dev node file accordingly based on rules in either /lib/udev/rules.d (defaults) or /etc/udev/rules.d (overrides)
+udev creates further symbolic links within /dev for the device and initializes the device
+e.g. if udev needs to create a /dev node file it will make the mknod() system call (there is also a mknod command available)
+
+
+
+Not all devices have device files:
+
+e.g. network devices
+
+
+
+
+Commands:
+
+Use udevadm to gather information about a device
+udevadm info --query=all -p /sys/dev/block/11:0		# query using syspath
+udevadm info --query=all --name=/dev/vda		# query using device node
+
+
+
+I want to see a udevs response to a kernel event when a device is being added
+udevadm monitor --property --udev	# change --udev to --kernel to see the kernel event
+
+
+Show the character and block devices for which the system has loaded drivers
+cat /proc/devices
+
+kmod			-	a binary that implements multiple programs used to manage Linux kernel modules
+modprobe		-	load, unload linux kernel modules
+lsmod			-	list currently loaded modules in linux kernel
+
+
+
+Create a device file (because your system did not create one for you)
+mknod /dev/sda1 b 8 1	 # creates a block device with major number 8 and minor number 1
+
+
+
+Create a named pipe
+mkfifo pipe1
+or
+mknod pipe1 p
+
+
+
+
+
+
+
+NETWORKING
+
+
+					kernel        userspace program (think flannel, calico)
+					  |			|
+					  -----------------------
+							|			
+							|
+			default netns			|		netns1 netns
+		---------------------------------	|	---------------------------------
+		|				|	|	|				|
+		|  routing table		|	|	|  routing table		|
+		|				|	|	|				|
+		|				|	|	|				|
+		|  tun0 ---------------------------------	|				|
+		|				|		|				|
+		|		-------------------------------------------			|
+		|		|	   veth1	veth		veth2			|
+		|		| 	 |------|---------------|----------			|
+		|		| bridge | 	|		|				|
+		|		|	 |	|		|				|
+		|		 --------	|		|				|
+		|		   |		|		|				|
+  link	-------	eth0 		docker0		|		|				|
+		|				|		|				|
+  link	------- eth1				|		|				|
+		|   vlan101			|		|				|
+		|   vlan102			|		|				|
+		|				|		|				|
+		bond0				|		|				|
+  link	---------- ens192			|		|				|
+  link	---------- ens193			|		|				|
+		|				|		|				|
+		---------------------------------		----------------------------------
+
+
+
+
+Interface types:
+
+bridge			-	this interface behaves like a network switch, forwards packets between interfaces connected to it
+				ip link add br0 type bridge; ip link set <interface> master br0;
+
+bond			-	an interface that aggregates multiple network interfaces into a single logical "bonded" interface
+				ip link add bond1 type bond miimon 100 mode active-backup; ip link set eth0 master bond1; ip link set eth1 master bond1;
+
+vlan			-	creates a subinterface out of an interface and puts it into its own broadcast domain
+				vlan allows the creation of multiple interfaces (eth0.2, eth0.3, etc.) on top of a single one (eth0) and filter packets based on a vlan tag
+				there is only one mac address and that is of the main interface (eth0)
+				ip link add link eth0 name eth0.2 type vlan id 2; ip link add link eth0 name eth0.3 type vlan id 3;
+
+macvlan			-	allows creation of multiple interfaces, each with a different layer2 address (mac address), on top of a single interface
+				there are 5 macvlan types - private, VEPA, bridge (most common, all macvlan interfaces are connected to each other via a bridge using the physical interface), passthru, source
+				ip link add macvlan1 link eth0 type macvlan mode bridge; ip link add macvlan2 link eth0 type macvlan mode bridge;
+				ip netns add net1; ip netns add net2; ip link set macvlan1 netns net1; ip link set macvlan2 netns net2
+
+veth			-	virtual ethernet, this is a local ethernet tunnel, devices are created in pairs.
+				packets transmitted on one device in the pair are immediately received on the other device in the pair. When either device is down the link state of the pair is down.
+				use this configuration when network namespaces need to communicate to the main host namespace or between each other
+				ip netns add net1; ip netns add net2;
+				ip link add veth1 netns net1 type veth peer name veth2 netns net2
+
+dummy			-	an interface that is entirely virtual, e.g. loopback. it just provides a device to route packets through without actually transmitting them.
+				ip link add dummy1 type dummy; ip addr add 1.2.3.4/24 dev dummy1; ip link set dummy1 up
+
+
+tun			-	a TUN interface is a software interface implemented in linux kernel
+				it is an emulation of a layer 3 interface
+				it can pass raw IP packets between user program (e.g. flannel) and kernel
+				when program writes packets to TUN, the packet will be sent to kernel directly and kernel will route according to route table
+				when packets arrive to the kernel, if route table points to TUN for the packets, kernel will send packets to the program that created the TUN interface
+
+
+tap			-	emulation of a layer 2 interface similar to TUN interface
+
+team
+
+vxlan			-	Virtual eXtensible Local Area Network, it is a tunneling protocol established between source and destination network devices
+				it works by segmenting layer 2 ethernet frames and encapsulating them in UDP packets
+				so think about it as a networking protocol that tunnels layer-2 traffic over an IP network using the UDP protocol
+				VTEP - VXLAN Tunnel Endpoint, VNI - VXLAN Network Identifier
+
+ipvlan
+
+macvtap/ipvtap
+
+macsec
+
+vcan
+
+ipoib
+
+nlmon
+
+ifb
+
+sit			-	virtual device (built in software) for encapsulating IPv6-in-IPv4
+
+
+
+Binaries:
+ip 
+nmcli
+ifconfig
+netstat
+
+
+Locations:
+/etc/sysconfig/network-scripts
+
+
+Virtual or Physical:
+An interface could be
+virtual				-	built entirely in software 
+physical			-	attached to the pci bus
+
+
+
+Commands:
+
+What are the types of interfaces supported on the system
+ip link show help 2>&1 | grep -A 10 ^TYPE
+
+What are the network devices on the system (managed by network manager)
+nmcli d status
+
+What are the IP addresses on the system and to which interfaces
+ip a
+
+Show links from an ip perspective
+ip -d link show
+
+
+Show links from an ip perspective only of a particular type
+ip -d link show type <type> 	# see above for getting types of interfaces
+
+
+I want to know if an interface is physical or virtual
+udevadm info --query=all -p /sys/class/net/<interface_name>
+
+
+I want to run a command in a different netns
+ip netns exec <namespace> ip link show
+
+
+
+
+
+SYSTEM CONFIGURATION
+
+/etc/environment 		-	this file is read by programs that are pam enabled, e.g. login. Those programs pickup the ‘variable=value’ assignment
+
+
+
+
+LOGICAL VOLUME MANAGER
+
+
+Device files are created by udevadm in 3 ways
+
+/dev/dm-0, /dev/dm-1, .... and so on
+/dev/mapper/<volume-group>-<logical-volume>
+/dev/<volume-group>/<logical-volume>
+
+
+
+Device Mapper - the kernel driver sandwiched between normal block devices and the filesystem
+
+
+
+/dev/mapper/control - LVM user space makes the ioctl syscall on this device to inform the Device Mapper of the physical devices and their associations to volume groups and logical volumes
+
+
+
+Commands:
+
+lvs
+lvdisplay
+vgs
+vgdisplay
+pvs
+pvdisplay
+
+
+
+Solutions:
+
+I want to see the appearance of the LVM header on a PV
+dd if=/dev/<pv-device-file> count=1000 | strings | less
+
+
+See the devicer mapper information
+dmsetup info
+dmsetup table
+
+
+
+
+
+SOFTWARE RAID
+
+
+
+
+
+
+
+
+ACCOUNTS (USERS and GROUPS)
+
+Local Accounts:
+superuser	-	the big one, root
+			uid 0, gid 0, home at /root, /bin/bash, password
+system		-	for operating system components
+			uid range from /etc/login.defs, gid range from /etc/login.defs, no home, /sbin/nologin, 
+			System users will be created with no aging information in /etc/shadow
+			e.g.
+service		-	actually these are synonymouse with system accounts in my understanding
+regular		-	for regular users, uid range from /etc/login.defs, gid range from /etc/login.defs, /home/<user>, shell, password
+			password aging information in /etc/shadow
+
+
+Network Accounts:
+
+
+
+
+
+Solutions:
+
+I want to switch user (su) to a user account that has /sbin/nologin as its shell in /etc/passwd
+sudo su -l <user> -s /bin/bash
+
+
+
+
+
+PACKAGE MANAGEMENT/YUM
+
+
+RHEL8/9
+
+   Mirror 1
+
+	Repo/BaseOS (rhel-8-for-x86_64-baseos-rpms)				provides parts of the distribution that give you a running userspace on physical/virtual/cloud instance/container
+	
+	  Traditional Content
+	
+		RPMs	
+
+
+	Repo/AppStreams (rhel-8-for-x86_64-appstream-rpms)			provides all applications you might want to run in userspace
+
+	  Traditional Content
+
+	  Application Stream							user space applications, runtime languages, databases
+
+		Module								Set of RPM packages that represent a component and are installed together [application packages/dependency libraries/documentation/helper utilities]
+										e.g. container-tools, python39
+
+			Streams							Content by version (only 1 can be active, there will be a default present), e.g. 3.9 for python39 module
+
+				version 1					Active, default, e.g. 8000020190404145617
+				version 2					Inactive
+				version 3					Inactive
+
+			Profiles						Content by purpose
+
+				profile1
+				profile2
+
+
+	
+	Repo/Supplemental (rhel-8-for-x86_64-supplemenatry-rpms)		proprietary-licensed packages that are not included in the open source RHEL repositories (unsupported packages)
+
+	  Traditional Content
+
+		RPMs
+
+	Repo/CodeReady Builder (codeready-builder-for-rhel-8-x86_64-rpms)	mostly build time components for developers (unsupported packages)
+
+	  Traditional Content
+
+		RPMs
+
+	  Application Stream
+		
+		Module
+
+
+FIT THIS SOMEWHERE - Extra Packages for Enterprise Linux (EPEL)
+
+
+
+    Mirror 2
+
+
+    ========
+
+
+    Mirror 1
+
+	Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+
+	Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)
+		postgresql
+			stream/9.6
+			stream/10
+			stream/12
+		javapackages
+
+		perl
+
+		freeradius
+
+		httpd
+			profile/common
+			profile/devel
+			profile/minimal
+
+	Red Hat Universal Base Image 8 (RPMs) - BaseOS
+
+	Red Hat Universal Base Image 8 (RPMs) - AppStream		ubi-8-appstream
+
+	Red Hat Universal Base Image 8 (RPMs) - CodeReady Builder	ubi-8-codeready-builder
+
+
+    Mirror 2
+
+
+
+
+Locations:
+
+/etc/yum.repos.d/
+	redhat.repo			-	managed by subscription-manager
+
+
+/etc/pki/rpm-gpg/
+	RPM-GPG-KEY-redhat-release
+
+
+
+
+
+RHEL 10 
+
+	Formats for Application Streams
+		RPMs
+		Software Collections
+		Flatpaks
+
+
+	Application Streams
+
+
+	Rolling Streams
+
+
+
+
+
+UMASK, ULIMIT
+
+
+Umask:
+The umask (UNIX shorthand for "user file-creation mode mask") is a four-digit octal number that UNIX uses to determine the file permission for newly created files
+
+1. run the ‘umask’ command 
+0027
+
+
+
+Ulimit:
+
+
+
+
+
+NSS (Name Service Switch)
+
+
+Locations:
+/etc/nsswitch.conf
+
+
+
+
+
+
+PAM
+
+
+ Auth Providers						
+
+	/etc/passwd						
+	LDAP	
+	RSA
+	DCE						
+								
+ System Services							
+								
+	login
+	passwd
+	rlogin
+	su
+	ssh
+	ftp
+
+
+Pam sets up a variable called XDG_RUNTIM_DIR which tells a program where it can store small temporary files for a user
+
+
+
+
+
+
+
+SSSD (System Security Services Daemon)
+
+
+
+
+
+
+
+
+
+CRON
+
+System-wide crontab	-	/etc/crontab
+
+crontab format
+# m h dom mon dow user		command
+*   *  *   *   *  someuser	somecommand
+
+
+/etc/cron.d		- 	put a crontab file here	
+/etc/cron.daily		-	put a script here, it will run daily
+/etc/cron.hourly	-	put a script here, it will run hourly
+/etc/cron.monthly	-	put a script here, it will run monthly
+/etc/cron.weekly	-	put a script here, it will run weekly
+
+
+
+User crontab		-	crontab -e -u <username>
+
+crontab format
+# m h dom mon dow 	command
+*   *  *   *   *  	somecommand
+
+
+/etc/cron.deny
+
+
+
+
+NTP
+# yum install ntp ntpdate
+# systemctl start ntpd
+# systemctl enable ntpd
+# systemctl status ntpd
+# ntpdate -u -s 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+# systemctl restart ntpd
+# timedatectl
+# hwclock -w
+
+
+
+
+
+
+RSYSLOG
+
+
+facilities (things that log messages)		-	kern, user, mail, daemons, auth, syslog (this is internal stuff to rsyslog), authpriv, ftp, cron, 
+levels (the level of a message)			-	(higher) emerg, alert, crit, error, warn, notice, info, debug (lower)
+							none - indicates no messages from this facility, e.g. mail.none means no messages from mail
+
+Locations:
+/etc/rsyslog.conf				-	will show the facility.level and the file where the message goes
+
+
+
+generally speaking the logs go to:
+
+/var/log/messages		-	The main system log		shows general messages and info regarding the system, think of it as global system logs
+/var/log/syslog			-					might be as above but for debian and ubuntu systems
+
+/var/log/secure			-	login/logout information	authentication logs for successful and failed logins and auth processes				via authpriv facility in /etc/rsyslog.conf
+/var/log/auth.log		-					might be as above for debian and ubuntu systems
+
+/var/log/boot.log		-	bootup messages			start-up messages and boot info
+
+/var/log/maillog		-	mail				mail server logs
+/var/log/mail.log							might be for debian and ubuntu systems
+
+/var/log/kern			-	kernel logs			keeps in kernel logs and warning info
+/var/log/dmesg			-	driver messages			repository for driver messages									use ‘dmesg’ command to read 
+
+/var/log/btmp			-	failed login attempts		binary file											sudo last -f /var/log/btmp
+/var/log/utmp			-	current login state by user	binary file											sudo last -f /var/log/utmp
+/var/log/wtmp			-	record of each login/logout	binary file											sudo last -f /var/log/wtmp
+/var/log/lastlog		-	every users last login		binary file											use ‘lastlog’ command to read
+/var/log/faillog		-	info on failed logins		did not see this in rhel8.9
+
+
+/var/log/cron			-	cron information
+
+/var/log/daemon.log			
+
+/var/log/dnf.log		-	dnf logs
+
+
+
+
+LOGROTATION
+
+
+
+
+
+
+
+
+SU and SUDO
+
+
+SU:
+
+
+Commands:
+
+su roze -c whoami			# you must know the password of the roze account
+
+
+SUDO:
+
+Sudoers File
+
+requiretty		-	
+
+
+Commands:
+
+Become root with your own password
+sudo -i OR sudo -i -u root OR sudo su -
+
+Just run a command as root
+sudo /bin/bash -c ‘echo $HOME’
+
+Run a command as another user
+sudo -u roze whoami			# the real user should be able to sudo as roze
+
+Look at the sudo logs
+sudo journalctl SYSLOG_IDENTIFIER=sudo
+
+
+
+
+
+
+CERTIFICATE AUTHORITY
+
+NOTE: The Shared System Certificates storage allows NSS, GnuTLS, OpenSSL, and Java to share a default source for retrieving system certificate anchors and black list information
+
+
+Binaries:
+
+update-ca-trust							-	looks like this binary picks up certs from source/anchors and updates them in extracted/<dir>
+trust								-	can show various information about trusted ca
+
+
+Locations:
+
+/etc/pki/ca-trust AND /usr/share/pki/ca-trust-source		-	consolidated system wide trust store
+
+
+	/etc/pki/ca-trust/					-	root folder for certificate authorities. High priority 
+
+		source/						-	CA Certs and trust settings in PEM format. Interpreted by high priority
+
+			anchors/				-	FOR ROOT CERTIFICATES (a root certificate is a trust anchor from which a chain of trust is derived)
+			blacklist/
+
+		extracted/					-	FOR CERTIFICATES WE TRUST
+
+			java/					-	FOR CERTIFICATES WE TRUST - in jks format
+			  cacerts
+			openssl/				-	FOR CERTIFICATES WE TRUST
+			  ca-bundle.trust.crt
+			pem/					-	FOR CERTIFICATES WE TRUST - in pem format
+			  tls-ca-bundle.pem
+
+
+	/usr/share/pki/ca-trust-source/				-	CA Certs and trust settings in PEM format. Interpreted by low priority
+	
+		anchors/
+
+
+/etc/pki/tls/certs
+		ca-bundle.crt					-	links to /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem  					(curl is looking at this file)
+		ca-bundle.trust.crt
+
+
+
+
+Solutions:
+
+I want to add a new CA to the system
+sudo cp MY-CA.crt /etc/pki/ca-trust/source/anchors/MY-CA.crt
+sudo update-ca-trust
+
+
+I want to see if a CA name is in the trust list
+trust list --filter=ca-anchors | grep <ca name> -A 2 -B 3
+
+
+
+
+
+
+ALTERNATIVES
+
+
+
+
+
+
+
+AUDITING
+
+Files					-	/etc/audit/auditd.conf for configuring the auditd daemon and /etc/audit/rules.d/audit.rules for adding rules
+temporary rule adding			-	auditctl -w /etc/ssh/sshd_config -p rwxa -k sshconfigchange
+tools					-	ausyscall, ausearch, aureport, autrace
+
+audit entry
+		TYPE 			= 	AUDIT MESSAGE
+ 
+		syscall entries
+		msg-audit 		=	the time stamp:id
+		arch			=	the architecture of the system
+		syscall			=	the type of syscall (ausyscall <number> or ausyscall —dump)
+		success			= 	did the syscall succeed or fail
+		ppid			=	the parent process id
+		pid			=	the process id
+		auid			=	audit ID or original ID of the user who triggered this audit entry (the id that ran the su or sudo command)
+		uid			=	the user ID of the user who started the process
+		comm			=	the command that triggered this audit message
+		exe			=	the command with full path
+		key			=	user defined string associated with the audit rule, helps to search
+
+		CWD entries (regarding the current working directory)
+		msg-audit 		=	the time stamp:id
+		cwd			=	the directory from which the above system call was invoked
+
+		PATH entries
+		msg-audit 		=	the time stamp:id
+		name			=	the path that was passed as an argument to the system call
+		ouid and ogid		=	owner user and owner group of the object (the object being the argument that was passed to the system call)
+
+
+To trace a binary, for e.g. /bin/date 
+autrace /bin/date  and then ausearch -p <event_id> | aureport -f -i
+
+
+
+
+
+
+
+
+
+
+
+
+RHSM
+
+/etc/yum.repos.d/redhat.repo				-	the repo file managed by RHSM
+
+/etc/pki/entitlement/XXXYYYZZZNNNN.pem			-	the systems ssl cert
+/etc/pki/entitlement/XXXYYYZZZNNNN-key.pem		-	the systems ssl client key
+
+/etc/rhsm						-	rhsm configuration directory
+	ca/
+	facts/
+	pluginconf.d/
+	syspurpose/
+	logging.conf
+	rhsm.conf
+	rhsm.conf.rpmnew
+
+
+
+
+
+
+
+SELINUX
+
+First understand this:
+
+Discretionary Access Control (DAC)		-		user and group permissions to govern access to resources
+Mandatory Access Control (MAC)			-		adds a layer of control over DAC by assigning security labels (aka Security Contexts) to processes and files
+
+
+Then:
+
+Security-Enhanced Linux (SELinux) is a Linux MAC kernel mechanism that 
+ - labels every process and every filesystem object on the system. - then an SELinux policy defines the rules on how labeled processes interact with label objects. 
+ - the Linux kernel enforces the rules.
+
+
+
+Security Label/Context
+  Components
+    user
+    role
+    type			-	most important for targeted policy
+					Type enforcement is the part of an SELinux policy that defines whether a process running with a certain type can access a file labeled with a certain type.
+ 
+    level
+
+user:role:type:level
+
+
+
+
+subject				-	process
+object				-	file, directory, socket, port, etc
+access vector cache		-	a cache of permissions for subjects and objects
+SELinux policy database
+booleans			-	on/off settings for for functions (capabilities) in SELinux
+
+
+Configuration methods for SELinux (aka policy name):
+targeted policy
+multi-level security (MLS)
+
+
+Modes:
+enforcing
+permissive
+disabled
+
+
+
+Commands:
+
+semanage
+setroubleshoot
+sestatus
+getenforce
+setenforce
+getsebool -a		-	get the capabilities of SELinux and show if they are turned on or off
+
+
+
+
+
+TRACING
+
+strace
+systemtap
+
+
+
+
+
+
+
+X SERVER/X11 SERVER
+
+The client-server relationship is inverted, the user interacts with the server directly and sees the output in the X client application.
+
+
+keyboard  Mouse		Screen
+  |	   |		  ^
+  |	   |		  |
+  V	   V		  |
+---------------------------------
+|				|
+|	X SERVER		| <------- network ----> X client (network) <----> video hardware
+|				|
+---------------------------------
+		^
+		|
+		|
+		V
+	X Client (local) <-----> video hardware
+
+
+
+3 MAIN Components
+
+Display Server					-	X Server, Weston, KWin, Mutter, SurfaceFinger, Wayland, etc.
+
+Window Manager					-	Awesome, Compiz, I3, OpenBox
+
+Display Manager/Graphical Interface		-	KDE Plasma, Aqua, Gnome Shell, XFCE
+
+
+
+What is X11 forwarding?
+It is an idea that an X-Client is running on a remote machine but the display of that X-Client is on your local machine.
+This is made possible with an ssh connection from the local machine to the remote machine AND the remote machine being configured with ‘X11Forwarding yes’ configured in sshd on the remote machine
+
+
+Solutions:
+
+I want to start the x server
+Run ‘startx’ if X is installed
+
+
+
+
+
+
+
+
+KEY SEQUENCES
+
+
+CTRL-d 		-	pressing this on an empty line stops the current stdin from the terminal with an EOF
+CTRL-c		-	killswitch for a process
+
+
+
+
+
+SYSTEM TOOLCHAIN
+
+GCC 14.2
+glibc 2.39
+Annbin 12.55
+binutils 2.41
+
+
+----GENERAL-----
+
+
+What are the File Types that a Linux system knows about:
+
+Regular 		-	REG
+Directories		-	DIR
+Character Device	-	CHR
+Block Device
+Socket			-	unix, tcp, tcp6, udp, udp6
+Named Pipe		-	FIFO
+Symbolic Link		-	
+Network			-	IPV4/IPV6
+
+
+
+So exactly how does the login process work:
+
+
+
+
+Good commands to know:
+
+lsof
+  <file or dir>
+ -p 			- 	where we are concerned with a process
+ -i [:<port>|TCP|UDP]	-	where we are concerned with a network entity
+ -c 			-	where we are concerened with a command
+
+---
+
+hostnamectl
+
+---
+
+
+
+---
+
+pstree
+
+-t
+-c
+
+---
+
+mount
+
+mount -t proc proc /home/namespace/box/proc
+
+---
+
+unshare
+
+unshare -p -f --mount-proc=/home/namespace/box/proc chroot /home/namespace/box /bin/bash
+
+----
+
+stat
+
+
+
+
+----
+ip and nmcli
+
+
+ip link
+
+ip netns
+
+ip addr
+
+
+
+
+-------
+dd 
+
+dd if=/dev/zero of=new_file bs=1024 count=1		# one block of 1024 bytes (1K) from /dev/zero to new_file
+dd if=/dev/zero of=new_file bs=1024K count=10		# 10 blocks each of 1Mb, for a total of 10Mb from /dev/zero to new_file
+
+dd if=/dev/zero of=new_file bs=1024 count=1 skip=5	# one block of 1024 bytes from /dev/zero to new_file but skip the first 5 blocks
+
+
+
+-------
+
+sync

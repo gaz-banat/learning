@@ -1,0 +1,31 @@
+
+
+Understanding Office 365 plans
+http://office.microsoft.com/en-us/business/compare-office-365-for-business-plans-FX102918419.aspx
+
+
+
+Pricing on Azure
+http://www.windowsazure.com/en-us/pricing/calculator/?scenario=full
+
+
+
+
+Around Sharepoint Online
+http://office.microsoft.com/en-us/sharepoint/collaboration-tools-compare-sharepoint-plans-FX103789400.aspx
+
+
+
+Around Exchange Online
+http://office.microsoft.com/en-us/exchange/compare-microsoft-exchange-online-plans-hosted-email-for-business-FX103764022.aspx
+
+
+
+
+Windows Azure
+
+ea.windowsazure.com
+manage.windowsazure.com
+account.windowsazure.com
+
+http://channel9.msdn.com/Series/Windows-Azure-Active-Directory/WAADCommonSignupsigninquestions
