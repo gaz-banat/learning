@@ -1,8 +1,6 @@
 
 
-
-
-KVM HYPERVISOR (Kernel Space)
+# KVM HYPERVISOR (Kernel Space)
 
 Kernel based Virtual Machine 		
 The virtualization technology similar to ESXi, HyperV, HyperKit, VirtualBox, Xen
@@ -10,9 +8,7 @@ The virtualization technology similar to ESXi, HyperV, HyperKit, VirtualBox, Xen
 
 
 
-
-
-QEMU (User Space)
+# QEMU (User Space)
 
 Quick Emulator (QEMU) is a machine (hardware) emulator
 
@@ -25,8 +21,7 @@ QEMU can use KVM  and can run with the support of the virtualization processor e
 
 
 
-
-LIBVRT
+# LIBVRT
 
 is a virtualization/hypervisor management library which wraps QEMU and KVM to provide APIs for use by other programs, such as Vagrant, which is a tool for creating virtualized development environments.
 
@@ -35,7 +30,7 @@ So - vagrant uses libvirt and libvirt uses QEMU and KVM
 
 
 
-PARAVIRTUALIZED
+# PARAVIRTUALIZED
 
 This however has a performance cost, as running in software what was meant to run in hardware involves a lot of extra work for the host CPU. 
 To mitigate this, QEMU can present to the guest operating system paravirtualized devices, where the guest OS recognizes it is running inside QEMU and cooperates with the hypervisor.
@@ -43,15 +38,15 @@ To mitigate this, QEMU can present to the guest operating system paravirtualize
 
 
 
-COMMANDS
+# COMMANDS
 
 
 NOTE: 2 types of utilities from libvirt - virt-* and virsh
 
+```shell
 
-I want to install a new VM
-virt-install
 
+# I want to install a new VM
 
 virt-install \
     --connect qemu:///system \
@@ -82,8 +77,58 @@ virt-install \
 #    --network bridge=br-net0,model=virtio,driver.queues=${VCPUS},mtu.size=9000 \
  
 
+domain=<domain_name>
+
+# Get all running domains
+virsh list —all
 
 
-I want to manage a VM
-virsh
+# Creating a domain
 
+## EITHER
+## Create a domain from an xml file (the long way)
+virsh define $domain.xml
+## OR
+## Use virsh install
+
+## Ensure a domain automatically starts on hypverisor boot
+virsh autostart $domain
+
+## Start a domain now
+virsh start $domain
+
+
+# Information for a domain
+
+## Get running info about a domain
+virsh dominfo $domain
+virsh domstate $domain
+
+## Get the xml info for a domain
+virsh dumpxml $node >$node.xml
+
+
+# Configuring a domain
+
+## Configure the xml definition of a domain WHEN IT IS SWITCHED OFF
+virsh edit $domain				# set vcpus to 12
+
+## various configurations from command line
+virsh setvcpus $domain 12 --config
+virsh setmaxmem $domain 50331648 -—config  ## value in KiB
+virsh setmem $node 50331648 -—config ## value in KiB
+
+
+# Removing a domain
+
+## Ensure a domain does not autostart
+virsh autostart --disable $domain
+
+## shutdown a domain
+virsh shutdown $domain
+
+## need to understand exactly what destroy does
+virsh destroy $domain
+
+
+```

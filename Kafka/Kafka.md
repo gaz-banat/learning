@@ -1,4 +1,8 @@
-CONCEPTS
+
+VERY IMPORTANT TO READ THROUGH THE DOCUMENTATION
+https://kafka.apache.org/41/
+
+# CONCEPTS
              
 topic - persistence for an event stream in kafka (an event stream at rest)  (a table in a db, a folder in a filesystem)
 event/record -  synonymous with a message, for kafka this is an array of
@@ -33,7 +37,7 @@ each segment goes into its own log file
 
 
 
-COMPONENTS
+# COMPONENTS
 
 
 Brokers
