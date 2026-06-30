@@ -1,5 +1,5 @@
 
-SETTING UP A SYSTEM
+# SETTING UP A SYSTEM
 
 hostname
 IP address
@@ -31,7 +31,7 @@ then:
 
 
 
-AUTOMATED INSTALLATION
+# AUTOMATED INSTALLATION
 
 Kernel Parameters
 inst.ks		-	location of kickstart file
@@ -42,16 +42,16 @@ inst.repo	-	location of repository content
 
 
 
-GENERAL
+# GENERAL INFORMATION OF A SYSTEM
 
 /etc/redhat-release
 /etc/machine-id			-	the id of the machine
+hostnamectl
 
 
 
 
-
-GRUB2 (GRand Unified Bootloader)
+# GRUB2 (GRand Unified Bootloader)
 
 What:
 GRUB is the program on Linux systems that manages (boot manager) the boot process and loads (bootloader) the kernel
@@ -104,7 +104,7 @@ grubby --update-kernel=/boot/vmlinuz-<kernel_verision> --remove-args=<NEW_PARAME
 
 
 
-KERNEL
+# KERNEL
 
 Configuration			-	the overall setting of the kernels features and modules (sometimes available at /proc/config.gz)
 Command line Parameters		-	specific arguments passed to the kernel during boot (the way to control the kernels behaviour at boot time) 
@@ -191,11 +191,11 @@ n - it is not there
 
 
 
-KERNEL SPACE vs USER SPACE (userland)
+# KERNEL SPACE vs USER SPACE (userland)
 
 Think of each as a body of software code and memory area that the code executes in
-kernel space 	-	an area in memory that only the kernel has access to - code in kernal space has direct access to the hardware, filesystem, etc.
-kernel mode	-	unrestricted access to memory and cpu
+kernel space 		-	an area in memory that only the kernel has access to, code in kernel space has direct access to the hardware, filesystem, etc.
+kernel mode			-	unrestricted access to memory and cpu
 
 user space 	-	code does not have direct access to the hardware and goes through kernel system calls
 user mode	-	restricted access to a subset of memory and safe CPU operations
@@ -208,6 +208,7 @@ kernel space	-	kernel, kernel extensions, device drivers
 			Virtual Files subsystem
 			Netfilter
 			Security Modules (SELinux modules)
+			Kernel Modules
 
 user space	-	application software (programs and libraries) that interact with kernel via calls , some drivers
 			Standard C library (glibc or musl or uClibc, etc)
@@ -219,10 +220,11 @@ user space	-	application software (programs and libraries) that interact with ke
 			Utilities (iptables)
 
 
+NOTE: kernel threads that open TCP/UDP ports do not show up in the process column of common utilities like ss, lsof
 
 
 
-FILE HIERARCHY STANDARD
+# FILE HIERARCHY STANDARD
 
 Essential 
   binaries:
@@ -289,7 +291,7 @@ Other
 
 
 
-PROCESSES
+# PROCESSES
 
 Things to know about a process
 Name
@@ -306,7 +308,9 @@ stdout is attached to fd 1
 stderr is attached to fd 2
 
 
-to know where the file descriptors for the I/O streams of a process are connected to find the process number and ls -l /proc/<process_number>/fd/
+to know where the file descriptors for the I/O streams of a process are connected to 
+- find the process number 
+- and ls -l /proc/<process_number>/fd/
 you will see where file descriptors 0, 1 and 2 are connect to.
 
 
@@ -357,19 +361,19 @@ Solutions:
 
 ps (UNIX)
 
-no options		-	processes in the current shell
+no options				-	processes in the current shell
 
--e or -A		-	all processes
--a			-	all Terminal attached processes except session leader processes
+-e or -A				-	all processes
+-a						-	all Terminal attached processes except session leader processes
 
--F or -f		-	full format (the formats vary between -F and -f)
+-F or -f				-	full format (the formats vary between -F and -f)
 
--U <user>		- 	select by real userid (the user who created the process)				
--u <user>		-	select by effective userid (the user whose file permissions are being used)
+-U <user>				- 	select by real userid (the user who created the process)				
+-u <user>				-	select by effective userid (the user whose file permissions are being used)
 
 -L <pid> or -T <pid>	-	show threads of process
 
--G <group>		-	select processes by group
+-G <group>				-	select processes by group
 
 ---
 
@@ -382,10 +386,13 @@ f			-	forest
 w			-	wide output, use 2 ww for more wide
 
 
+---
+
+pstree <user>
 
 
 
-SOCKETS
+# SOCKETS
 
 
 Types:
@@ -418,7 +425,7 @@ NOTE: UNIX domain sockets are subject to file system permissions, while TCP sock
 
 
 
-MEMORY
+# MEMORY
 
 	RSS
 
@@ -443,7 +450,7 @@ SHARED MEMORY (shm)
 
 
 
-INTERPROCESS COMMUNICATION
+# INTERPROCESS COMMUNICATION
 
 
 Methods:
@@ -459,7 +466,7 @@ socat
 
 
 
-BLOCK DEVICES, PARTITION TABLES, LVM and FILESYSTEMS
+# BLOCK DEVICES, PARTITION TABLES, LVM and FILESYSTEMS
 
 
 Block Devices:
@@ -629,7 +636,7 @@ sudo mount -t tmpfs -o size=100M tmpfs /path/to/mnt/dir
 
 
 
-NAMESPACES
+# NAMESPACES
 
 This is a linux kernel feature
 
@@ -690,7 +697,7 @@ NOTE: namespaces don’t solve the problem of resource consumption by processes,
 
 
 
-CGROUPS
+# CGROUPS
 
 This is a linux kernel feature that allows for isolating linux processes from each other
 
@@ -793,7 +800,7 @@ echo PID > /sys/fs/cgroup/memory/<cgroup>/tasks
 
 
 
-SYSTEMD
+# SYSTEMD
 
 --SystemD--
 
@@ -984,7 +991,7 @@ e.g. systemctl status httpd.service
 
 
 
-HARDWARE
+# HARDWARE
 
 Commands:
 
@@ -999,7 +1006,7 @@ dmidecode -t <type>		-	type could be system, cpu
 
 
 
-TERMINALS AND CONSOLES
+# TERMINALS AND CONSOLES
 
 
 Terminals
@@ -1040,7 +1047,7 @@ systemd allocates virtual consoles on demand, with the first one often being a g
 
 
 
-DEVICES
+# DEVICES
 
 			Kernel
 			|
@@ -1135,7 +1142,7 @@ mknod pipe1 p
 
 
 
-NETWORKING
+# NETWORKING
 
 
 					kernel        userspace program (think flannel, calico)
@@ -1283,14 +1290,14 @@ ip netns exec <namespace> ip link show
 
 
 
-SYSTEM CONFIGURATION
+# SYSTEM CONFIGURATION
 
 /etc/environment 		-	this file is read by programs that are pam enabled, e.g. login. Those programs pickup the ‘variable=value’ assignment
 
 
 
 
-LOGICAL VOLUME MANAGER
+# LOGICAL VOLUME MANAGER
 
 
 Device files are created by udevadm in 3 ways
@@ -1334,7 +1341,7 @@ dmsetup table
 
 
 
-SOFTWARE RAID
+# SOFTWARE RAID
 
 
 
@@ -1343,18 +1350,18 @@ SOFTWARE RAID
 
 
 
-ACCOUNTS (USERS and GROUPS)
+# ACCOUNTS (USERS and GROUPS)
 
 Local Accounts:
 superuser	-	the big one, root
-			uid 0, gid 0, home at /root, /bin/bash, password
+				uid 0, gid 0, home at /root, /bin/bash, password
 system		-	for operating system components
-			uid range from /etc/login.defs, gid range from /etc/login.defs, no home, /sbin/nologin, 
-			System users will be created with no aging information in /etc/shadow
-			e.g.
+				uid range from /etc/login.defs, gid range from /etc/login.defs, no home, /sbin/nologin, 
+				System users will be created with no aging information in /etc/shadow
+				e.g.
 service		-	actually these are synonymouse with system accounts in my understanding
 regular		-	for regular users, uid range from /etc/login.defs, gid range from /etc/login.defs, /home/<user>, shell, password
-			password aging information in /etc/shadow
+				password aging information in /etc/shadow
 
 
 Network Accounts:
@@ -1372,7 +1379,7 @@ sudo su -l <user> -s /bin/bash
 
 
 
-PACKAGE MANAGEMENT/YUM
+# PACKAGE MANAGEMENT/YUM
 
 
 RHEL8/9
@@ -1497,7 +1504,7 @@ RHEL 10
 
 
 
-UMASK, ULIMIT
+# UMASK, ULIMIT
 
 
 Umask:
@@ -1514,7 +1521,7 @@ Ulimit:
 
 
 
-NSS (Name Service Switch)
+# NSS (Name Service Switch)
 
 
 Locations:
@@ -1525,52 +1532,71 @@ Locations:
 
 
 
-PAM
+# PAM
 
 
- Auth Providers						
+## Auth Providers						
 
-	/etc/passwd						
-	LDAP	
-	RSA
-	DCE						
+/etc/passwd						
+LDAP	
+RSA
+DCE						
 								
- System Services							
-								
-	login
-	passwd
-	rlogin
-	su
-	ssh
-	ftp
+## Some apps that use PAM (system services)
+
+login
+passwd
+rlogin
+su
+ssh
+ftp
+systemd-user
 
 
-Pam sets up a variable called XDG_RUNTIM_DIR which tells a program where it can store small temporary files for a user
+## PAM Modules
 
+PAM modules are broken into 2 main types of files
+binaries		-		these perform the actual work
+						/usr/lib64/security/pam_*.so
 
-
-
-
-
-
-SSSD (System Security Services Daemon)
-
-
-
+configuration 	-		mapping of modules to applications (like ssh, login, sudo, etc.)
+						/etc/pam.d
 
 
 
+## PAM and SYSTEMD for user
+
+the '/usr/lib/systemd' program with flag  '--user' uses pam
+
+configuration file 	- 	/etc/pam.d/systemd-user
+binary				-	/usr/lib64/security/pam_systemd.so
+
+pam_systemd.so sets up a variable called XDG_RUNTIME_DIR which tells a program where it can store small temporary files for a user
+the default for XDG_RUNTIME_DIR will be /run/user/$UID
+uid (or $UID for that matter) can be obtained by running the 'id' command
 
 
 
-CRON
+
+# SSSD (System Security Services Daemon)
+
+
+
+
+
+
+
+
+
+# CRON
 
 System-wide crontab	-	/etc/crontab
 
 crontab format
+```
 # m h dom mon dow user		command
 *   *  *   *   *  someuser	somecommand
-
+```
 
 /etc/cron.d		- 	put a crontab file here	
 /etc/cron.daily		-	put a script here, it will run daily
@@ -1583,57 +1609,58 @@ crontab format
 User crontab		-	crontab -e -u <username>
 
 crontab format
+```
 # m h dom mon dow 	command
 *   *  *   *   *  	somecommand
-
+```
 
 /etc/cron.deny
 
 
 
 
-NTP
-# yum install ntp ntpdate
-# systemctl start ntpd
-# systemctl enable ntpd
-# systemctl status ntpd
-# ntpdate -u -s 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
-# systemctl restart ntpd
-# timedatectl
-# hwclock -w
+# NTP
+yum install ntp ntpdate
+systemctl start ntpd
+systemctl enable ntpd
+systemctl status ntpd
+ntpdate -u -s 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+systemctl restart ntpd
+timedatectl
+hwclock -w
 
 
 
 
 
 
-RSYSLOG
+# RSYSLOG
 
 
 facilities (things that log messages)		-	kern, user, mail, daemons, auth, syslog (this is internal stuff to rsyslog), authpriv, ftp, cron, 
-levels (the level of a message)			-	(higher) emerg, alert, crit, error, warn, notice, info, debug (lower)
-							none - indicates no messages from this facility, e.g. mail.none means no messages from mail
+levels (the level of a message)				-	(higher) emerg, alert, crit, error, warn, notice, info, debug (lower)
+												none - indicates no messages from this facility, e.g. mail.none means no messages from mail
 
 Locations:
-/etc/rsyslog.conf				-	will show the facility.level and the file where the message goes
+/etc/rsyslog.conf							-	will show the facility.level and the file where the message goes
 
 
 
 generally speaking the logs go to:
 
-/var/log/messages		-	The main system log		shows general messages and info regarding the system, think of it as global system logs
-/var/log/syslog			-					might be as above but for debian and ubuntu systems
+/var/log/messages		-	The main system log, shows general messages and info regarding the system, think of it as global system logs
+/var/log/syslog			-	might be as above but for debian and ubuntu systems
 
 /var/log/secure			-	login/logout information	authentication logs for successful and failed logins and auth processes				via authpriv facility in /etc/rsyslog.conf
-/var/log/auth.log		-					might be as above for debian and ubuntu systems
+/var/log/auth.log		-	might be as above for debian and ubuntu systems
 
 /var/log/boot.log		-	bootup messages			start-up messages and boot info
 
 /var/log/maillog		-	mail				mail server logs
-/var/log/mail.log							might be for debian and ubuntu systems
+/var/log/mail.log			might be for debian and ubuntu systems
 
 /var/log/kern			-	kernel logs			keeps in kernel logs and warning info
-/var/log/dmesg			-	driver messages			repository for driver messages									use ‘dmesg’ command to read 
+/var/log/dmesg			-	driver messages		repository for driver messages									use ‘dmesg’ command to read 
 
 /var/log/btmp			-	failed login attempts		binary file											sudo last -f /var/log/btmp
 /var/log/utmp			-	current login state by user	binary file											sudo last -f /var/log/utmp
@@ -1651,7 +1678,7 @@ generally speaking the logs go to:
 
 
 
-LOGROTATION
+# LOGROTATION
 
 
 
@@ -1660,7 +1687,7 @@ LOGROTATION
 
 
 
-SU and SUDO
+# SU and SUDO
 
 
 SU:
@@ -1844,7 +1871,8 @@ Mandatory Access Control (MAC)			-		adds a layer of control over DAC by assignin
 Then:
 
 Security-Enhanced Linux (SELinux) is a Linux MAC kernel mechanism that 
- - labels every process and every filesystem object on the system. - then an SELinux policy defines the rules on how labeled processes interact with label objects. 
+ - labels every process and every filesystem object on the system.
+ - then an SELinux policy defines the rules on how labeled processes interact with label objects. 
  - the Linux kernel enforces the rules.
 
 
@@ -1978,14 +2006,14 @@ binutils 2.41
 
 What are the File Types that a Linux system knows about:
 
-Regular 		-	REG
-Directories		-	DIR
+Regular 			-	REG
+Directories			-	DIR
 Character Device	-	CHR
 Block Device
-Socket			-	unix, tcp, tcp6, udp, udp6
-Named Pipe		-	FIFO
+Socket				-	unix, tcp, tcp6, udp, udp6
+Named Pipe			-	FIFO
 Symbolic Link		-	
-Network			-	IPV4/IPV6
+Network				-	IPV4/IPV6
 
 
 

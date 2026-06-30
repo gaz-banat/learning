@@ -1,9 +1,24 @@
 
 
+# FIT THIS SOMEWHERE
+
+Ciliums kube-proxy replacement feature depends on the socket-LB feature
+```shell
+cilium config view | grep kube-proxy
+```
+Cilium's Socket LoadBalancer (Socket-LB) feature is an eBPF-powered mechanism that 
+intercepts application network requests at the socket system call level (such as connect(), sendmsg(), and recvmsg()) 
+and then transparently translates a Kubernetes Service IP directly into a backend Pod IP
+
+
+
+
+
 # LINKS
 
 Cilium Repo					-		https://github.com/cilium/cilium
-Releases for Cilium			-		https://github.com/cilium/cilium/releases	
+Releases for Cilium			-		https://github.com/cilium/cilium/releases
+Stable Releases				-		https://github.com/cilium/cilium#stable-releases
 Specific release			-		https://github.com/cilium/cilium/releases/tag/v1.17.6
 
 Helm Repo					-		https://helm.cilium.io
@@ -25,7 +40,7 @@ Tetragon					-		Runtime Security Enforcement
 
 # CILIUM CAPABILITIES
 
-## Networking
+## Networking (CNI)
 Transparent Encryption - Can use IPSec or WireGuard
 Load Balancing - Cilium can replace kube-proxy and be used as a stand alone load balancer
 Cilium and Hubble export metrics
@@ -86,14 +101,22 @@ Envoy										-	The Envoy Proxy is an open source, high-performance, small-foot
 
 ## eBPF
 
-	maps										-	Connection Tracking, NAT, Neighbor Table, Endpoints, IP cache, Load Balancer, Policy, Proxy Map
+	maps									-	Connection Tracking, NAT, Neighbor Table, Endpoints, IP cache, Load Balancer, Policy, Proxy Map
 
 
 ## Data Store components:
 
-	Kubernetes CRD’s
+Cilium primarily uses two distinct data store approaches to propagate state between its agents
+State is made up of:
+CiliumNetworkPolicy
+CiliumIdentity
+CiliumEndpoint
 
-	Key-Value store (etcd supported)
+
+
+Kubernetes CRD’s (Default)				-	All Cilium state (identities, endpoints, policies) is stored directly in the Kubernetes API server using Custom Resource Definitions.
+
+Key-Value store (etcd supported)
 
 
 
@@ -101,30 +124,24 @@ Envoy										-	The Envoy Proxy is an open source, high-performance, small-foot
 
 # CONCEPTS
 
-Cilium Endpoints		-	all application containers that share a common IP address are grouped into an Endpoint (so a pod)
-
-Cilium Identity			-	an identity is a number + kv labels assigned to an endpoint
-							many endpoints can share an identity (like say the n pods of a deployment)
-							an identity is unique cluster wide, 
-							The unique numeric identifier associated with each identity is then used by eBPF programs in very fast lookup in the network datapath
-							network policy is applied based on identity
-
-
-
 ## NETWORKING Concepts
 
-Routing 
+Routing (moving data around in the cluster, outside the cluster and incoming traffic)
 	
 	Routing Modes
-		Tunnel/Encapsulation
-			VXLan
+		Overlay networking (Tunnel/Encapsulation)				-		think of the pod to pod network as being overlayed on the host network
+			VXLan						
 			Geneve
-		Native
+		Native													-		Use of the regular routing table of the Linux host
 		AWS ENI
 		Google Cloud
 
+Flexible routing options: 
+Cilium can automate route learning and advertisement in common topologies 
+such as using L2 neighbor discovery when nodes share a layer 2 domain
+or BGP when routing across layer 3 boundaries
 
-IPAM
+IPAM  (IP address management)
 
 	IPAM Features
 		Tunnel Routing
@@ -136,14 +153,14 @@ IPAM
 
 	IPAM Modes (check the matrix for what mode can provide what feature)
 
-		Cluster Scope (default)
-		Kubernetes Host Scope mode (ipam.mode=kubernetes)
+		Cluster Scope (default)									-		Cilium Operator manages and delegates CIDRs from a large pool
+		Kubernetes Host Scope mode (ipam.mode=kubernetes)		-		Kube-controller-manager assigns CIDRs per node
 		Multi-Pool
 		Azure IPAM
 		Azure Delegated IPAM
 		AWS ENI
 		GKE
-		CRD-Backed
+		CRD-Backed												-		Custom resources define IP allocations
 	
 
 Masquerading
@@ -161,13 +178,27 @@ Encryption
 	IPSec
 
 
+Cilium Endpoints		-	all application containers that share a common IP address are grouped into an Endpoint (so a pod)
+
+Cilium Identity			-	an identity is a number + kv labels assigned to an endpoint
+							many endpoints can share an identity (like say the n pods of a deployment)
+							an identity is unique cluster wide, 
+							The unique numeric identifier associated with each identity is then used by eBPF programs in very fast lookup in the network datapath
+							network policy is applied based on identity
+
+
 
 ## LOAD BALANCING Concepts
 
+There are 2 types of load balancing
 
-Types:
-	north-south
-	east-west
+1. east-west (load balancing for traffic between application containers)
+
+rewrites service connections at the socket level (connect()), avoiding the overhead of per-packet NAT and fully replacing kube-proxy
+
+2. north-south (load balancing for traffic to/from external services)
+supports XDP for high-throughput scenarios and layer 4 load balancing including Direct Server Return (DSR), and Maglev consistent hashing.
+		
 
 
 
@@ -175,9 +206,9 @@ Types:
 
 	NetworkPolicy							-		namespaced
 
-	CiliumNetworkPolicy						-		namespaced, i think this controls policy for pods
+	CiliumNetworkPolicy						-		namespaced, controls policy for pods
 
-	CiliumClusterwideNetworkPolicy			-		clusterwide, i think this controls policy for nodes rather than for pods 
+	CiliumClusterwideNetworkPolicy			-		clusterwide, controls policy for pods, hosts/nodes, host/node level firewalls 
 
 NOTE: https://networkpolicy.io
 
@@ -191,25 +222,50 @@ NOTE: https://editor.networkpolicy.io/
 There are 3 parts to a policy
 
 select what the policy applies to
-	nodeSelector								-	select nodes in a cluster
-	endpointSelector							-	select pods in the cluster							
+  nodeSelector									-	select nodes in a cluster
+  endpointSelector								-	select pods in the cluster							
 
-specify the ingress part
+specify the ingress part (optional)
+  ingress:
 	- fromEntities
 	  - world									-	from outside the cluster
 	  - cluster									-	from anywhere in the cluster (endpoint or node?)
 	- fromEndpoints								-	from one or more pods in a namespace
 	- fromNodes									-	from one or more nodes in the cluster
 
-specify the egress part
+specify the egress part (optional)
+  egress:
 	- toEntities
 		- world									-	to outside the cluster
-		- cluster								-	to anywhere in the cluster	
+		- cluster								-	to anywhere in the cluster
+		- all									-	to anywhere in the cluster and anywhere outside the cluster
 	- toEndpoints								-	to one or more pods in a namespace
 	- toFQDNs									-	to a fully qualified domain name
+	- toCIDRSet									-	to a set of CIDRs
 
+specify an egress deny part (optional)
+  egressDeny:
+  
 
-After you specify what an ingress or egress applies to you can specify port+protocol for that rule as well, you can specify matching labels for the endpoint as well
+finally decide if you want to use the default deny or switch it off
+  enableDefaultDeny:
+    egress: false			# default deny for egress traffic has been disabled, traffic will be allowed if not matching a rule
+    ingress: true			# default deny for ingress traffic is enabled, traffic will NOT be allowed if not matching a rule
+
+1. Endpoints and nodes can be matched with an expression
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:io.cilium.k8s.namespace.labels.network-policy.aarnet.net.au/egress-ossk8sdev
+        operator: NotIn
+        values:
+          - allow
+
+2. Endpoints and nodes can be matched with a label
+  nodeSelector:
+    matchLabels:
+	  aarnet.net.au/node-class: worker
+
+3. You can also specify port+protocol for a rule as well, you can specify matching labels for the endpoint as well
 
 e.g.
 - toEndpoints:
@@ -228,6 +284,15 @@ e.g.
 	  protocol TCP
 
 
+3. Once an endpoint is selected by a selector (nodeSelector or endpointSelector) 
+traffic will only be allowed for it via explicit allow rules
+traffic will be denied by specific deny rules
+then there is a default deny
+
+
+
+NOTE:
+
 1. Selecting endpoints and nodes
 
 if you declare an empty selector then cilium selects all
@@ -237,28 +302,41 @@ endpointSelector: {}	# this selects all endpoints (pods) in the namespace that t
 
 2. You can select all for a given entity, endpoint, node by using {}
 - toEndpoints:
-  - {}							-	this matches to all endpoints in the cluster
+  - {}					# this matches to all endpoints in the cluster
 
 
 3. The moment you define an ingress or egress section a default deny at the end of that section will kick in
 
 Look at this - egress and ingress have been defined without specifying rules, so the default deny at the end is stopping all traffic, basically no allow rules!
 
-egress: {}		# deny all egress traffic to what has been specified by the selector
-ingress: {}		# deny all ingress traffic to what has been specified by the selector
+egress: {}				# deny all egress traffic to what has been specified by the selector
+ingress: {}				# deny all ingress traffic to what has been specified by the selector
 
 
-4. You can work in reverse and specify what is denied BUT THERE IS A CATCH HERE.. it seems that there is already a default deny for whatever is selected per cilium behaviour. 
+4. You can work in reverse and specify what is denied BUT THERE IS A CATCH HERE...it seems that there is already a default deny for whatever is selected per cilium behaviour. 
 So after the egress deny rules there is a default deny!!
 
 egressDeny: []			# deny all egress
+
+5. If you don't specify ports in a rule the traffic will apply to all ports
 no ports in a rule		# apply to all ports
 
-
-
+6. It is possible to disable the default deny
+```yaml
+  enableDefaultDeny:
+    egress: false
+```
 
 ## BANDWIDTH MANAGEMENT Concepts
 
+
+## CLUSTER MESH Concepts
+https://github.com/cilium/cilium#cluster-mesh
+
+
+
+## SERVICE MESH Concepts
+https://github.com/cilium/cilium#service-mesh
 
 
 # MONITORING AND TROUBLESHOOTING
@@ -310,6 +388,7 @@ clusterrolebinding/
 
 # CRD’s
 
+## General
 ciliumnodes										-		represents a node in cilium
 ciliumnodeconfigs
 

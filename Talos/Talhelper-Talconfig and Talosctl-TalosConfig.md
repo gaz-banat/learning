@@ -17,21 +17,23 @@ domain
 additionalMachineCertSans
 additionalApiServerSans
 cniConfig
-patches: Any patches directly in v1alpha1 style applying to all nodes
+patches: Any patches directly in v1alpha1 style (the machineconfig of talos) applying to all nodes
 
 +
 
 Common controlPlane configuration
     ...
     patches: directly in v1alpha1 style
-    extraManifests: Any manifests in v1alpha1/<specification> style
+    patches: of a complete v1alpha1/<specification>
+    # DEPRECATED extraManifests: Any manifests in v1alpha1/<specification> style
 
 +
 
 Common worker configuration
     ...
     patches: directly in v1alpha1 style
-    extraManifests: Any manifests in v1alpha1/<specification> style
+    patches: of a complete v1alpha1/<specification>
+    # DEPRECATED extraManifests: Any manifests in v1alpha1/<specification> style
 
 +
 
@@ -39,7 +41,8 @@ Nodes
     - node
       ...
       patches: directly in v1alpha1 style
-      extraManifests: Any manifests in v1alpha1/<specification> style
+      patches: of a complete v1alpha1/<specification>
+      # DEPRECATED extraManifests: Any manifests in v1alpha1/<specification> style
 
 
 

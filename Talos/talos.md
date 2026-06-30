@@ -6,7 +6,7 @@ Talos node stages
 - Running
 
 ---
-# TALOS CONFIGURATIONS
+# TALOS CONFIGURATION DOCUMENTS
 
 START HERE - https://www.talos.dev/<version>/reference/configuration/
 
@@ -34,19 +34,21 @@ ExtensionServiceConfig
 and so on, follow the URLs
 
 
+# BOOTING AND INSTALLING AND UPGRADING
 
-# THE TALOS CLI REFERENCE
-
-The talos cli reference
-https://www.talos.dev/v1.9/reference/cli/
-
+You have to boot the node in some way
+Then you have to install the Talos OS onto the node with a configuration
+You also have to someday upgrade the Talos OS to a newer version 
 
 
 # BOOT ASSETS
 
 ## First understand what is a boot asset
 
-a boot asset could be an image (iso file, a disk image), a kernel + initramfs image, an iPXE script
+a boot asset could be 
+- an image (iso file, a disk image)
+- a kernel + initramfs image
+- an iPXE script
 More at https://www.talos.dev/v1.10/talos-guides/install/boot-assets/
 
 
@@ -200,6 +202,9 @@ e.g. https://github.com/siderolabs/talos/releases/tag/v1.11.3
 
 # INSTALLING TALOS
 
+## Boot your Talos node first
+look above for booting
+
 ## Installing with talosctl
 
 ### the files
@@ -287,20 +292,6 @@ NODE                        NAMESPACE   TYPE      ID     VERSION   RUNNING   HEA
 nsw-etca-opsk8stest-ctrl1   runtime     Service   etcd   2         true      true      false
 
 
-talosctl -n nsw-etca-opsk8stest-ctrl1 service etcd
-
-NODE     nsw-etca-opsk8stest-ctrl1
-ID       etcd
-STATE    Running
-HEALTH   OK
-EVENTS   [Running]: Health check successful (148h8m29s ago)
-         [Running]: Started task etcd (PID 2665) for container etcd (148h8m34s ago)
-         [Preparing]: Creating service runner (148h8m34s ago)
-         [Preparing]: Running pre state (148h8m34s ago)
-         [Waiting]: Waiting for service "cri" to be "up", time sync, network, etcd spec (148h8m35s ago)
-         [Starting]: Starting service (148h8m35s ago)
-
-
 $ talosctl -n nsw-etca-opsk8stest-ctrl1 get service kubelet  
 NODE                        NAMESPACE   TYPE      ID        VERSION   RUNNING   HEALTHY   HEALTH UNKNOWN
 nsw-etca-opsk8stest-ctrl1   runtime     Service   kubelet   2         true      true      false
@@ -364,14 +355,42 @@ talosctl logs <service> -n <node>
 
 EFI                 -   the partition used for storing the bootloader files for UEFI based systems
 BIOS                -   the partition used for storing the bootloader files for legacy bios systems
-BOOt                -   contains the kernel, initramfs and other boot related data
+BOOT                -   contains the kernel, initramfs and other boot related data (Talos OS)
 META                -   the volume used for storing Talos metadata
-STATE               -   the volume used for storing system state including machine configuration
+STATE               -   the volume used for storing system state including machine configuration and PKI data
 EPHEMERAL           -   the volume for /var
                         largest writable data volume that holds runtime data for the node
                         used for storing container data, downloaded images, logs, metrics, etcd data for controlplanes
                         it is a catch all location for storing data
                         the volume is erased on reboot
+
+# STAGES OF TALOS OS
+
+Installing
+
+Booting
+
+Running
+
+
+## Resetting a Talos node
+
+Removes the machine from kubernetes, removes etcd and clears the following data - EPHEMERAL, STATE, extra disks and reboots the node into Maintenance stage
+Now the machine is waiting for a new configuration
+
+
+### Full factory Reset 
+
+```shell
+talosctl -n $node reset
+```
+
+
+### Just resetting STATE and EPHEMERAL
+
+```shell
+talosctl reset --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL
+```
 
 
 
@@ -461,12 +480,11 @@ talosctl container --kubernetes -n <node>
 containers not part of kubernetes but part of talos os run in the 'system' namespace
 
 
-# KUBERNETES
+# IMAGES
 
-## Images related to kubernetes
-
-The control plane components that for Kubernetes are run as containers/static pods in Talos.
 Each version of Talos has a set of default images it will use for the kubernetes control plane components
+
+## Registries
 
 These are the 3 registries to know
 ghcr.io
@@ -477,7 +495,6 @@ registry.k8s.io
 $ talosctl images default
 
 ghcr.io/siderolabs/installer:v1.10.7                # I THINK this one contains the installer program to install Talos onto a VM
-
 ghcr.io/siderolabs/flannel:v0.26.7
 ghcr.io/siderolabs/kubelet:v1.33.4
 
@@ -529,13 +546,15 @@ talosctl -n $node get systemdisk
 
 # disk information and volume information
 talosctl -n $node get disks
-talosctl -n $node get disk vda -o yaml
-talosctl -n $node ls -l /dev/disks/by-id ??
+talosctl -n $node get disks vda -o yaml
+talosctl -n $node ls -l /dev/disk/by-id
+talosctl -n $node ls -l /dev/disk/by-label
+talosctl -n $node ls -l /dev/disk/by-uuid
+
 
 talosctl -n $node get blockdevices
 
 talosctl -n $node get discoveredvolumes
-
 
 
 # volumeconfiguration information (still dont understand what this means)
@@ -544,12 +563,17 @@ talosctl -n $node get volumeconfigs STATE -o yaml
 
 
 # mount information
-talosctl -n $node mounts 
+talosctl -n $node mounts
+## looking at the /var mount
 talosctl -n $node mounts | awk 'NR == 1 { print; next; }  $2~/dev\//&&$2!~/rbd/{ print }'
+## show mounts from kubelet into the pods
+talosctl -n $node  mounts | awk 'NR == 1 { print; next; }  $7~/\/var\/lib\/kubelet\/pods/ { print }'
+
+# usage information
 talosctl -n $node usage <mount_point>, e.g. talosctl -n $node usage /var
 
 
-## network information
+# network information
 talosctl -n $node get links
 talosctl -n $node get link <link> -o yaml
 talosctl -n $node get addresses
@@ -558,11 +582,11 @@ talosctl -n $node get resolver
 talosctl -n $node get hostname
 talosctl -n $node get timeserver
 
-## kernel configuration
-### e.g. looking for libceph compilation
+# kernel configuration
+## e.g. looking for libceph compilation
 talosctl -n $node cat /proc/config.gz | zgrep -E "^CONFIG.*_(RBD|CEPH)"
 
-## get meta information (this only applies to bare-metal nodes)
+# get meta information (this only applies to bare-metal nodes)
 talosctl -n nsw-etca-opsk8s-osd1 get meta 0x0a -o yaml
 
 
@@ -570,32 +594,56 @@ talosctl -n nsw-etca-opsk8s-osd1 get meta 0x0a -o yaml
 talosctl -n nsw-etca-opsk8s-ctrl1 get extensions
 
 
-## get manifests that have been applied by talos to the kubernetes cluster, e.g. to provision coredns in kubernetes for example 
+# get manifests that have been applied by talos to the kubernetes cluster, e.g. to provision coredns in kubernetes for example 
 NOTE: These are of type Manifests.kubernetes.talos.dev and NOT v1alpha1
 talosctl -n nsw-artm-opsk8stest-ctrl1 get manifests
 talosctl -n nsw-artm-opsk8stest-ctrl1 get manifests 11-core-dns -o yaml
 
 
-## get the member nodes of the cluster
+# get the member nodes of the cluster
 talosctl -n $node get member
 talosctl -n $node get member nsw-artm-opsk8stest.ctrl1 -o yaml
 
 
-## get health of cluster
+# get health of cluster
 talosctl -n $node health
 
 
-## get containers of Talos 
+# get containers of Talos 
 talosctl -n $node containers                        # not kubernetes containers
 talosctl -n $node containers --kubernetes           # kubernetes containers
 
 
-## Talos cluster configuration information
+# Talosctl cluster configuration information
 talosctl config info
 
 
-## Talos kubernetes components images for current version of Talos
+# Talos kubernetes components images for current version of Talos
 talosctl images default
+
+
+# etcd
+talosctl -n nsw-etca-opsk8stest-ctrl1 service etcd
+
+NODE     nsw-etca-opsk8stest-ctrl1
+ID       etcd
+STATE    Running
+HEALTH   OK
+EVENTS   [Running]: Health check successful (148h8m29s ago)
+         [Running]: Started task etcd (PID 2665) for container etcd (148h8m34s ago)
+         [Preparing]: Creating service runner (148h8m34s ago)
+         [Preparing]: Running pre state (148h8m34s ago)
+         [Waiting]: Waiting for service "cri" to be "up", time sync, network, etcd spec (148h8m35s ago)
+         [Starting]: Starting service (148h8m35s ago)
+
+## remove an etcd member
+talosctl -n $node etcd members
+talosctl -n $node etcd remove-member <member-id>
+
+
+# Logs for a service
+talosctl -n $node logs <service> # talosctl -n $node get services
+talos
 ```
 
 
@@ -653,6 +701,10 @@ talosctl logs kubelet -n $NODE
 ```
 
 
+# THE TALOS CLI REFERENCE
+
+The talos cli reference
+https://www.talos.dev/v1.9/reference/cli/
 
 
 # COMMANDS ON WIKI

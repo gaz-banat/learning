@@ -1,5 +1,21 @@
 
 
+There are 2 modes for installation
+
+Multitenant
+
+  non ha
+
+  ha
+
+Core
+
+  only non ha, no UI, no API server
+
+
+
+
+
 # ARGOCD COMPONENTS
 
 ArgoCD Server				            -	    gRPC/REST server that does app mgmt & status reports
@@ -8,7 +24,7 @@ ArgoCD Server				            -	    gRPC/REST server that does app mgmt & status 
 Application Controller          -     responsible for reconciling the Application resource in Kubernetes synchronizing the desired application state (in Git) with the live state (in Kubernetes)
                                       also responsible for reconciling the Project resource.
 ApplicationSet Controller       -     responsible for reconciling the ApplicationSet resource.
-Repo Server					            -	    responsible for building kubernetes manifests from helm, oci or git repos.
+Repo Server					            -	    responsible for cloning repos, caching them locally and then building kubernetes manifests from helm, oci or git repos.
 
 Notification Controller
 Dex Server
@@ -47,15 +63,15 @@ ApplicationSet Controller/ApplicationSet -----> Application Controller/Applicati
 Generators are used to generate parameters. Thos parameters can then be used in an application template within the ApplicationSet resource
 
 Types of Generators:
-list								-	any type of key/value element, e.g. cluster: <name> and url: <url>
-cluster								-	name, nameNormalized, server, metadata.labels.<key>, metadata.annotations.<key>
+list								          -	any type of key/value element, e.g. cluster: <name> and url: <url>
+cluster								        -	name, nameNormalized, server, metadata.labels.<key>, metadata.annotations.<key>
 git
   directory generator
   file generator
-matrix								-	this generator is used to combine the generated parameters of two separate generators
-merge								-	this generator is used to merge the generated parameters of two or more generators
-scm provider						-	this generator queries the API of an SCM provider to discover repositories within an organization
-pull request						-	this generator uses the API of an SCMaaS provider to discover open pull requests within a repo
+matrix								        -	this generator is used to combine the generated parameters of two separate generators
+merge								          -	this generator is used to merge the generated parameters of two or more generators
+scm provider						      -	this generator queries the API of an SCM provider to discover repositories within an organization
+pull request						      -	this generator uses the API of an SCMaaS provider to discover open pull requests within a repo
 cluster decision resource			-	this generator is used to interface with K8s custom resources that use custom resource specific logic to decide which set of ArgoCD clusters to deploy to
 
 
@@ -67,6 +83,7 @@ cluster decision resource			-	this generator is used to interface with K8s custo
 kustomize.buildOptions: "--enable-helm"
 resource.exclusions
 application.instanceLabelKey
+
 
 ## Config Management Plugin (CMP)
 
@@ -116,7 +133,7 @@ NOTE: there are other ways in which the plugin can also be used, e.g. discover.f
       - PruneLast=true 				        # prune this application last if this application was deployed as part of multiple applications
       - Replace=true 				          # the resources will be replaced on each sync (so last-applied-configuration is not avaialble on the resource), but note that applyoutofsynconly is true right now
       - FailOnSharedResource=true 	  # fail the sync if any resource is found on other applications 
-	  - ServerSideApply=true 		        # uses kubectly apply --server-side=true to apply the resource, last-applied-configuration is not used, managedFields is used
+	    - ServerSideApply=true 		      # uses kubectly apply --server-side=true to apply the resource, last-applied-configuration is not used, managedFields is used
 
 
 ## Sync Options in Resources via annotations 
@@ -133,10 +150,10 @@ argocd.argoproj.io/sync-options:Replace=true    # The resource will be replaced 
 
 ## Tracking strategies for GIT (targetRevision: )
 
-Commit SHA			-	29c856a3
-Tags				-	v1.2
-Branch 				-	hotfix/IASP-9534
-Symbolic Reference 	-	HEAD
+Commit SHA			      -	29c856a3
+Tags				          -	v1.2
+Branch 				        -	hotfix/IASP-9534
+Symbolic Reference 	  -	HEAD
 
 
 ## Tracking strategies for Helm (targetRevision: )
@@ -268,6 +285,7 @@ metadata:
 ```
 
 ## annotate an application to prevent argocd from syncing it
+
 ```shell
 $ application=<application>
 $ k annotate applications/$application argocd.argoproj.io/skip-reconcile="true" -n argocd

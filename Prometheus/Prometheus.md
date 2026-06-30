@@ -119,6 +119,7 @@ Runtime and Build information
 
 Configuration
 
+  evaluation_interval           -     how often prometheus will evaluate prometheusrules (both alerting and recording) 
 
 Rules
 
@@ -128,37 +129,6 @@ Targets
 
 
 Service Discovery
-
-
-
-
-
-
-
-# TYPES OF METRICS
-
-
-Counter
-Counters go up, and reset when the process restarts.
-
-
-Gauge
-Gauges can go up and down.
-
-
-Summary
-Summaries track the size and number of events.
-
-
-Histogram
-Histograms track the size and number of events in buckets. This allows for aggregatable calculation of quantiles.
-
-
-
-## Some interesting metrics
-
-up 
-the list of targets scraped by prometheus
 
 
 
@@ -209,34 +179,6 @@ ExternalURL
 
 # PROMQL
 
-
-## VECTORS
-
-Instant Vector (same timestamp)
-
-node_cpu_seconds_total{}
-
-            TIMESERIES                                    VALUE         TIMESTAMP
-node_cpu_seconds_total{cpu="0", instance="server1"}       674478.07     March 3rd 08:05AM 
-node_cpu_seconds_total{cpu="1", instance="server1"}       674626.76     March 3rd 08:05AM 
-node_cpu_seconds_total{cpu="0", instance="server2"}       599112.10     March 3rd 08:05AM 
-node_cpu_seconds_total{cpu="1", instance="server2"}       876541.15     March 3rd 08:05AM 
-
-
-
-Range Vector (different timestamp)
-
-node_cpu_seconds_total{instance="server1"}[3m]
-
-            TIMESERIES                                    VALUE         TIMESTAMP
-node_cpu_seconds_total{cpu="0", instance="server1"}       674478.07     March 3rd 08:05AM 
-node_cpu_seconds_total{cpu="0", instance="server1"}       674626.76     March 3rd 08:04AM 
-node_cpu_seconds_total{cpu="0", instance="server1"}       599112.10     March 3rd 08:03AM 
-node_cpu_seconds_total{cpu="1", instance="server1"}       876541.15     March 3rd 08:05AM 
-node_cpu_seconds_total{cpu="1", instance="server1"}       123456.78     March 3rd 08:04AM
-node_cpu_seconds_total{cpu="1", instance="server1"}       975313.87     March 3rd 08:03AM
-
-
 ## TYPES OF METRICS
 
 Counter
@@ -261,7 +203,35 @@ Summary
 Summaries track the size and number of events.
 
 
-## OPERANDS (EXPRESSIONS OR SUBEXPRESSIONS EVALUATE TO THESE )
+## VECTORS
+
+Instant Vector (a set of different values with same timestamp for a given metric)
+
+node_cpu_seconds_total{}
+
+            TIMESERIES                                    VALUE         TIMESTAMP
+node_cpu_seconds_total{cpu="0", instance="server1"}       674478.07     March 3rd 08:05AM 
+node_cpu_seconds_total{cpu="1", instance="server1"}       674626.76     March 3rd 08:05AM 
+node_cpu_seconds_total{cpu="0", instance="server2"}       599112.10     March 3rd 08:05AM 
+node_cpu_seconds_total{cpu="1", instance="server2"}       876541.15     March 3rd 08:05AM 
+
+
+
+Range Vector (a set of different values with a different timestamp for a given metric)
+
+node_cpu_seconds_total{instance="server1"}[3m]
+
+            TIMESERIES                                    VALUE         TIMESTAMP
+node_cpu_seconds_total{cpu="0", instance="server1"}       674478.07     March 3rd 08:05AM 
+node_cpu_seconds_total{cpu="0", instance="server1"}       674626.76     March 3rd 08:04AM 
+node_cpu_seconds_total{cpu="0", instance="server1"}       599112.10     March 3rd 08:03AM 
+node_cpu_seconds_total{cpu="1", instance="server1"}       876541.15     March 3rd 08:05AM 
+node_cpu_seconds_total{cpu="1", instance="server1"}       123456.78     March 3rd 08:04AM
+node_cpu_seconds_total{cpu="1", instance="server1"}       975313.87     March 3rd 08:03AM
+
+
+
+## OPERANDS (EXPRESSIONS OR SUBEXPRESSIONS EVALUATE TO THESE)
 
 Scalar
 - a simple numeric floating point value 
@@ -476,12 +446,11 @@ count(<query>)
 number of records in the record set resulting from query
 
 rate()
-avg number of 'something' over the time window
-
+meaning     - average rate of increase per second of 'something' over a given time window
+syntax      - rate(metric_name[time_window]), rate(http_requests[5m])
 
 delta()
 difference between first and last value
-
 
 increase()
 
@@ -502,6 +471,16 @@ then retrieve the value for 95% of the requests
 
 
 # PROMETHEUSRULES
+
+Types:
+
+recording         -
+alerting          -
+
+
+How:
+At a given evaluation_interval (either global config OR rule group config) prometheus will evaluate a given rule
+
 
 groups:
   - name: group1
@@ -530,9 +509,12 @@ Alerting with Prometheus is split into two parts
 
 
 
+# SOME INTERESTING METRICS
+
+up            -     the list of targets scraped by prometheus
+
 
 # TROUBLESHOOTING
 
 Prometheus has queries built into itself to understand things about user queries
-
 prometheus_rule_group_last_duration_seconds

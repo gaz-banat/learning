@@ -3,7 +3,8 @@
 
 Think of Rook as composed of 3 parts
 1. The CRD's
-2. The rook-ceph operator                   -   operator pod, csi pods, discover pods, 
+2. The rook-ceph operator                   -   operator pod, csi-cephfsplugin-provsioner pods, csi-cephfsplugin pods, 
+                                                csi-rbdplugin-provisioner pods, csi-rbdplugin pods, rook-discover pods, 
 3. The rook-ceph cluster                    -   toolbox pod,  mon pods, mgr pods, rgw pods, prep osd pods, osd pods
                                                 resources for monitoring, dashboard, ingress
                                                 cephblockpools + storage classes for the cephblockpools
@@ -14,10 +15,10 @@ Think of Rook as composed of 3 parts
 
 # CRD's
 
-Documentation for CRD's              -       https://rook.io/docs/rook/latest-release/CRDs/Cluster/ceph-cluster-crd/ (and then find your way accordingly)
+Documentation for CRD's                                 -       https://rook.io/docs/rook/latest-release/CRDs/Cluster/ceph-cluster-crd/ (and then find your way accordingly)
 
 
-The following CRDs come from the crds bundle in deploy/examples/crds.yaml:
+## The following CRDs come from the crds bundle in deploy/examples/crds.yaml:
 
 cephclusters.ceph.rook.io
 
@@ -51,7 +52,7 @@ cephcosidrivers.ceph.rook.io
 
 
 
-The following CRDs come from the installation of the operator:
+## The following CRDs come from the installation of the operator:
 
 cephconnections.csi.ceph.io
 clientprofilemappings.csi.ceph.io
@@ -63,27 +64,38 @@ operatorconfigs.csi.ceph.io
 
 # ROOK-CEPH (the operator)
 
+## What is with the rook-ceph (operator)
+
+operator
+  csi cephgsplugin provisioner
+  csi cephfsplugin
+  csi rbdplugin provisioner
+  csi rbdplugin
+  rook-discover                       -       automatically detect available raw disks, partitions, and NVMe drives so the Rook Operator can use them to create persistent storage
+
+
 ## Helm chart for rook operator
 
 https://charts.rook.io/release repo and rook-ceph chart (source code is in rook repo at deploy/charts/rook-ceph/)
 
 
 The rook-ceph (operator) helm chart provides (amongst many other things like ConfigMap, ServiceAccount, ClusterRole, ClusterRoleBinding, RoleBinding, etc.):
+
 Deployment/rook-ceph-operator           -       docker.io/rook/ceph image, the operator pod  
+Deployment/ceph-csi-controller-manager  -       quay.io/cephcsi/ceph-csi-operator, CSI Drive.  (WE DONT SEEM TO USE THIS IN AARNET)
 
 
-Deployment/ceph-csi-controller-manager  -       quay.io/cephcsi/ceph-csi-operator, CSI Driver
+Command - ```helm template rooky rook-release/rook-ceph --dry-run | yq (.kind)```
+
+The rook-ceph-operator then creates the csidriver and rook-discover workloads:
+- deployment/csi-cephfsplugin-provisioner
+- ds/csi-cephfsplugin
+- deployment/csi-rbdplugin-provisioner
+- ds/csi-rbdplugin
+- ds/rook-discover
 
 
-Command - ```helm template rooky rook-release/rook-ceph --dry-run | grep ^kind```
-
-The rook-ceph-operator then creates the csidriver workloads:
-- deployment/csi-cephfsplugin-provisioner and ds/csi-cephfsplugin
-- deployment/csi-rbdplugin-provisioner and ds/csi-rbdplugin
-
-
-
-## Components in the rook-ceph operator (not containers, think software components)
+## Components in the rook-ceph operator (think software components not containers)
 
 controller
 ceph-operator-config-controller
@@ -156,32 +168,50 @@ CephObjectStore
 
 Command - ```helm template rooky rook-release/rook-ceph-cluster --dry-run | yq '. | (.kind, .metadata.name)'```
 
+rook-ceph-mon
+rook-ceph-mgr
+rook-ceph-mds
 
+rook-ceph-osdprepare
+ceph-file-controller
+ceph-object-controller-detect-version
+
+rook-ceph-osd (x N)
+rook-ceph-crashcollector (x N)
+rook-ceph-exporter (x N)
+
+rook-ceph-tools
+
+rook-ceph-rgw-ceph-objectstore-a (x N)
+
+
+
+# WORKINGS
 
 ## This is where rook meets ceph
 
 ### cephfs
 When you create a cephfilesystem resource:
- - a cephfs volume is created (k rook-ceph ceph fs volume ls)at least 
- - 2 pools are created in the ceph cluster - the metadata pool, the data pool (k rook-ceph ceph osd lspools)
+ - a cephfs volume is created (```k rook-ceph ceph fs volume ls```) at least 
+ - 2 pools are created in the ceph cluster - the metadata pool, the data pool (```k rook-ceph ceph osd lspools```)
 
-then a pvc in a namespace referring the ceph-filesystem storage class
-gives birth to a pv in the kubernetes system
-which creates a subvolumegroup in the cephfs volume created above
+then a pvc in a namespace referring the ceph-filesystem storage class,
+gives birth to a pv in the kubernetes system,
+which creates a subvolumegroup in the cephfs volume created above,
 and then creates a subvolume in the subvolume group
 
-so - the pv is a subvolume
+SO - THE PV IS A SUBVOLUME
 
 
 ### rbd
 When you create a cephblockpool resource:
- - an rbd pool is created (k rook-ceph ceph osd lspools)
+ - an rbd pool is created (```k rook-ceph ceph osd lspools```)
 
-then a pvc in a namespace referring the ceph-block storage class
-gives birth to a pv in the kubernetes system
+then a pvc in a namespace referring the ceph-block storage class,
+gives birth to a pv in the kubernetes system,
 which creates an "image" in the rbd pool
 
-so - the pv is an image
+SO - THE PV IS AN IMAGE
 
 
 ### objectstore
@@ -194,7 +224,7 @@ CRUSH rules come into play by marking nodes with labels - topology.kubernetes.io
 
 
 
-# WORKINGS
+
 
 
 ## The Operator reads the CephCluster resource and provides:

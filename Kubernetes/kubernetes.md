@@ -162,7 +162,8 @@ Can work in 3 modes -
 	iptables				-	uses the kernel's iptables firewall, based on netfilter, runs in userspace
 								in iptables mode, kube-proxy attaches rules to the “NAT pre-routing” hook to implement its NAT and load balancing functions
 	IPVS					-	uses the kernel's IP Virtual Server, based on netfilter, implements transport layer load balancing, usually called Layer 4 LAN switching,
-								it provides better scalability and performance for large clusters, supports more sophisticated load balancing algorithms than iptables (e.g. round robin, lease connection, destination source hashing)
+								it provides better scalability and performance for large clusters,
+								supports more sophisticated load balancing algorithms than iptables (e.g. round robin, lease connection, destination source hashing)
 
 
 
@@ -234,7 +235,7 @@ The controller component pod is made up of
 	- identity Service	(GetPluginInfo(), GetPluginCapabilities())					
 - one or more sidecar containers implementing
 	- external-provisioner							watches for PersistentVolumeClaim objects
-	- external-attacher								watches for VolumeAttachment objects
+	- external-attacher								watches for VolumeAttachment objects (VolumeAttachment tracks binding state between PV and node)
 	- external-resizer (optional)					watches for PersistentVolumeClaim objects
 	- external-snapshotter (optional)				watches for VolumeSnapshot objects
 - and perhaps other containers providing additional functionality like
@@ -269,10 +270,15 @@ The StorageClass dictates the volumeBindingMode and the reclaimPolicy for the st
 
 ### The process of provisioning a persistent volume
 
-1. the external-provisioner sidecar ----- watches for -----> a PVC ---- which references ---- a STORAGECLASS
-2. the external-provisioner ---then calls (from provisioner field, with parameters from parameters field of STORAGECLASS) CreateVolume() ----> CSI Driver (controller component) --- which provisions a volume on ---> Storage Provider
-2. Kubelet ---uses----> CSI Driver (node component) ---to mount volume onto node from----> Storage Provider  ----finally getting a-----> PV
+1. the external-provisioner sidecar ----- watches for -----> a PVC ---- which references ----> a STORAGECLASS
+2. the external-provisioner --- then calls (from provisioner field, with parameters from parameters field of STORAGECLASS) CreateVolume() function ----> CSI Driver (controller component) --- which provisions a volume on ---> Storage Provider
+3. Kubernetes Control Plane --- creates a ---> VolumeAttachment
+4. csi external-attacher (part of controller component) --- acts upon ---> the VolumeAttachment --- and attaches ---> the PV ---- to ----> a Node
+--- and marks ----> the PV as ready for use
+5. Kubelet --- uses the ---> CSI Node component --- to mount the ---> PV --- into the ---> Pod's target path
 
+
+Attach issues often look like “volume not ready,” while mount issues look like “target path not found” or repeated publish retries
 
 
 ### CSI External-Snapshotter 
@@ -656,6 +662,10 @@ User
 	Client Cert		- 	auth to API Server
 
 
+WHAT IS MACHINECERT? I FOUND THE SETTING IN TALCONFIG
+
+
+
 ### Private/Public Key for signing service accounts
 
 Other than the above certs there is a public/private key pair used for signing service accounts
@@ -769,9 +779,12 @@ portforward							-	allow the user to forward network traffic to a kubernetes po
 
 ```shell
 # Check if a user in a group has access
-k auth can-i <verb> <resource> --as=<user> --as-group=<group> -n <namespace>
+# Syntax is:
+# k auth can-i <verb> <resource> --as=<user> --as-group=<group> -n <namespace>
 k auth can-i create backups.velero.io --as=oidc:gazb --as-group=oidc:opsk8s-admins -n infra-backups
 
+# Check if a serviceaccount has access
+k auth can-i create pods --as=system:serviceaccount:argocd:argocd-deployer-infosys -n auscert-parser
 ```
 
 
@@ -917,13 +930,13 @@ Stopping kube proxy
 
 # A way of running an aribitary container attached to node namespace and connecting as root
 ## Create debug profile
-cat <<___EOT >debug-profile.yaml
+cat <<___EOT > ~/debug-profile.yaml
 securityContext:
   runAsUser: 0
 ___EOT
  
 ## Create debug pod
-kubectl debug -n kube-system -it --profile sysadmin --image aplregistry.aarnet.edu.au/hub.docker.com/rook/ceph:v1.16.3 node/nsw-artm-opsk8stest-ceph1 --custom debug-profile.yaml -- bash
+kubectl debug -n kube-system -it --profile sysadmin --image aplregistry.aarnet.edu.au/hub.docker.com/rook/ceph:v1.16.3 node/nsw-artm-opsk8stest-ceph1 --custom ~/debug-profile.yaml -- bash
 
 
 # Namespace stuck in terminating
@@ -1020,5 +1033,16 @@ kubectl explain <resource> |--recursive  less
 ```
 
 
+Use jsonpath when ....
+```shell
 kubectl get pods --all-namespaces \
--o jsonpath='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{.metadata.namespace}{":\t"}{range .spec.containers[*]}{.image}{", "}{end}{end}' | grep <your-image-name>
+-o jsonpath='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{.metadata.namespace}{":\t"}{range .spec.containers[*]}{.image}{end}{end}'
+```
+
+Use yaml when .....
+
+
+Use go-template when .......
+
+
+Use custom-columns when .....

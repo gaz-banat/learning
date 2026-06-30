@@ -1,12 +1,6 @@
 
 
-
-
-talhleper gencommand | sh
-
-
-
-IMPORTANT FILES FOR BASH
+# IMPORTANT FILES FOR BASH
 
 System wide
 	•	/etc/profile: system wide environment setup for login shells, will execute scripts in /etc/profile.d/
@@ -24,7 +18,7 @@ User specific
 
 
 
-HOW BASH STARTS UP
+# HOW BASH STARTS UP
 
 
 Background info login program					-	getty runs on terminal device, collects username and gives it to login.
@@ -68,7 +62,7 @@ Invoked in POSIX mode (—posix) as interactive	-	looks for ENV variable, expand
 
 
 
-SHELL AND ENVIRONMENT VARIABLES
+# SHELL AND ENVIRONMENT VARIABLES
 
 Environment variables		-		are setup by the operating system for the bash process, type env to get the environment variables, these get passed to a process started by the shell
 Shell variables				-		belong to the shell, these dont get passed to a process started by the shell
@@ -81,7 +75,7 @@ env | grep HELLO
 
 
 
-COMMON ENVIRONMENT VARIABLES
+# COMMON ENVIRONMENT VARIABLES
 
 PATH
 USER			-	the currently logged in user
@@ -96,7 +90,7 @@ TERM
 
 
 
-COMMON SHELL VARIABLES
+# COMMON SHELL VARIABLES
 
 IFS
 
@@ -104,7 +98,7 @@ IFS
 
 
 
-REDIRECTION
+# REDIRECTION
 
 > or 1>				- redirect stdout
 2>					- redirect stderr
@@ -124,7 +118,7 @@ REDIRECTION
 
 
 
-BASH KEYWORDS/RESERVED WORDS
+# BASH KEYWORDS/RESERVED WORDS
 
 Note: run the command compgen -k
 They are used to begin and end the shell’s compound commands. 
@@ -165,7 +159,7 @@ local				-	define a variable local to a function
 
 
 
-BASH SPECIAL CHARACTERS
+# BASH SPECIAL CHARACTERS
 
 Note: Switch off the meaning of special characters of bash by escaping them or quoting them
 
@@ -204,17 +198,19 @@ Note: Switch off the meaning of special characters of bash by escaping them or q
 
 
 
-BASH SPECIAL VARIABLES/CONSTRUCTS
+# BASH SPECIAL VARIABLES/CONSTRUCTS
 
+```shell
 $$				- the process ID of the bash shell, if you run in this a script you will get the process of the bash shell running the script and not the script itself
 $#				- number of command line arguments
 ${@}			- all the positional parameters to a script (all the command line arguments)
-	${@:n}		- all the positional parameters starting from the nth position, where counting begins with 1 (and not zero), e.g. ${@:3} will give omit the first two parameters and give the parameters from the third onwards
+	${@:n}		- all the positional parameters starting from the nth position, where counting begins with 1 (and not zero), 
+				  e.g. ${@:3} will give omit the first two parameters and give the parameters from the third onwards
 ${#@}			- the length of the array (@) that holds all the positional parameters
 $*				- all the positional parameters
 $?				- exit status of the last command executed, 0 is success and any other number is failure
 $0				- the script itself
-$1, $2, $3 .. 		- positional parameters, arguments
+$1, $2, $3 .. 	- positional parameters, arguments
 ${!var}			- indirect reference to var, e.g. var1=“var2”; var2=“alpha”; var3=${!var1}; echo ${var3} gives alpha
 				  think of it as take the value of var1 and treat it as a variable and get me that variables value
 $_				- the last argument passed to the last command that was run
@@ -227,24 +223,25 @@ $’....’			- a way to expand ANSI escape sequences
 	$’hello\nhi’		- is 2 lines, the first line is hello and the second line is hi
 $[expression]		- evaluate expression
 $((expression))	- evaluate expression
-$(expression)		- run expression as a command in a sub shell and produce an output, then the $ sign is helping to preserve that output so that it can be reused on the existing command line
+$(expression)	- run expression as a command in a sub shell and produce an output, then the $ sign is helping to preserve that output so that it can be reused on the existing command line
+```
 
 
 
 
-
-BUILTINS
+# BUILTINS
 
 Note: builtins do not fork new processes
 
 .					- 		same as source
 :					- 		does nothing and returns true
 [ 					- 		test
-declare				-		declare can be used to create various types of variables (arrays, associative arrays, integer, etc) and give those variables attributes (readonly, enforce lower case, etc.) before assignment happens
+declare				-		declare can be used to create various types of variables (arrays, associative arrays, integer, etc) 
+							and give those variables attributes (readonly, enforce lower case, etc.) before assignment happens
 test
-shift					- 		moves positional parameters to a script leftwards
+shift				- 		moves positional parameters to a script leftwards
 true
-let “expression”		- 		evaluates expression as a numerical expression
+let “expression”	- 		evaluates expression as a numerical expression
 					 		similar to (( )) it returns 0 or 1 based on the result of expression, if the expression evaluates to 0 it returns 0, if the expression evaluates to anything else it returns 1
 				 			a return value of 0 is equated to false per bash logic therefore making $? non-zero, a return value of 1 is equated as true per bash logic therefore making $? zero
 export				-		make a shell variable available in the environment
@@ -253,20 +250,20 @@ getopts
 shopt				-		specific to Bash, enable or disable options for the current shell
 echo
 exec				- 		used to execute a command from bash itself, does not create a new process, replaces the calling bash with the command to be executed, therefore no return to the calling process
-eval					-		a way of providing a second level of bash/shell expansion
+eval				-		a way of providing a second level of bash/shell expansion
 read
 set					-		set allows you to change the values of shell options and set positional parameters OR display the names and values of shell variables
 trap
 which
 help
 command				-		run a command with arguments suppressing shell function lookup
-type					-		available options for a command
+type				-		available options for a command
 
 
 
 
 
-CONDITIONALS
+# CONDITIONALS
 
 if
 if expression			- 	test a command or expression, proceed if true, don’t proceed if false
@@ -308,7 +305,7 @@ Case
 
 
 
-OPERATORS
+# OPERATORS
 
 file test
 -e				- exists
@@ -320,7 +317,7 @@ file test
 -p				- is a pipe
 -S				- is a socket
 -t				- is a terminal, applies only to file descriptors 0,1 and 2
--h/L				- file is a symbolic link
+-h/L			- file is a symbolic link
 -r				- readable
 -w				- writable
 -x				- executable
@@ -355,7 +352,7 @@ II				- logical or
 
 
 
-PATTERN MATCHING
+# PATTERN MATCHING
 
 
 Globbing:
@@ -459,7 +456,7 @@ var=“funny bunny”
 
 
 
-LOOPS
+# LOOPS
 
 
 General Syntax
@@ -504,8 +501,9 @@ kubectl get es -A | while read ns name x; do echo $ns $name; echo done
 
 
 
-ARRAYS
+# ARRAYS
 
+```shell
 Regular:
 arr1=(‘alpha’, ‘beta’, ‘gama’) 
 arr1=( $(echo happy birthday to you) )
@@ -537,38 +535,38 @@ assArr1[father]=gaz
 
 assArr1+=( [uncle}=Junaid)
 unset assArr1[uncle]
+```
 
 
 
+# PARAMETER EXPANSION
 
-PARAMETER EXPANSION
-
-${VAR:-default}			-	set default value for var if var is not set, e.g. ${TEST_MODE:-0}, set TEST_MODE to 0 if it has no value
-${VAR:=default}			-	if VAR is unset or null then set its value to default, e.g. ${PREFIX:=/usr/local/share}, set PREFIX to /usr/local/share if it is not set or null
+```shell
+${VAR:-default}					-	set default value for var if var is not set, e.g. ${TEST_MODE:-0}, set TEST_MODE to 0 if it has no value
+${VAR:=default}					-	if VAR is unset or null then set its value to default, e.g. ${PREFIX:=/usr/local/share}, set PREFIX to /usr/local/share if it is not set or null
 
 ${VAR/pattern1/pattern2}		-	search and replace first instance of pattern1 with pattern2
 ${VAR//pattern1/pattern2}		-	search and replace all instances of pattern1 with pattern2
-${VAR//pattern1}			-	this is a technique for searching pattern1 and replacing with nothing
+${VAR//pattern1}				-	this is a technique for searching pattern1 and replacing with nothing
 
-${VAR#pattern}			-	removes shortest matching prefix from expanded value that matches the pattern
-${VAR##*pattern}			-	removes longest matching prefix from expanded value that matches the pattern
-${VAR%pattern}			-	removes shortest matching suffix from expanded value that matches the pattern
-${VAR%%pattern}			-	removes longest matching suffix from expanded value that matches the pattern
-${VAR::-n}				-	removes last ’n’ characters from variable
+${VAR#pattern}					-	removes shortest matching prefix from expanded value that matches the pattern
+${VAR##*pattern}				-	removes longest matching prefix from expanded value that matches the pattern
+${VAR%pattern}					-	removes shortest matching suffix from expanded value that matches the pattern
+${VAR%%pattern}					-	removes longest matching suffix from expanded value that matches the pattern
+${VAR::-n}						-	removes last ’n’ characters from variable
 
 ${VAR:offset:length}			-	extracts substring from expanded value, counting starts at 0
-${VAR:offset}				-	extracts substring from offset to end of string
-${VAR:$((-offset))}			-	extracts last offset number of characters, so if offset is 7 then last 7 characters
+${VAR:offset}					-	extracts substring from offset to end of string
+${VAR:$((-offset))}				-	extracts last offset number of characters, so if offset is 7 then last 7 characters
 ${VAR:$((-offset)):length}		-	extracts substring from offset counting from end
 
-${VAR+<string>}			-	will substitute value of ${VAR} to <string> if ${VAR} is set
-${#VAR}					-	returns the length of VAR
+${VAR+<string>}					-	will substitute value of ${VAR} to <string> if ${VAR} is set
+${#VAR}							-	returns the length of VAR
+```
 
 
 
-
-
-HOW A COMMAND RUNS
+# HOW A COMMAND RUNS
 
 A simple command is a sequence of:
 optional variable assignments 
@@ -615,7 +613,7 @@ IFS=‘;’ while read xx yy zz; do echo $xx $yy $xx; done < file.txt				-	does 
 
 
 
-HOW BASH CAN BE INVOKED
+# HOW BASH CAN BE INVOKED
 
 NOTE: in each case a seperate instance of bash than the one you might be in is being invoked!!
 
@@ -639,7 +637,7 @@ echo ‘for i in {1..10}; do echo $i; done’ | bash
 
 
 
-OPTIONS FOR INVOKING BASH
+# OPTIONS FOR INVOKING BASH
 
 Possible ways of invoking bash
 
@@ -665,11 +663,11 @@ Meaning of flags:
 - -				- double dash signals end of options
 
 
-SHELL FLAGS 	
+# SHELL FLAGS 	
 
 echo $-			-	get the current flags
-set -<flag>			-	set the shell flag, eg. set -H will restore histexpand
-set +<flag>			-	remove the shell flag, e.g. set +H will remove histexpand
+set -<flag>		-	set the shell flag, eg. set -H will restore histexpand
+set +<flag>		-	remove the shell flag, e.g. set +H will remove histexpand
 
 h				- 	hashall, tells bash to remember the locations of commands it has found through querying your PATH
 i				- 	interactive
@@ -685,16 +683,16 @@ u				- 	error on unset variable
 
 
 
-SHELL OPTIONS (think $SHELLOPTS)
+# SHELL OPTIONS (think $SHELLOPTS)
 
-set -o 			-	will display options
+set -o 					-	will display options
 set -o <option> 		-	will set the option 
 set +o <option> 		-	will disable that option
 
 allexport	
 braceexpand	
 emacs		
-errexit				-	exit on error immediately, i.e. if any command in the script produces a non-zero code
+errexit					-	exit on error immediately, i.e. if any command in the script produces a non-zero code
 errtrace
 functrace
 hashall			
@@ -709,7 +707,7 @@ noexec
 noglob			
 nolog			
 notify			
-nounset				-	terminate the shell/script if a variable that has not been initialized is trying to be used
+nounset					-	terminate the shell/script if a variable that has not been initialized is trying to be used
 onecmd			
 physical
 pipefail				-	causes a pipeline of commands to produce a failure return code if any command within the pipeline errors, normally pipelines only return a failure if the last command errors
@@ -721,9 +719,9 @@ xtrace
 
 
 
-SHOPT OPTIONS	(think $BASHOPTS)
+# SHOPT OPTIONS	(think $BASHOPTS)
 
-shopt			-	show all the options
+shopt				-	show all the options
 shopt -s <option>	-	set option
 shopt -u <option>	-	unset option	
 
@@ -775,7 +773,7 @@ xpg_echo
 
 
 
-SUBSHELL
+# SUBSHELL
 
 subshell					-	a subshell is (command1; command2; …..; command n)
 							this is like a fork+wait
@@ -796,19 +794,20 @@ child shell				-	a child shell is a new process created with ‘bash’ or ‘sh
 
 
 
-COMMAND AND PROCESS SUBSTITUTION
+# COMMAND AND PROCESS SUBSTITUTION
 
+```shell
 $(command)		-	this is command substitution
 					a command is being run in a subshell and used to generate a command or argument (mostly used for generating arguments) for the calling shell
 
 <(command)		-	this is process substitution
 					the command is being run in a subshell then the output of that subshell will be presented as a filename in the calling shell from which the output of the command may be read
+```
 
 
 
 
-
-PROCESS MANAGEMENT
+# PROCESS MANAGEMENT
 
 CTRL-z			-	suspend a process (sends a TSTP signal)
 fg 				-	bring a suspended process back to running
@@ -820,7 +819,7 @@ nohup
 
 
 
-BASHIMS
+# BASHIMS
 
 Key Sequences:
 
@@ -833,31 +832,14 @@ CTRL-r			-	reverse search
 
 
 
-HEREDOC
+# HEREDOC
 
 
 
 
 
-RULES
 
-To avoid headaches in your life with bash when referencing a variable always quote it
-
-Quoting
-1. referencing a variable in double quotes will preserve the white space sequences as is as part of the variables value
-2. bash uses the value of IFS variable as field separators and converts multiple continuous field separators to single white spaces. Partial quoting (double quotes) prevents this from happening.
-
-Command line interpretation
-- bash removes quotes
-
-Logic
-- for bash 0 is false and false is false, anything not 0 is true and true is true
-
-
-
-
-
-INTRICACIES OF THE UTILITIES
+# INTRICACIES OF THE UTILITIES
 
 
 **echo**
@@ -1126,13 +1108,33 @@ help read
 
 
 
-TIPS AND TRICKS
+# TIPS AND TRICKS
 
-Check if a variable is set
-if [[ -z ${!var_name+z} ]]; then
+
+First some rules
+
+To avoid headaches in your life with bash when referencing a variable always quote it
+
+Quoting
+1. referencing a variable in double quotes will preserve the white space sequences as is as part of the variables value
+2. bash uses the value of IFS variable as field separators and converts multiple continuous field separators to single white spaces. Partial quoting (double quotes) prevents this from happening.
+
+Command line interpretation
+- bash removes quotes
+
+Logic
+- for bash 0 is false and false is false, anything not 0 is true and true is true
+
+
+---
+
+Check if a variable is unset or set
+if [[ -z ${var_name+z} ]]; then
     echo "  \$$var_name is not set"
     has_unset_vars=1
-  fi
+else
+	echo "\$$var_name is set"
+fi
 
 ---
 
@@ -1149,10 +1151,12 @@ readarray -t  myarray < <(process_that_produces_array)
 
 Build an array from a comma separated list in a variable
 
+```shell
 list=“hello,hi,salaam”
 IFS=“,” read -r -a GREETINGS <<< “$list”
 # now GREETINGS is an array
 echo ${GREETINGS[@]}
+```
 
 ---
 
