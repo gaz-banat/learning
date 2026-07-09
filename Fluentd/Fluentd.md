@@ -37,31 +37,3 @@ Input \-\-\-\--\> Parser \-\-\-\--\> Filter \-\-\-\-\-\--\> Output
 
 
 
-
-
-================
-FLUENT-BIT
-================
-
-
-
-CONCEPTS
-
-Event/Record - looks like a single log entry
-Filtering - the process of altering, enriching or dropping events (e.g.
-append an IP address or other metadata to the event)
-Tag - a fluent-bit internal string assigned to an event
-Timestamp - the time when an Event was created. It is a numeric
-fractional integer in the form of SECONDS.NANOSECONDS
-Match - a rule to select events based on a tag
-Structured Message - defines content of events as keys and values
-
-
-PIPELINE
-
-Input ---\> Parser ---\> Filter ---\> Buffer ---\> Route ---\> Output
-
-
-Parser - convert from unstructured/raw data to structured message
-
-Filter - alter the data before delivering it to some destination
