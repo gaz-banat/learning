@@ -233,11 +233,11 @@ The controller component pod is made up of
 - a csi driver container containg the 
 	- controller service (ControllerGetCapabilities(), CreateVolume(), PublishVolume(), UnpublishVolume(), DeleteVolume())
 	- identity Service	(GetPluginInfo(), GetPluginCapabilities())					
-- one or more sidecar containers implementing
+- one or more sidecar containers implementing (I THINK THIS IS WRONG)
 	- external-provisioner							watches for PersistentVolumeClaim objects
 	- external-attacher								watches for VolumeAttachment objects (VolumeAttachment tracks binding state between PV and node)
 	- external-resizer (optional)					watches for PersistentVolumeClaim objects
-	- external-snapshotter (optional)				watches for VolumeSnapshot objects
+	- external-snapshotter (optional)				watches for VolumeSnapshotContent objects
 - and perhaps other containers providing additional functionality like
 	- livenessprobe
 
@@ -273,15 +273,14 @@ The StorageClass dictates the volumeBindingMode and the reclaimPolicy for the st
 1. the external-provisioner sidecar ----- watches for -----> a PVC ---- which references ----> a STORAGECLASS
 2. the external-provisioner --- then calls (from provisioner field, with parameters from parameters field of STORAGECLASS) CreateVolume() function ----> CSI Driver (controller component) --- which provisions a volume on ---> Storage Provider
 3. Kubernetes Control Plane --- creates a ---> VolumeAttachment
-4. csi external-attacher (part of controller component) --- acts upon ---> the VolumeAttachment --- and attaches ---> the PV ---- to ----> a Node
---- and marks ----> the PV as ready for use
+4. csi external-attacher (part of controller component) --- acts upon ---> the VolumeAttachment --- and attaches ---> the PV ---- to ----> a Node --- and marks ----> the PV as ready for use
 5. Kubelet --- uses the ---> CSI Node component --- to mount the ---> PV --- into the ---> Pod's target path
 
 
 Attach issues often look like “volume not ready,” while mount issues look like “target path not found” or repeated publish retries
 
 
-### CSI External-Snapshotter 
+### CSI External-Snapshotter (deployment/snapshot-controller)
 
 NOTE: https://github.com/kubernetes-csi/external-snapshotter AND https://kubernetes-csi.github.io/docs/external-snapshotter.html
 
@@ -333,11 +332,8 @@ Process:
 
 client ---- submits ---> VolumeSnapshot -- to --> API Server
 Snapshot Controller --- sees ---> VolumeSnapshot --- and creates ----> VolumeSnapshotContent object (bound to the volumesnapshot)
-
 csi-snapshotter --- watches ---> VolumeSnapshotContent resource ----- triggers CreateSnapshot/DeleteSnapshot ------> CSI Endpoint (CSI driver)
-
 CSI Driver ---- creates the actual snapshot on -----> Storage System
-
 CSI Driver ---- informs ----> csi-snapshotter ------ which informs ---> Snapshot Controller ------ which updates readyToUse on ----> VolumeSnapshot
 
 
