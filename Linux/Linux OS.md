@@ -104,6 +104,24 @@ grubby --update-kernel=/boot/vmlinuz-<kernel_verision> --remove-args=<NEW_PARAME
 
 
 
+# TOOLCHAIN
+
+It consists of things like
+a compiler (GCC), 
+binutils, 
+glibc (C library), 
+gdb (debugger), 
+make, 
+automake, 
+autoconf, 
+bash shell, 
+tar, 
+and a few other things
+
+
+It comes from the GNU project
+
+
 
 # KERNEL
 
