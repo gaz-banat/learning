@@ -1,4 +1,6 @@
 
+https://devhints.io/bash
+
 
 # IMPORTANT FILES FOR BASH
 
@@ -64,7 +66,10 @@ Invoked in POSIX mode (—posix) as interactive	-	looks for ENV variable, expand
 
 # SHELL AND ENVIRONMENT VARIABLES
 
-Environment variables		-		are setup by the operating system for the bash process, type env to get the environment variables, these get passed to a process started by the shell
+Environment variables		-		are setup by the operating system for the bash process, 
+									type env to get the environment variables,
+									these get passed to a process started by the shell
+
 Shell variables				-		belong to the shell, these dont get passed to a process started by the shell
 
 to make a shell variable available in the list of environment variables ‘export’ it.
@@ -75,7 +80,7 @@ env | grep HELLO
 
 
 
-# COMMON ENVIRONMENT VARIABLES
+## Common Environment Variables
 
 PATH
 USER			-	the currently logged in user
@@ -90,7 +95,7 @@ TERM
 
 
 
-# COMMON SHELL VARIABLES
+## Common Shell Variables
 
 IFS
 
@@ -143,7 +148,7 @@ in
 function
 time
 {					-	string expansion and concatenation, extended expansion, block of code for function, place holder for text in xargs, pathname in find constructs
-				  	it is possible to redirect input and output from {} code block
+				  		it is possible to redirect input and output from {} code block
 }
 !					- 	invert the exit status of a command (give space between the ! and the command), invert the meaning of a test operator, recall command with number in history, 
 						!command  invokes the history status of bash and runs the most recent instance of that <command>
@@ -163,7 +168,7 @@ local				-	define a variable local to a function
 
 Note: Switch off the meaning of special characters of bash by escaping them or quoting them
 
-#				- mostly a comment, however it is not a comment in certain parameter subs and base conversions
+'#'				- mostly a comment, however it is not a comment in certain parameter subs and base conversions
 ;				- command seperator
 ;;				- terminator in case option
 .				- current directory, prefix of hidden file
@@ -262,49 +267,6 @@ type				-		available options for a command
 
 
 
-
-# CONDITIONALS
-
-if
-if expression			- 	test a command or expression, proceed if true, don’t proceed if false
-if ! expression			-	test a command or expression, proceed if true (the command or expression returned a non zero value)
-
-
-then				- 	follows if, elif
-elif
-else
-
-
-Ex 1
-expression is a command 
-- if the command succeeds it will return with exit status 0 and bash will interpret that 0 as true
-- if the command fails it will return with exit status non 0 and bash will interpret non 0 as false
-
-
-Ex 2
-expression is a logical expression and tested with “[“ command or “test” command
-- if the logical expression is true then proceed
-- if the logical expression is not true then don’t proceed
-
-
-Ex 3
-expression is a logical expression and tested with [[ keyword
-- if the logical expression is true then proceed
-- if the logical expression is not true then don’t proceed
-
-
-Ex 4
-expression is a numerical expression and tested with (( )) construct
-- if (( )) returned 1 then that is true
-- if (( )) returned 0 then that is false
-
-
-
-
-Case
-
-
-
 # OPERATORS
 
 file test
@@ -355,7 +317,7 @@ II				- logical or
 # PATTERN MATCHING
 
 
-Globbing:
+## Globbing
 
 Globbing is the shell’s way of providing regular expression pattern matching, specifically used for finding files and content in files
 
@@ -412,7 +374,7 @@ var=“funny bunny”
 
 
 
-Extended Globbing:
+## Extended Globbing
 
 Extended Globbing is done with extended pattern matching operators:
 
@@ -452,12 +414,72 @@ var=“funny bunny”
 
 
 
+# CONDITIONALS
+
+
+## if, then, elif, else
+
+if 					-	tests an expression
+then				- 	follows if, elif
+elif				-	tests an expression
+else				-	tests anything else
+
+
+Ex 1
+expression is a command 
+- if the command succeeds it will return with exit status 0 and bash will interpret that 0 as true
+- if the command fails it will return with exit status non 0 and bash will interpret non 0 as false
+
+if [[ $(ls) ]]; then echo 'ls ran'; fi		# 'ls ran'
+
+
+Ex 2
+expression is a logical expression and tested with “[“ command or “test” command
+- if the logical expression is true then proceed
+- if the logical expression is not true then don’t proceed
+
+
+
+Ex 3
+expression is a logical expression and tested with [[ keyword
+- if the logical expression is true then proceed
+- if the logical expression is not true then don’t proceed
+
+```shell
+somevar="123"
+if [[ -z "${somevar} ]]; then echo "somevar is empty"; fi    		# no output
+if [[ ! -z "${somevar} ]]; then echo "somevar is not empty; fi 		# 'somevar is not empty'
+```
+
+Ex 4
+expression is a numerical expression and tested with (( )) construct
+- if (( )) returned 1 then that is true
+- if (( )) returned 0 then that is false
+
+```shell
+if (( 4 > 3 )); then echo 'four greater than three'; fi		# 'four greater than three'
+
+```
+
+
+
+## Case
+
+
+## Operators
+
+&&
+||
 
 
 
 
 # LOOPS
 
+## for
+
+
+## while
 
 General Syntax
 
@@ -503,8 +525,9 @@ kubectl get es -A | while read ns name x; do echo $ns $name; echo done
 
 # ARRAYS
 
+## Regular
+
 ```shell
-Regular:
 arr1=(‘alpha’, ‘beta’, ‘gama’) 
 arr1=( $(echo happy birthday to you) )
 declare -a arr1=(cat dog cow elephant) OR declare -a arr1; arr1=(cat dog cow elephant)
@@ -516,9 +539,11 @@ ${arr1[@]}			-		all the elements of the array
 ${#arr1[@]}			-		number of elements in the array
 ${!arr1[@]}			-		the list of indices in the array, e.g. 0 1 2 3 for arr1
 arr1+=(tiger leopard)	-		add to array
+```
 
+## Associative
 
-Associative:
+```shell
 declare -A assArr1=( [mother]=Roze [daughter1]=Dilkash [daughter2]=Dilara) 
 OR 
 declare -A assArr1; assArr1=( [mother]=Roze [daughter1]=Dilkash [daughter2]=Dilara)
@@ -538,12 +563,38 @@ unset assArr1[uncle]
 ```
 
 
+# BRACE EXPANSION
+
+```shell
+echo {A,B}
+A B
+
+echo {A,B}.js
+A.js B.js
+
+for i in {1..5}; do echo $i; done
+1
+2
+3
+4
+5
+
+for i in {{1..3},{7..9}}; do echo $i; done
+1
+2
+3
+7
+8
+9
+```
+
 
 # PARAMETER EXPANSION
 
 ```shell
-${VAR:-default}					-	set default value for var if var is not set, e.g. ${TEST_MODE:-0}, set TEST_MODE to 0 if it has no value
-${VAR:=default}					-	if VAR is unset or null then set its value to default, e.g. ${PREFIX:=/usr/local/share}, set PREFIX to /usr/local/share if it is not set or null
+${VAR:-default}					-	set VAR to 'default' if VAR is unset or null, e.g. ${TEST_MODE:-0}, set TEST_MODE to 0 if it has no value
+${VAR:=default}					-	set VAR to 'defauif' VAR is unset or null then set its value to default, 
+									e.g. ${PREFIX:=/usr/local/share}, set PREFIX to /usr/local/share if it is not set or null
 
 ${VAR/pattern1/pattern2}		-	search and replace first instance of pattern1 with pattern2
 ${VAR//pattern1/pattern2}		-	search and replace all instances of pattern1 with pattern2
@@ -551,19 +602,44 @@ ${VAR//pattern1}				-	this is a technique for searching pattern1 and replacing w
 
 ${VAR#pattern}					-	removes shortest matching prefix from expanded value that matches the pattern
 ${VAR##*pattern}				-	removes longest matching prefix from expanded value that matches the pattern
+
 ${VAR%pattern}					-	removes shortest matching suffix from expanded value that matches the pattern
 ${VAR%%pattern}					-	removes longest matching suffix from expanded value that matches the pattern
-${VAR::-n}						-	removes last ’n’ characters from variable
+${VAR/%pattern}					-	
 
 ${VAR:offset:length}			-	extracts substring from expanded value, counting starts at 0
 ${VAR:offset}					-	extracts substring from offset to end of string
+${VAR::n}						- 	get the first 'n' characters from variable
+${VAR::-n}						-	removes last ’n’ characters from variable
+
 ${VAR:$((-offset))}				-	extracts last offset number of characters, so if offset is 7 then last 7 characters
 ${VAR:$((-offset)):length}		-	extracts substring from offset counting from end
 
 ${VAR+<string>}					-	will substitute value of ${VAR} to <string> if ${VAR} is set
+
 ${#VAR}							-	returns the length of VAR
+
+# Examples
+name="John"
+echo "${name}"
+echo "${name/J/j}"    #=> "john" (substitution)
+echo "${name:0:2}"    #=> "Jo" (slicing)
+echo "${name::2}"     #=> "Jo" (slicing)
+echo "${name::-1}"    #=> "Joh" (slicing)
+echo "${name:(-1)}"   #=> "n" (slicing from right)
+echo "${name:(-2):1}" #=> "h" (slicing from right)
+echo "${food:-Cake}"  #=> $food or "Cake"
 ```
 
+
+# INDIRECTION
+
+```shell
+name="John"
+field="name"
+echo ${!field}
+John
+```
 
 
 # HOW A COMMAND RUNS
@@ -613,28 +689,24 @@ IFS=‘;’ while read xx yy zz; do echo $xx $yy $xx; done < file.txt				-	does 
 
 
 
-# HOW BASH CAN BE INVOKED
+# HOW TO INVOKE BASH
 
 NOTE: in each case a seperate instance of bash than the one you might be in is being invoked!!
 
-Put shebang into script and make the script executable
+1. Put shebang into script and make the script executable
 #!/bin/bash		
 
-Use -c and single quotes
+2. Use -c and single quotes
 bash -c ‘for i in {1..10}; do echo $i; done’
 
-Put the commands into a file and call the file with bash (the file need not be executable)
+3. Put the commands into a file and call the file with bash (the file need not be executable)
 echo ‘for i in {1..10}; do echo $i; done’ > scripty.txt
 bash scripty.txt
 or
 cat scripty.txt | bash
 
-Send a command to bash stdin
+4. Send a command to bash stdin
 echo ‘for i in {1..10}; do echo $i; done’ | bash
-
-
-
-
 
 
 # OPTIONS FOR INVOKING BASH
@@ -652,15 +724,16 @@ bash [long-opt] -s [-abefhkmnptuvxdBCDHP] [-o option] [-O shopt_option] [argumen
 Meaning of flags:
 
 -D
--l				- run a login shell
--r				- run a restricted shell
--i 				- run an interactive shell\
--e				- if a pipeline ends with non-zero (error) then exit the script, so a grep that does not match anything at the end of a pipeline will cause the script to exit
--u 				- error on unset variable
+-l					- run a login shell
+-r					- run a restricted shell
+-i 					- run an interactive shell\
+-e					- if a pipeline ends with non-zero (error) then exit the script
+					  so a grep that does not match anything at the end of a pipeline will cause the script to exit
+-u 					- error on unset variable
 -c command
--O shopt_option
--o option
-- -				- double dash signals end of options
+-o option			- shell options
+-O shopt_option		- shopt options
+--					- double dash signals end of options
 
 
 # SHELL FLAGS 	
@@ -710,7 +783,8 @@ notify
 nounset					-	terminate the shell/script if a variable that has not been initialized is trying to be used
 onecmd			
 physical
-pipefail				-	causes a pipeline of commands to produce a failure return code if any command within the pipeline errors, normally pipelines only return a failure if the last command errors
+pipefail				-	causes a pipeline of commands to produce a failure return code if any command within the pipeline errors
+							normally pipelines only return a failure if the last command errors
 posix			
 privileged		
 verbose			
@@ -721,9 +795,13 @@ xtrace
 
 # SHOPT OPTIONS	(think $BASHOPTS)
 
-shopt				-	show all the options
-shopt -s <option>	-	set option
-shopt -u <option>	-	unset option	
+NOTE: these are considered shell optional options (shopt options)
+
+shopt						-	show all the shopt options
+shopt -s <shopt_option>		-	set shopt option
+shopt -u <shopt_option>		-	unset shopt option	
+shopt -o					-	show all the shell options (shell options as above and not shopt options)
+shopt -o <option>			-	show the specific shell option
 
 autocd
 cdable_vars
@@ -842,15 +920,14 @@ CTRL-r			-	reverse search
 # INTRICACIES OF THE UTILITIES
 
 
-**echo**
+## echo
 
 - e				- use this option to turn on the meaning of escaped characters
 
 
 
 
-
-**grep**
+## grep
 
 options
 -n			-	print line number
@@ -876,7 +953,7 @@ word boundary (quotes are important) 		-	‘\<‘ and ‘\>’
 
 
 
-**egrep**
+## egrep
 
 options
 -c 			-	count matching lines
@@ -896,7 +973,7 @@ word boundary (quotes are important) 		-	‘\<‘ and ‘\>’
 
 
 
-**sed**
+## sed
 
 options
 
@@ -931,7 +1008,7 @@ sed -e ‘/pattern/s|one pattern|another pattern|g’
 
 
 
-**perl**
+## perl
 
 options
 
@@ -970,7 +1047,7 @@ Less greedy					.*?					not supported
 
 
 
-**sort**
+## sort
 
 -u 		-	unique
 -t		-	field delimiter, e.g. -t, means the comma is the delimiter
@@ -980,13 +1057,13 @@ Less greedy					.*?					not supported
 
 
 
-**env**
+## env
 
 
 
 
 
-**eval**
+## eval
 
 the arguments given to eval are read and concatenated together into a single command. This command is then read and executed by the shell.
 the exit status of this command is returned as the value of eval. eval executes the command in the current shell environment rather than creating a child shell process.
@@ -1024,7 +1101,7 @@ a "typical" use of eval is for running commands that generate shell commands to 
 
 
 
-**read**
+## read
 reads one line at a time either from stdin (or file descriptor fd supplied to -u), splits the line into fields and assigns this fields to the given variables 
 removes the backslash character ( \ ) unless -r is used. 
 
@@ -1039,7 +1116,7 @@ removes the backslash character ( \ ) unless -r is used.
 
 
 
-**set**
+## set
 
 set [-abefhkmnptuvxBCEHPT] [-o <shell_option>] [--] [-] [argument ...]
 set [+abefhkmnptuvxBCEHPT] [-o <shell_option>] [--] [-] [argument ...]
@@ -1066,19 +1143,22 @@ echo $1 $2 $3
 
 
 
-**trap**
+## trap
+
 trap command allows you to manage signals effectively. By using trap you can gracefully handle interruptions, perform necessary cleanup tasks, execute custom code based on the signal received
 
 Ex 1
+```shell
 cleanup() {
   shred -u secret_file > /dev/null
 }
 # when receiving SIGINT SIGTERM run the cleanup function
 trap cleanup SIGINT SIGTERM
+```
 
 
+## type
 
-**type**
 type is good way to find out all the possible alternatives for a given command
 
 Ex1
@@ -1088,13 +1168,15 @@ this will show that echo is first available as a bash builtin and then as /usr/b
 
 
 
-**which **
+## which
+
 which shows alternatives for a command in the PATH (so builtin commands will not be shown)
 
 
 
 
-**help**
+## help
+
 help can be used to get help on a bash builtin
 
 Ex 1 
@@ -1111,45 +1193,82 @@ help read
 # TIPS AND TRICKS
 
 
-First some rules
+## Start production scripts this way
+
+```shell
+set -euo pipefail
+```
+
+-e catches silent failures
+-u prevents typos in variables
+-o pipefail (as explained in shell options above)
+
+
+## Clear the environment for the shell and then run it
+
+```
+#!/usr/bin/env bash
+```
+
+
+# TBC
+
+```shell
+IFS=$'\n\t'
+```
+
+## Quote variables
 
 To avoid headaches in your life with bash when referencing a variable always quote it
 
-Quoting
+When to quote
 1. referencing a variable in double quotes will preserve the white space sequences as is as part of the variables value
-2. bash uses the value of IFS variable as field separators and converts multiple continuous field separators to single white spaces. Partial quoting (double quotes) prevents this from happening.
+2. bash uses the value of IFS variable as field separators and converts multiple continuous field separators to single white spaces. 
+Partial quoting (double quotes) prevents this from happening.
 
-Command line interpretation
-- bash removes quotes
+When not to quote
+1. Don't quote a variable if it contains wildcards
 
-Logic
-- for bash 0 is false and false is false, anything not 0 is true and true is true
+```shell
+$ yamel="*.yaml"; ls $yamel
+bomreport.yaml      kps-prometheus-prometheusrule.yaml
+crds.yaml           kps.yaml
+debug-profile.yaml  kube-apiserver-burnraterules.yaml
 
+$ ls "$yamel" 
+ls: cannot access '*.yaml': No such file or directory
+```
 
----
+## Check if a variable is set or unset
 
-Check if a variable is unset or set
 if [[ -z ${var_name+z} ]]; then
     echo "  \$$var_name is not set"
-    has_unset_vars=1
 else
 	echo "\$$var_name is set"
 fi
 
----
 
-Build an array from a file, each line is an element of the array
+## Build an array from a file, each line is an element of the array
+
 readarray myarray < file.txt
 
----
 
-Build an array from a process using process substitution
+## Build an array from a process using process substitution
+
 readarray -t  myarray < <(process_that_produces_array)
 
 
----
 
-Build an array from a comma separated list in a variable
+## Change IFS for read command to tokenize words 
+
+Ex. - a file has words per line that are semicolon seperated
+while IFS=‘;’ read xx yy zz
+do 
+	echo $xx $yy $zz
+done < somefile.txt
+
+
+## Build an array from a comma separated list in a variable
 
 ```shell
 list=“hello,hi,salaam”
@@ -1158,33 +1277,23 @@ IFS=“,” read -r -a GREETINGS <<< “$list”
 echo ${GREETINGS[@]}
 ```
 
----
 
-Change IFS for read command to tokenize words 
-Ex. - a file has words per line that are semicolon seperated
-while IFS=‘;’ read xx yy zz
-do 
-	echo $xx $yy $zz
-done < somefile.txt
+## Build and array from a command that gives output on multiple lines (you dont have readarray)
 
----
-
-Build and array from a command that gives output on multiple lines (you dont have readarray)
 my_array=()
 while IFS= read -r line
 do
 	my_array+=( “$line” )
 done < <(my_command)
 
----
 
-Build an array from a command line output 
+## Build an array from a command line output
+
 IFS=$'\n' read -r -d '' -a my_array < <( my_command && printf '\0' )
 
 
----
 
-Read a pem file with many certs
+## Read a pem file with many certs
 
 while read line
 do
@@ -1198,9 +1307,8 @@ do
 done < $1
 
 
----
 
-Output in a colour:
+## Output in a colour
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -1220,15 +1328,15 @@ blue() {
 }
 
 
----
 
-change the stdout of the current script
+
+## change the stdout of the current script
+
 exec > <new_stdout>
 
----
 
 
-Set positional parameters for a script with GNU getopt (dont confuse with bash builtin getopts)
+## Set positional parameters for a script with GNU getopt (dont confuse with bash builtin getopts)
 
 eval set -- $(getopt -o <short-option>:<short-option>:....  -l <long_option>:..... -n “$PROG” -- “$@“)
 

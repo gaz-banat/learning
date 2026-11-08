@@ -1,20 +1,18 @@
 
-CURL
+# CURL
 
 
-basic authentication
+## basic authentication
 
--u 'username:password' curl will convert this to an "Authorization:
-Basic xxxxxxxxxxxx" header
-
+-u 'username:password' curl will convert this to an "Authorization: Basic xxxxxxxxxxxx" header
 
 
-post JSON content
 
-curl -i -X POST http://localhost:8001/services/test-service/routes 
--H \"Content-Type: application/json\" 
--d \'{\"name\": \"test-route\", \"paths\": \[ \"/path/one\",
-\"/path/two\" \]}\'
+## post JSON content
+
+curl -i -X POST http://localhost:8001/services/test-service/routes \
+-H "Content-Type: application/json" \
+-d '{"name": "test-route", "paths": [ "/path/one", "/path/two" ]}'
 
 
 
@@ -28,7 +26,6 @@ curl -i -X POST http://localhost:8001/services/test-service/routes
 
 
 
-
 post multipart/form-data
 
 curl -i -X POST http://localhost:8001/services/test-service/routes 
@@ -38,6 +35,7 @@ curl -i -X POST http://localhost:8001/services/test-service/routes
 -F \"paths\[2\]=/path/two\" 
 -F "config.access=@custom-auth.lua" \# this is sending a file
 
+
 post text/plain
 
 curl -X POST -H \"Content-Type: text/plain\" \--data \"this is raw
@@ -46,4 +44,4 @@ data\" http://78.41.xx.xx:7778/
 
 
 
-WGET
+# WGET

@@ -7,8 +7,7 @@ signing and verifying messages, content, etc. - secret key will sign and
 public key will verify
 
 
-It is asymmetric - there is a secret key (think private) and a public
-key
+It is asymmetric - there is a secret key (think private) and a public key
 
 
 

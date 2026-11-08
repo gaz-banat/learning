@@ -93,16 +93,14 @@ sending
 
 SOME CONTENT-TYPES:
 
-application/octet-stream - its like i dont know what the content is but
-it is binary.
+application/octet-stream - its like i dont know what the content is but it is binary.
 
 This header is used for files where it needs to be opened using another
 application, and likely, the title is going to help determine what
 application it needs to be opened. 
 
 
-application/x-www-form-urlencoded - This is used for sending simple text
-values in a query string
+application/x-www-form-urlencoded - This is used for sending simple text values in a query string
 Characters need to be URL encoded, e.g. space becomes %20 (meaning that
 reserved and non-alphanumeric characters are replaced by '%HH, 2
 hexadecimal digits representing the ASCII code)

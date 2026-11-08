@@ -7,7 +7,7 @@
 input       = write
 output      = read
 operation   = transaction
-per second is the key here
+per second  = is the key here
 
 Industry standard for IOPS on a device is 4KB per operation/transaction.
 
@@ -27,7 +27,7 @@ Generally speaking higher the block size lower the IOPS
 
 ## Latency
 
-Time taken to complete an IO, measured in ms
+Time taken to complete an IO is measured in ms
 1000ms = 1s
 
 
@@ -56,3 +56,15 @@ High Througput workloads/large sequential access
  - video transfer
  - large file upload, download
  - backups
+
+
+
+# DISK TYPES
+
+## HDD
+
+## SSD
+
+## NVME
+
+## Loop

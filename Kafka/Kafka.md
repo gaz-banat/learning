@@ -437,5 +437,5 @@ KSQL Client (CLI/UI)
 
 allows you to use a topic as a table and run SQL queries against those
 topics
-grouping and aggregating over kafkat topics
+grouping and aggregating over kafka topics
 grouping and aggregating over a time window

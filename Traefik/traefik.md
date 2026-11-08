@@ -49,7 +49,7 @@ Entrypoints can
 - forward header configuration
 - override default TLS with user-defined TLS
 
-In k8s this is the container ports that are being exposed
+In k8s this is the container ports on the Traefik container that are being exposed
 - 8000 - http
 - 8443 - https
 - 8080 - dashboard i think
@@ -57,12 +57,35 @@ In k8s this is the container ports that are being exposed
 
 NOTE: in our k8s we use cli arguments to configure entrypoints
 
+```shell
+$ $ k describe ds/traefik | grep entryPoints | sort
+      --entryPoints.metrics.address=:9100/tcp
+      --entryPoints.traefik.address=:8080/tcp
+      --entryPoints.web.address=:8000/tcp
+      --entryPoints.web.forwardedHeaders.trustedIPs=182.255.124.36,182.255.125.36,182.255.126.36
+      --entryPoints.web.http.redirections.entryPoint.permanent=true
+      --entryPoints.web.http.redirections.entryPoint.scheme=https
+      --entryPoints.web.http.redirections.entryPoint.to=:443
+      --entryPoints.websecure.address=:8443/tcp
+      --entryPoints.websecure.forwardedHeaders.trustedIPs=182.255.124.36,182.255.125.36,182.255.126.36
+      --entryPoints.websecure.http.tls=true
+```
 
 ## Routers
 
 analyse requests by looking at host, path, headers, SSL, etc.
 the job of the router is to do rule matching
 
+```shell
+$ k get ingressroute,ingressroutetcp,ingressrouteudp -A
+NAMESPACE          NAME                                                 AGE
+traefik-external   ingressroute.traefik.io/traefik-external-dashboard   18d
+traefik            ingressroute.traefik.io/traefik-dashboard            368d
+
+NAMESPACE     NAME                                     AGE
+dev-nso       ingressroutetcp.traefik.io/nso-ssh-cli   154d
+np-postgres   ingressroutetcp.traefik.io/cluster-rw    281d
+```
 
 ## Services
 
@@ -82,9 +105,9 @@ may update the request OR make decisions based on the request (authentication, r
 
 config file                     -    YAML or TOML
 OR 
-command line arguments 
+command line arguments          -    to the traefik binary
 OR 
-environment variables
+environment variables           -    made available to the traefik binary
 
 
 
@@ -135,7 +158,8 @@ Let's Encrypt Challenge types
 
   
 
-# KUBERNETES
+
+# KUBERNETES PROVIDER
 
 ## CHARTS
 
@@ -168,6 +192,13 @@ tlsstores                       traefik.io/v1alpha1
 traefikservices                 traefik.io/v1alpha1
 
 
+# LOGS
+
+<pod> <container> <src_ip> - - <timestamp> "<method> <path> <protocol> <return_code_from_backend> <something> <something> <something> <something> <entrypoint>-<namespace_for_ingress>-<ingress>-<hypenated_url>@kubernetes <something> <time_in_ms>
+
+
+# NOTES
+
 As for the externalTrafficPolicy, that influences from which node an externalIp is exposed. 
 
 When set to "Local", it is only exposed on the node for which the application backing the service is running. 
@@ -178,16 +209,19 @@ If they do support ECMP w/BGP, then multiple routes will be published for the sa
 
 ---
 
-Something of interest. Traefik's default behaviour for ingress is to bypass the backend service entirely and direct traffic straight to pods. That behaviour can be changed with the traefik.ingress.kubernetes.io/service.nativelb annotation on the backend service. When set to true, traefik will proxy traffic via that service.
+Something of interest. Traefik's default behaviour for ingress is to bypass the backend service entirely and direct traffic straight to pods.
+That behaviour can be changed with the traefik.ingress.kubernetes.io/service.nativelb annotation on the backend service. When set to true, traefik will proxy traffic via that service.
 
 
-And you can observe that behaviour with hubble. ie hubble observe --service http-helloworld -f
+And you can observe that behaviour with hubble
+```hubble observe --service http-helloworld -f```
 Default, you won't see anything hit that service. When set to true, you will.
 
 
 
 
-Traefik reuses the established connections to the backends for performance purposes. This can prevent the requests load balancing between the replicas from behaving as one would expect when the option is set
+Traefik reuses the established connections to the backends for performance purposes.
+This can prevent the requests load balancing between the replicas from behaving as one would expect when the option is set
 
 except when you set that annotation to true, it changes that behaviour. connections no longer persist.
 

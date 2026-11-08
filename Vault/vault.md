@@ -585,44 +585,44 @@ covergent encryption mode -	get back the same ciphertext when you encrypt the sa
 
 ```shell
 # enabled at default path of transit/
-vault secrets enable transit							
+vault secrets enable --path=transitorous transit							
 ```
 
 ### with key type aes256-gcm96
 ```shell
 # force the creation of a new enc key at transit/keys/ called keyone, type is aes256-gcm96
-vault write -f transit/keys/keyone			
+vault write -f transitorous/keys/keyone			
 # list the keys in transit/ secret engine			
-vault list transit/keys						
+vault list transitorous/keys						
 # read the configuration of keyone, note to write config you will need /config at end of path			
-vault read transit/keys/keyone							
+vault read transitorous/keys/keyone							
 
 # encrypt at transit/encrypt
-vault write transit/encrypt/keyone plaintext=$(base64 <<< "This is the secret")			
+vault write transitorous/encrypt/keyone plaintext=$(base64 <<< "This is the secret")			
 
 # decrypt at transit/decrypt
-vault write transit/decrypt/keyone ciphertext=<ciphertext> | jq -r .data.plaintext base64 -d												
+vault write transitorous/decrypt/keyone ciphertext=<ciphertext> | jq -r .data.plaintext base64 -d												
 
 # rotate to a new version
-vault write -f transit/keys/keyone/rotate
+vault write -f transitorous/keys/keyone/rotate
 
 # set minimum key version to decrypt with
-vault write transit/keys/keyone/config min_decryption_version=<N>								
+vault write transitorous/keys/keyone/config min_decryption_version=<N>								
 
 # rewrap ciphertext to latest version
-vault write transit/rewrap/keyone ciphertext=<ciphertext>									
+vault write transitorous/rewrap/keyone ciphertext=<ciphertext>									
 
 # Allow key to be deleted
-vault write transit/keys/keyone/config deletion_allowed=true
+vault write transitorous/keys/keyone/config deletion_allowed=true
 
 # the config property {"deletion_allowed": true} should be set or it wont work
-vault delete transit/keys/keyone						
+vault delete transitorous/keys/keyone						
 ```
 
 ### with key type rsa
 ```shell
 # this time with type of key specified, since rsa is asymmetric you will get back public key
-vault write -f transit/keys/keytwo type="rsa-4096"		
+vault write -f transitorous/keys/keytwo type="rsa-4096"		
 ```
 
 

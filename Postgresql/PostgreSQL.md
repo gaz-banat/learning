@@ -174,7 +174,7 @@ I think 'COMMIT;' command may also be forcing WAL buffer to WAL file
 sychronous_commit is on by default
 
 
-Client ----- Transaction(INSERT,UPDATE,DELETE) ----> WAL Buffer (memory) ---- COMMIT (fsync())---> WAL Data files (pg_wal/ on disk)
+Client ----- Transaction(INSERT,UPDATE,DELETE) ----> WAL Buffer (memory) ---- COMMIT (fsync()) ---> WAL Data files (pg_wal/ on disk)
                                                                                                          0000000C000000000000004C
                                                                                                          0000000C000000000000004D
                                                                                                          0000000C000000000000004E

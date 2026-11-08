@@ -1,11 +1,11 @@
 
-HASHING
+# HASHING
 
 Changing a message into a string so that the message can be verified
 
 
 
-Algorithms
+## Algorithms
 
 md5
 
@@ -18,54 +18,64 @@ Use case
 - software download
 
 
-ENCRYPTION
+# ENCRYPTION
 
-SYMMETRIC
+## TERMS
+
+ciphertext                  -   plain text that has been encrypted
+
+block cipher mode
+
+
+
+## SYMMETRIC
 
 Only a single key is used
 
 
-Symmetric Algorithms
+### Symmetric Algorithms
 
-DES - 56 bit key
+DES         - 56 bit key
 
-3DES -
+3DES        -
 
-AES - 128/192/256 bit key sizes,
+AES         - 128/192/256 bit key sizes,
 
-BLOWFISH -
+BLOWFISH    -
 
-TWOFISH -
+TWOFISH     -
+
+
+### Encryption Methods
+
+AES-128-CBC
+AES Algorithm, 128 bit key, Cipher Block Chaining mode (this is unauthenticated)
+
+AES-256-HMAC-SHA384
+AES Algorithm, 256 bit key, Hash-based Message Authentication Code, Secure Hashing Algorithm with 384bit (this is authenticated) 
 
 
 Use case
 - encrypting drives
+- 2 services within a software system talking to each other
 
 
-
-ASYMMETRIC
+## ASYMMETRIC
 
 2 Keys are used, a public key and a private key.
-Server side keys - Public key will encrypt the message and the private
-key will decrypt the message
-Client side keys - Public key will be used for verifying and private key
-for signing (aka authentication)
+Server side keys - Public key will encrypt the message and the private key will decrypt the message
+Client side keys - Public key will be used for verifying and private key for signing (aka authentication)
 
-Asymmetric Algorithms
+### Asymmetric Algorithms
 
-DSA -
+DSA             -
 
-RSA - 1024/2048/3072/7680/15360 bit key sizes
-DER encoding - this is a binary encoding
-PEM encoding - this is a base64 encoding of binary data
+RSA             - 1024/2048/3072/7680/15360 bit key sizes
+
+ECDSA           - 160-233/224-255/256-383/384-511/512+ bit key sizes
 
 
-ECDSA - 160-233/224-255/256-383/384-511/512+ bit key sizes
-
-
-
-
-Key Formats
+### Key Formats
 
 PKCS#8 - key type is included in the key data
 base64 encoded data
@@ -83,49 +93,53 @@ ssh-rsa abcd\...\...\...\...\...\...\...\.....xyz \[user@computer\]
 PPK - for use with PuTTY
 
 
+### ENCODING
 
-File Formats
+DER encoding    - this is a binary encoding
+PEM encoding    - this is a base64 encoding of binary data
+
+
+### File Formats
 
 PEM - header, base64 encoded DER data, footer
 
 
 Use case
-- Communication over the wire {SSL/TLS (protocol could be http, smtp,
-ftp, etc.), PGP, SSH}
+- Communication over the wire {SSL/TLS (protocol could be http, smtp, ftp, etc.), PGP, SSH}
 - Digital signing of files (DSA is better suited for this)
 
 
 
 
-USE CASES FOR KEYS
+# USE CASES FOR KEYS
 
 
 encryption
 
 decryption
 
-signing This key usage allows a key to be used to create digital
-signatures that verify the identity of the signer.
+signing 
+This key usage allows a key to be used to create digital signatures that verify the identity of the signer.
 
 signature verification
 
-non-repudiation Ensures that a signer cannot deny the authenticity of
-their signature.
-
-key encipherment Used for encrypting keys that can then be used for
-decrypting data.
-
-data decipherment Directly used for encrypting data to maintain
-confidentiality
+non-repudiation 
+Ensures that a signer cannot deny the authenticity of their signature.
 
 
+key encipherment
+Used for encrypting keys that can then be used for decrypting data.
+
+data decipherment
+Directly used for encrypting data to maintain confidentiality
 
 
 
-THE CASE FOR PGP
 
-PGP uses a combination of symmetric key encryption and public key
-encryption
+
+# THE CASE FOR PGP
+
+PGP uses a combination of symmetric key encryption and public key encryption
 
 \[gaz:\~\] \$ gpg \--help
 gpg (GnuPG) 2.4.5
@@ -136,8 +150,7 @@ Copyright (C) 2024 g10 Code GmbH
 Home: /Users/gaz/.gnupg
 Supported algorithms:
 Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA
-Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
-CAMELLIA128, CAMELLIA192, CAMELLIA256
+Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH, CAMELLIA128, CAMELLIA192, CAMELLIA256
 AEAD: EAX, OCB
 Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
 
@@ -145,7 +158,7 @@ Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
 
 
 
-KEY EXCHANGE
+# KEY EXCHANGE
 
 ECDHE_RSA
 
@@ -161,7 +174,7 @@ AES_256_GCM
 
 
 
-CIPHER SUITE
+# CIPHER SUITE
 
 A cipher suite is a grouping of configuration choices
 
@@ -180,10 +193,10 @@ Some known ciphers
 
 
 
-CERTIFICATES
+# CERTIFICATES
 
 
-CERTIFICATE COMPONENTS
+## CERTIFICATE COMPONENTS
 
 Subject Name
 Issuer Name
@@ -197,13 +210,12 @@ keyUsage
 
 
 
-CERTIFICATE FORMATS
+## CERTIFICATE FORMATS
 
 
 DER - binary encoding
 
-PEM - base64 ASCII encoding of DER binary encoding with header and
-footer lines
+PEM - base64 ASCII encoding of DER binary encoding with header and footer lines
 - header and meta data information
 
 
@@ -212,7 +224,8 @@ PKCS7
 PKCS10
 
 
-PKCS12 - microsoft enhanced standard
+PKCS12 
+- microsoft enhanced standard
 - password container format
 - fully encrypted
 - for both public and private certificate pairs
@@ -222,7 +235,7 @@ P7b - format used by windows for certificate interchange
 
 
 
-CERTIFICATE EXTENSIONS
+## CERTIFICATE EXTENSIONS
 
 .crt, .cer - certificate
 .key
@@ -231,7 +244,7 @@ CERTIFICATE EXTENSIONS
 
 
 
-COMPONENTS OF A CSR
+## COMPONENTS OF A CSR
 
 Version
 
@@ -248,10 +261,9 @@ Signature Algorithm
 
 
 
-CERTIFICATE PROCESS BETWEEN CLIENT AND SERVER
+## CERTIFICATE PROCESS BETWEEN CLIENT AND SERVER
 
-1.  Client receives the public key of the server (public key is included
-    in the certificate)
+1.  Client receives the public key of the server (public key is included in the certificate)
 
 2.  Client generates a symmetric key
 
@@ -259,56 +271,71 @@ CERTIFICATE PROCESS BETWEEN CLIENT AND SERVER
 
 4.  Client sends the encrypted symmetric key to the server
 
-5.  Server decrypts the encrypted symmetric key (at this stage, client
-    and server have the same key, so key exchange is done)
+5.  Server decrypts the encrypted symmetric key (at this stage, client and server have the same key, so key exchange is done)
 
-6.  Client and server use the symmetric key to encrypt their
-    communication
+6.  Client and server use the symmetric key to encrypt their communication
 
 
 
 
-OPENSSL
+# OPENSSL
 
-OPENSSL COMMANDS
+## OPENSSL COMMANDS
 
+### CA and CSR and Cert
 
 1. Create a CA certificate
-First create a key - openssl genrsa \[-aes256\] -out MY-CA.key 2048
-Create certificate from the key - openssl req -x509 -new -nodes -key
-MY-CA.key -sha256 -days 1826 -out MY-CA.crt -subj
-'/C=NZ/L=WELLINGTON/O=Transpower/CN=TEMP CA
-DEVIDE03/emailAddress=gaz.banat@transpower.co.nz'
+First create a key
+```openssl genrsa \[-aes256\] -out MY-CA.key 2048```
 
-Create a config file for the ca - \~/gazca/GAZ_CA.conf
-Create directories accordingly - mkdir ca; cd ca; mkdir ca.db.certs;
+Create certificate from the key
+```shell
+openssl req -x509 -new -nodes -key MY-CA.key -sha256 -days 1826 -out MY-CA.crt \
+-subj '/C=NZ/L=WELLINGTON/O=Transpower/CN=TEMP CA DEVIDE03/emailAddress=gaz.banat@transpower.co.nz'
+```
+
+Create a config file for the ca
+```~/gazca/GAZ_CA.conf```
+
+Create directories accordingly
+```shell
+mkdir ca; cd ca; mkdir ca.db.certs;
 touch ca.db.index; echo \"1234\" \> ca.db.serial
-
+```
 
 2. Create a cert to be signed by the CA
-Create a key - openssl genrsa \[-aes256\] -out SERVER.key 2048
-Create a csr - openssl req -new -key SERVER.key -out SERVER.csr -subj
-"/C=NZ/ST=WELLINGTON/L=WELLINGTON/O=DR SCIENCE/OU=IT/CN=\<domain\>"
-OR
-with one command - openssl req -new -newkey rsa:2048 -nodes -keyout
-yourdomain.key -out yourdomain.csr -subj \"/C=US/ST=Utah/L=Lehi/O=Your
-Company, Inc./OU=IT/CN=yourdomain.com\"
+Create a key
+```openssl genrsa \[-aes256\] -out SERVER.key 2048```
+
+Create a csr
+```shell
+# EITHER
+openssl req -new -key SERVER.key -out SERVER.csr \
+-subj "/C=NZ/ST=WELLINGTON/L=WELLINGTON/O=DR SCIENCE/OU=IT/CN=\<domain\>"
+# OR
+# with one command
+openssl req -new -newkey rsa:2048 -nodes -keyout yourdomain.key -out yourdomain.csr \
+-subj "/C=US/ST=Utah/L=Lehi/O=YourCompany, Inc./OU=IT/CN=yourdomain.com\"
+```
+
+3. Sign the csr and return a crt
+```shell
+openssl ca -config GAZ_CA.conf -in my_request_1/server.csr -out my_request_1/server.crt \
+-days 1862 -keyfile GAZ_CA.key -keyform PEM -cert GAZ_CA.crt
+```
 
 
-3\. Sign the csr and return a crt
+### Create a self signed certificate
 
-openssl ca -config GAZ_CA.conf -in my_request_1/server.csr -out
-my_request_1/server.crt \[-days 1862 -keyfile GAZ_CA.key -keyform PEM
--cert GAZ_CA.crt\]
-
-
-
-4. Create a self signed certificate
 With a new key
+```shell
+openssl req -new -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt \
+-subj "/CN=www.gaz.net/emailAddress=me@gaz.net"
+```
 
-openssl req -new -newkey rsa:2048 -nodes -keyout server.key -x509 -days
-365 -out server.crt -subj \"/CN=www.gaz.net/emailAddress=me@gaz.net\"
 With an existing key
-openssl req -new server.key -x509 -days 365 -out server.crt -subj
-\"/CN=www.gaz.net/emailAddress=me@gaz.net\"
+```shell
+openssl req -new server.key -x509 -days 365 -out server.crt \
+-subj "/CN=www.gaz.net/emailAddress=me@gaz.net"
+```
 

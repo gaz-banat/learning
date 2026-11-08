@@ -39,13 +39,12 @@ OAuth 2.0
 
 3 main phases
 request an authorizaiton grant
-exchange the authorization grant for an access token access the resource
-with an access token
+exchange the authorization grant for an access token 
+access the resource with an access token
 
 Flows/Grants
 Commonly Used
-Authorization Code - the idea is to exchange an authorization code for
-an access token
+Authorization Code - the idea is to exchange an authorization code for an access token
 
 clients that use this flow could be public clients (do not provide a
 secret to the authorizer) or confidential clients (provide a secret to
@@ -56,20 +55,17 @@ based applications??)
 Proof Key for Code Exchange (PKCE) is an extension to prevent CSRF and
 authorization code injection attacks
 
-Client Credentials - used by clients to obtain an access token outside
-of the context of a user
+Client Credentials - used by clients to obtain an access token outside of the context of a user
 typical use case is clients accessing resources about themselves rather
 than to access a user's resources
 
-Device Code - the idea is to exchange a previously obtained device code
-for an access token
+Device Code - the idea is to exchange a previously obtained device code for an access token
 aka Device Authorization Grant
 typical use case is for browserless or iinput-constrained devices
 
-Refresh Token - the idea is to exchange a refresh token for an access
-token
-the use cas is for clients to continue to have a valid access token
-without further interaction with the user
+Refresh Token - the idea is to exchange a refresh token for an access token
+the use case is for clients to continue to have a valid access token without further interaction with the user
+
 Legacy
 Implicit Flow - a simple flow where an app (client) could get an access
 token without an extra authorization code exchange step (no refresh

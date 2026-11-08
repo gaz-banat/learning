@@ -1,6 +1,6 @@
 
 
-IT COMPONENTS
+# IT COMPONENTS
 
 
 Applications
@@ -22,25 +22,26 @@ Storage
 Networking
 
 
-COMPUTING ARCHITECTURES
+
+# COMPUTING ARCHITECTURES
 
 
-CISC used in personal computers
+## CISC used in personal computers
 
 x86_64 or x64 or amd64 64 bit Intel and AMD
 
 IA-64 Intel Itanium
 
 
-RISC
+## RISC
 
 
 
-ARM (Advanced RISC Machine) used in smartphones, tablets, and other
+## ARM (Advanced RISC Machine) used in smartphones, tablets, and other
 portable/iot devices
 
 
-POWERPC
+## POWERPC
 
 IBM Power 8
 
@@ -50,33 +51,37 @@ IBM Power 8
 IBM Z
 
 
-CPU
+
+## CPU
 
 
 
-MEMORY
+## MEMORY
 
 
 
-DISK
+## DISK
 
 
 
 
-PROCESS
+## PROCESS
 
 - has access to memory
 - is assigned a number of file handles
 
 
-THREAD
+## THREAD
 
 - is a lightweight process
 - has access to the memory of its parent process
 
 
 
-LINE ENDINGS
+
+# TEXTUAL
+
+## LINE ENDINGS
 
 
 In Unix line endings are just LF (aka new line) - \\n, hex 0a
@@ -92,10 +97,10 @@ hexdump -C \<file\>
 
 
 
-ENCODINGS
+## ENCODINGS
 
 
-ASCII UTF-8
+### ASCII UTF-8
 
 bits per character 7
 total characters 128
@@ -103,7 +108,7 @@ printable characters 95
 
 
 
-IMAGE FILE FORMATS
+# IMAGE FILE FORMATS
 
 .raw represents a plain, unstructured disk image with no compression or
 optimization applied
@@ -117,12 +122,9 @@ thin provisioning.
 
 
 
-BOOTING
+# BOOTING
 
-
-
-
-##BIOS BASED (think MBR)
+## BIOS BASED (think MBR)
 
 
 
@@ -144,7 +146,7 @@ bootstrap code (stage 1 code) \| stage 1.5 code \| /boot filesystem
 
 
 
-##UEFI BASED (think GPT)
+## UEFI BASED (think GPT)
 
 
 Secure Boot - UEFI Secure Boot requires that the operating system kernel
@@ -186,7 +188,7 @@ disk, support for larger disks than 2TB, etc.
 
 
 
-\### UEFI/BIOS BASED BOOT PROCESS - OPERATING SYSTEM IS NOT INSTALLED
+### UEFI/BIOS BASED BOOT PROCESS - OPERATING SYSTEM IS NOT INSTALLED
 
 Ask yourself where is the installation media?
 On a CDROM
@@ -245,7 +247,7 @@ machine and presenting the user login prompt.
 
 
 
-\### PREBOOT EXECUTION ENVIRONMENT (PXE) (aka network boot) - OPERATING
+### PREBOOT EXECUTION ENVIRONMENT (PXE) (aka network boot) - OPERATING
 SYSTEM IS NOT INSTALLED
 
 Client must support PXE in its BIOS/UEFI or NIC firmware
@@ -259,3 +261,18 @@ Client contacts PXE boot server after reading DHCP options
 Client downloads and boots the Network Bootstrap Program using TFTP
 NBP is a kernel with some basic drivers and programs that can download
 the remaining OS components
+
+
+
+# FILESYSTEMS
+
+## EXT-4
+
+
+## XFS
+
+
+## ZFS
+
+
+## OVERLAY

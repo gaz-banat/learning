@@ -1,19 +1,3 @@
-
-
-# FIT THIS SOMEWHERE
-
-Ciliums kube-proxy replacement feature depends on the socket-LB feature
-```shell
-cilium config view | grep kube-proxy
-```
-Cilium's Socket LoadBalancer (Socket-LB) feature is an eBPF-powered mechanism that 
-intercepts application network requests at the socket system call level (such as connect(), sendmsg(), and recvmsg()) 
-and then transparently translates a Kubernetes Service IP directly into a backend Pod IP
-
-
-
-
-
 # LINKS
 
 Cilium Repo					-		https://github.com/cilium/cilium
@@ -99,26 +83,41 @@ Envoy										-	The Envoy Proxy is an open source, high-performance, small-foot
 												It works similarly to software load balancers like NGINX and HAProxy.
 												used when something can't be done in eBPF
 
-## eBPF
-
-	maps									-	Connection Tracking, NAT, Neighbor Table, Endpoints, IP cache, Load Balancer, Policy, Proxy Map
-
 
 ## Data Store components:
 
 Cilium primarily uses two distinct data store approaches to propagate state between its agents
 State is made up of:
-CiliumNetworkPolicy
-CiliumIdentity
-CiliumEndpoint
+  CiliumNetworkPolicy
+  CiliumIdentity
+  CiliumEndpoint
 
 
 
-Kubernetes CRD’s (Default)				-	All Cilium state (identities, endpoints, policies) is stored directly in the Kubernetes API server using Custom Resource Definitions.
+Kubernetes CRD’s (Default)				-	All Cilium state (identities, endpoints, policies) is stored directly in the Kubernetes API server 
+											This is done using Custom Resources (based on CRD)
+											e.g. ```kubectl get cep -A -o wide```
+
 
 Key-Value store (etcd supported)
 
 
+# UNDERSTANDING eBPF (before you proceed)
+
+The mechanism behind eBPF involves user-space applications defining specific programs that are then loaded into the kernel. 
+These programs execute in response to various system events. 
+The kernel ensures their safety and stability through a rigorous verification process, preventing issues like infinite loops or unsafe memory accesses. 
+Furthermore, a Just-In-Time (JIT) compiler converts eBPF bytecode into native machine instructions for the host CPU, optimizing program execution for near-native performance.
+
+eBPF programs can attach to numerous kernel hooks, including 
+network interfaces (via XDP — eXpress Data Path and tc — traffic control)
+system calls
+security checks 
+
+
+Maps									
+Maps are key-value stores residing in kernel space, facilitating data sharing between eBPF programs and between user space and eBPF programs.
+e.g. Connection Tracking, NAT, Neighbor Table, Endpoints, IP cache, Load Balancer, Policy, Proxy Map
 
 
 
@@ -130,8 +129,16 @@ Routing (moving data around in the cluster, outside the cluster and incoming tra
 	
 	Routing Modes
 		Overlay networking (Tunnel/Encapsulation)				-		think of the pod to pod network as being overlayed on the host network
+```shell
+$ cilium config view | grep routing-mode
+routing-mode                                      tunnel
+```	
 			VXLan						
 			Geneve
+```shell
+$ cilium config view | grep tunnel-protocol
+tunnel-protocol                                   geneve
+```
 		Native													-		Use of the regular routing table of the Linux host
 		AWS ENI
 		Google Cloud
@@ -165,16 +172,19 @@ IPAM  (IP address management)
 
 Masquerading
 
-	eBPF based (bpf.masquerade=true)
+	eBPF based (bpf.masquerade=true)							-		method for Source Network Address Translation (SNAT). 
+																		It rewrites the source IP of pod traffic leaving the cluster to match the node's routable IP
 	iptables based
 
 
 IPV4 fragment handling
 
 
+
+
 Encryption
 
-	WireGuard		-	in-kernel, peer-based, vpn made by exchanging public keys, 
+	WireGuard			-	in-kernel, peer-based, vpn made by exchanging public keys, 
 	IPSec
 
 
@@ -185,7 +195,14 @@ Cilium Identity			-	an identity is a number + kv labels assigned to an endpoint
 							an identity is unique cluster wide, 
 							The unique numeric identifier associated with each identity is then used by eBPF programs in very fast lookup in the network datapath
 							network policy is applied based on identity
+							There are some generic identities as well 
+							- world 		- for traffic coming in from outside the cluster
+							- cluster		- traffic anywhere within the cluster
+							- ingress 		
 
+
+
+## Kubernetes Networking
 
 
 ## LOAD BALANCING Concepts
@@ -193,7 +210,6 @@ Cilium Identity			-	an identity is a number + kv labels assigned to an endpoint
 There are 2 types of load balancing
 
 1. east-west (load balancing for traffic between application containers)
-
 rewrites service connections at the socket level (connect()), avoiding the overhead of per-packet NAT and fully replacing kube-proxy
 
 2. north-south (load balancing for traffic to/from external services)
@@ -204,11 +220,11 @@ supports XDP for high-throughput scenarios and layer 4 load balancing including 
 
 ## NETWORKPOLICY Concepts
 
-	NetworkPolicy							-		namespaced
+NetworkPolicy							-		namespaced
 
-	CiliumNetworkPolicy						-		namespaced, controls policy for pods
+CiliumNetworkPolicy						-		namespaced, controls policy for pods
 
-	CiliumClusterwideNetworkPolicy			-		clusterwide, controls policy for pods, hosts/nodes, host/node level firewalls 
+CiliumClusterwideNetworkPolicy			-		clusterwide, controls policy for pods, hosts/nodes, host/node level firewalls 
 
 NOTE: https://networkpolicy.io
 
@@ -338,6 +354,106 @@ https://github.com/cilium/cilium#cluster-mesh
 ## SERVICE MESH Concepts
 https://github.com/cilium/cilium#service-mesh
 
+Cilium eliminates overhead by using eBPF programs that run directly in the kernel. 
+For L3/L4 traffic (IP, TCP, UDP), Cilium handles everything in kernel space without any userspace proxy involvement.
+For L7 traffic (HTTP, gRPC, etc.), Cilium uses a per-node Envoy proxy rather than per-pod sidecars.
+
+
+### Functionality
+
+Ingress (Gateway API)
+Mutual Auth (mTLS)
+CiliumNetworkPolicy
+Direct Envoy Configuration
+Canary roll-outs / A/B testing
+Encrypted traffic between services
+Observability
+Rate Limiting
+Circuit breaking
+Retries 
+
+
+### Architecture
+
+Datapath 
+    with eBPF, fallback to Envoy when needed
+    native performance and latency
+    support any network traffic (IP, TCP, UDP, SCTP, Multicast)
+
+Envoy
+    protocol parsing for L7 protocols - HTTP, gRPC, DNS, Kafka
+
+Control Plane (choose one)
+    SMI | Istio | Ingress/Services | Gateway API | SPIFFE | Linkerd
+
+Observability Integrations
+    Hubble
+    Fluentd + ELK
+    Prometheus + Grafana
+
+
+# CONFIGURATION
+
+## Kube-Proxy replacement
+
+The ability to manage IP address for pods and services in place of kube-proxy
+
+```shell
+$ cilium config view | grep kube-proxy
+kube-proxy-replacement                            true
+kube-proxy-replacement-healthz-bind-address       0.0.0.0:10256
+```
+
+NOTE: Cilium's kube-proxy replacement feature depends on the socket-LB feature
+If socket-LB is disabled then Cilium automatically falls back to its per-packet network interface (TC - Traffic Control) datapath
+
+TC eBPF is slower
+TC eBPF program looks up the destination ClusterIP and port inside Cilium’s BPF hashmaps. 
+Then it does a DNAT - the eBPF program dynamically rewrites the destination IP from the ClusterIP to the backend Pod IP and updates the packet checksums.
+
+
+## Socket-Level Load Balancing (socketLB, socket-LB)
+When running in kube-proxy replacement mode and socket-LB activated,
+connections to a ClusterIP service will be established directly to the service’s backend at the socket level (i.e. during TCP connection establishment)
+
+Cilium's Socket LoadBalancer (Socket-LB) feature is an eBPF-powered mechanism that 
+intercepts application network requests at the socket system call level (such as connect(), sendmsg(), and recvmsg())
+(even before a packet is created)
+and then transparently translates a Kubernetes Service IP directly into a backend Pod IP
+
+socket-LB provides a performance boost
+but it hides the original ClusterIP from the network stack inside the pod
+
+
+```shell
+$ cilium config view | grep bpf-lb-sock
+bpf-lb-sock                                       false
+bpf-lb-sock-hostns-only                           true
+```
+
+Switch off socket-level load balancing for pods
+
+```yaml
+socketLB
+  hostNamespaceOnly: true
+```
+
+```shell
+$ cilium config view | grep bpf-lb-sock-hostns-only
+bpf-lb-sock-hostns-only                           true
+```
+
+
+
+## Make Cilium the exclusive cni
+Cilium takes ownership of the CNI configuration directory
+```shell
+$ cilium config view | grep cni-exclusive
+cni-exclusive                                     true
+```
+
+
+
 
 # MONITORING AND TROUBLESHOOTING
 
@@ -401,7 +517,8 @@ ciliumendpointslices 							-		WE ARE NOT USING THIS
 
 ciliumpodippools
 
-ciliumloadbalancerippool
+ciliumloadbalancerippool						-		a pool of IP's that are on the external network
+														services of type loadbalancer are allocated IP's from this pool
 
 ciliumexternalworkloads
 
@@ -409,10 +526,14 @@ ciliumexternalworkloads
 ## Network Policies
 ciliumnetworkpolicies							-		namespace scoped - for traffic in and out of a namespace
 ciliumclusterwidenetworkpolicies				-		cluster scoped - for traffic in and out of the nodes
-ciliuml2announcementpolicies
 
 
-## BGP control plane
+## L2 announcment for ingress
+ciliuml2announcementpolicies					-		The L2 announcement policy allows Cilium to respond to ARP requests for LoadBalancer IPs
+														making them reachable from outside the cluster without a cloud load balancer.
+
+
+## BGP control plane for ingress
 ciliumbgpclusterconfig							-		Defines BGP instances and peer configurations that are applied to multiple nodes
 ciliumbgppeerconfig								-		A common set of BGP peering setting. It can be used across multiple peers
 ciliumbgpadvertisement							-		Defines prefixes that are injected into the BGP routing table
@@ -427,17 +548,42 @@ ciliumbgppeeringpolicies						-		this will be deprecated in the future (replaced
 
 
 
+# AN INSTALLED CILIUM INSTANCE IN A CLUSTER
+
+
+PODCIDR				POD				POD				POD		||		SERVICE				SERVICE 			SERVICE			SERVICECIDR
+
+
+
+
+--------			cilium_host	
+
+
+HOSTNNS									bond0							eth0
+
+
+
+
+The cilium_host interface is special
+- it has an IP from the PODCIDR
+- it routes between hostnns and podnns
+- it will have an identity of 1
+- it will have a label of "reserved:host"
 
 # COMMANDS
 
-General:
+## General
 
 ```shell
-cilium version
-
 cilium status [--wait]
 
-cilium connectivity test --request-timeout 20s --connect-timeout 10s
+cilium version
+
+$ k exec -n kube-system ds/cilium -- cilium version
+Defaulted container "cilium-agent" out of: cilium-agent, config (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
+Client: 1.17.6 ee3ca4a7 2025-07-14T15:28:45+00:00 go version go1.24.5 linux/amd64
+Daemon: 1.17.6 ee3ca4a7 2025-07-14T15:28:45+00:00 go version go1.24.5 linux/amd64
+
 
 # What is the kubernetes context for cilium
 cilium context
@@ -451,8 +597,12 @@ kubectl get cm cilium-config -o yaml | yq -y '.data'
 cilium features status --node <node>
 ```
 
+## Connectivity Test
+```shell
+cilium connectivity test --request-timeout 20s --connect-timeout 10s
+```
 
-Endpoints and Identities:
+## Endpoints and Identities
 
 ```shell
 # Looking at endpoints
@@ -462,7 +612,7 @@ kubectl get ciliumendpoint -A -o wide
 kubectl get ciliumidentities -A
 ```
 
-Debugging:
+## Debugging
 
 ```shell
 kubectl -n <cilium_cni_namespace> exec ds/cilium --	cilium-dbg status [ --verbose ]
@@ -474,7 +624,7 @@ kubectl -n <cilium_cni_namespace> exec ds/cilium --	cilium-dbg monitor
 ```
 
 
-BGP:
+## BGP
 
 ```shell
 $ cilium bgp peers
@@ -498,20 +648,27 @@ nsw-mcqm-opsk8s-iwrkdev1   4200020003   10.253.176.2   202.158.207.18/32   10.25
 ```
 
 
-Hubble observe:
+## Hubble observe
 
 ```shell
 cilium [-n cilium-cni] hubble port-forward&
 hubble status
+
+
 hubble observe -n <namespace> --pod <pod> --protocol <protocol> --since [1m|3s] -f --verdict DROPPED | FORWARDED
-OR
+
 hubble observe --node-name nsw-artm-opsk8s-ctrldev1 --traffic-direction ingress --type trace:to-stack --verdict DROPPED -f
+
+
+# show an IP address with all meta information
+hubble observe --ip 10.244.8.131 -o json
+
 fg 1
 ctrl-c
 ```
 
 
-Updating the config:
+## Updating the config
 
 ```shell
 helm upgrade
@@ -519,39 +676,3 @@ helm upgrade
 cilium config set
 ```
 
-
-Versions:
-
-```shell
-
-$ k describe -n kube-system deployment cilium-operator | grep -i image
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/operator-generic:v1.17.6@sha256:91ac3bf7be7bed30e90218f219d4f3062a63377689ee7246062fa0cc3839d096
-
-
-$ k describe -n kube-system ds cilium | grep -i image
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-    Image:       aplregistry.aarnet.edu.au/quay.io/cilium/cilium:v1.17.6@sha256:544de3d4fed7acba72758413812780a4972d47c39035f2a06d6145d8644a3353
-
-
-$ k describe -n kube-system ds cilium-envoy | grep -i image
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/cilium-envoy:v1.33.4-1752151664-7c2edb0b44cf95f326d628b837fcdd845102ba68@sha256:318eff387835ca2717baab42a84f35a83a5f9e7d519253df87269f80b9ff0171
-
-
-$ k describe -n kube-system deployment hubble-relay | grep -i image
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/hubble-relay:v1.17.6@sha256:7d17ec10b3d37341c18ca56165b2f29a715cb8ee81311fd07088d8bf68c01e60
-
-
-$ k describe -n kube-system deployment hubble-ui | grep -i image
-    Image:        aplregistry.aarnet.edu.au/quay.io/cilium/hubble-ui:v0.13.2@sha256:9e37c1296b802830834cc87342a9182ccbb71ffebb711971e849221bd9d59392
-    Image:      aplregistry.aarnet.edu.au/quay.io/cilium/hubble-ui-backend:v0.13.2@sha256:a034b7e98e6ea796ed26df8f4e71f83fc16465a19d166eff67a03b822c0bfa15
-
-$ k exec -n kube-system ds/cilium -- cilium version
-Defaulted container "cilium-agent" out of: cilium-agent, config (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
-Client: 1.17.6 ee3ca4a7 2025-07-14T15:28:45+00:00 go version go1.24.5 linux/amd64
-Daemon: 1.17.6 ee3ca4a7 2025-07-14T15:28:45+00:00 go version go1.24.5 linux/amd64
-
-```

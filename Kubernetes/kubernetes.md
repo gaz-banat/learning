@@ -45,13 +45,29 @@ Types of admission controllers
 
 NOTE: List of admission controllers - https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#what-does-each-admission-controller-do
 
-Some common admission controllers
+Some common admission controllers:
+CertificateSigning
 PodSecurity
+NodeRestriction
+ValidatingAdmissionWebhook
+MutatingAdmissionWebhook
+
+Get the full compiled in list of admission controllers for an api server
+```shell
+kubectl exec -n kube-system kube-apiserver-nsw-etca-opsk8stest-ctrl1 -- kube-apiserver -h | grep enable-admission-plugins
+```
 
 The 3 admission controllers that let you expand functionality in the Kube API
 ImagePolicyWebhook
 MutatingAdmissionWebhook
 ValidatingAdmissionWebhook
+
+How?
+put in a document of type mutatingwebhookconfiguration into a namespace
+the document describes the endpoint to be called
+and some configuration for (i think) the admission controller
+
+
 
 
 ### Commands
@@ -97,7 +113,7 @@ What is a controller:
 Controllers:
 Node controller
 Route controller
-Service controller			-	 i think this is the component that reads a request for say a new LoadBalancer service and makes API calls needed to create a load balancer in the cloud.
+Service controller			-	 (i think) the component that reads a request for say a new LoadBalancer service and makes API calls needed to create a load balancer in the cloud.
 Volume controller
 
 
@@ -150,7 +166,7 @@ Master node kubelet and does not register for cluster work
 
 ## KUBE-PROXY
 
-deals with individual host subnetting, manages iptables, expose services, forwards requests to pods/containers			
+deals with individual host subnetting, manages iptables, expose services, forwards requests to pods/containers (loadbalancing for kubernetes services)			
 provide ip addresses for pods
 provide ip addresses for services
 creates a NodePort service
@@ -223,73 +239,84 @@ A CSI driver (aka plugin/provisioner) must contain at least these 2 following co
 
 
 #### Controller component 													(in ceph this is the csi-cephfsplugin-provisioner)
-- manages persistent external volumes (creating, deleting, etc.)
 - Implemented as a gRPC server
+- manages persistent external volumes (creating, deleting, etc.)
 - The kubernetes primitive is a StatefulSet or Deployment
 
 This component talks to the control plane
 
 The controller component pod is made up of
-- a csi driver container containg the 
-	- controller service (ControllerGetCapabilities(), CreateVolume(), PublishVolume(), UnpublishVolume(), DeleteVolume())
-	- identity Service	(GetPluginInfo(), GetPluginCapabilities())					
-- one or more sidecar containers implementing (I THINK THIS IS WRONG)
+- a csi driver 
+	-  a csi driver container implementing 
+		- controller service (implements ControllerGetCapabilities(), CreateVolume(), PublishVolume(), UnpublishVolume(), DeleteVolume())
+		- identity Service	(implements GetPluginInfo(), GetPluginCapabilities())					
+- one or more sidecar containers implementing
 	- external-provisioner							watches for PersistentVolumeClaim objects
 	- external-attacher								watches for VolumeAttachment objects (VolumeAttachment tracks binding state between PV and node)
 	- external-resizer (optional)					watches for PersistentVolumeClaim objects
 	- external-snapshotter (optional)				watches for VolumeSnapshotContent objects
 - and perhaps other containers providing additional functionality like
-	- livenessprobe
+	- liveness probe
+	- log collection
 
-Note: the csi driver container talks to sidecar container/s using a UNIX domain socket which is shared via an emptyDir volume
+NOTE:
+1. the sidecar container/s talk to the csi driver container using a UNIX domain socket which is shared via an emptyDir volume
 
 
 #### Node component	 														(in ceph this is the csi-cephfsplugin)		
-- mounts/unmounts persistent external volumes to a kubernetes node (think attaching and detaching volumes to and from nodes)
 - Implemented as a gRPC server
+- mounts/unmounts persistent external volumes to a kubernetes node
 - The kubernetes primitive is a DeamonSet (a pod for each node)
 
-this component talks to the kubelet on the node via a UNIX domain socket which is shared via HostPath volume on the node host
-An additional UNIX domain socket is used by the node-driver-registrar to register the driver to the kubelet
-
 The node component pod is made up of
-- a csi driver container containing the 
-	- node service (NodeGetCapabilities(), NodeStageVolume(), NodePublishVolume(), NodeUnstageVolume(), NodeUnpublishVolume())
-	- identity service (GetPluginInfo(), GetPluginCapabilities())
-- a sidecar container that serves as a node-driver registrar
+- a csi driver 
+	- a csi driver container implementing
+		- node service (NodeGetCapabilities(), NodeStageVolume(), NodePublishVolume(), NodeUnstageVolume(), NodeUnpublishVolume())
+		- identity service (GetPluginInfo(), GetPluginCapabilities())
+- a sidecar container implementing
+	- node-driver registrar
+- and perhaps other containers providing additional functionality like
+	- liveness probe
+	- log collection
+
+NOTE:
+1. this component talks to the kubelet on the node via a UNIX domain socket which is shared via HostPath volume on the node host
+2. an additional UNIX domain socket is used by the node-driver-registrar to register the driver to the kubelet
+
 
 
 ### StorageClass
 
-A StorageClass will use a csidriver by specifying the driver in its provisioner field.
-
-The StorageClass calls the CSI driver with parameters specified in it's parameters field
-
-The StorageClass dictates the volumeBindingMode and the reclaimPolicy for the storage
+A StorageClass is a set of configuration settings
+These settings are to be used by the sidecar containers to
+- know which csi driver to call (provisioner: )
+- what parameters to use when calling the csi driver (parameters: )
+- and what configurations to use for the PVC, e.g. reclaimPolicy and volumeBindingMode
 
 
 ### The process of provisioning a persistent volume
 
-1. the external-provisioner sidecar ----- watches for -----> a PVC ---- which references ----> a STORAGECLASS
-2. the external-provisioner --- then calls (from provisioner field, with parameters from parameters field of STORAGECLASS) CreateVolume() function ----> CSI Driver (controller component) --- which provisions a volume on ---> Storage Provider
-3. Kubernetes Control Plane --- creates a ---> VolumeAttachment
-4. csi external-attacher (part of controller component) --- acts upon ---> the VolumeAttachment --- and attaches ---> the PV ---- to ----> a Node --- and marks ----> the PV as ready for use
+1. the external-provisioner sidecar ----- watches for -----> a PVC resource ---- which references ----> a STORAGECLASS
+2. the external-provisioner --- then calls (from provisioner field, with parameters from parameters field of STORAGECLASS) the CreateVolume() function ----> CSI Driver (controller component) --- which provisions a volume on ---> Storage Provider
+3. Kubernetes Control Plane --- creates a ---> VolumeAttachment resource
+4. csi external-attacher --- acts upon ---> the VolumeAttachment --- and attaches ---> the PV ---- to ----> a Node --- and marks ----> the PV as ready for use
 5. Kubelet --- uses the ---> CSI Node component --- to mount the ---> PV --- into the ---> Pod's target path
 
 
 Attach issues often look like “volume not ready,” while mount issues look like “target path not found” or repeated publish retries
 
 
-### CSI External-Snapshotter (deployment/snapshot-controller)
+### Snapshot Controller AND CSI external-snapshotter
+
 
 NOTE: https://github.com/kubernetes-csi/external-snapshotter AND https://kubernetes-csi.github.io/docs/external-snapshotter.html
 
 
 CRD's:
 
-volumesnapshotclasses.snapshot.storage.k8s.io						-		a storage class for snapshots, it ties to a csi driver
-volumesnapshots.snapshot.storage.k8s.io								-		a user submits this resource to the cluster - think of it as a request for a snapshot of a volume (like pvc)
-volumesnapshotcontents.snapshot.storage.k8s.io						-		think of this as the pv
+volumesnapshotclasses.snapshot.storage.k8s.io					-		a storage class for snapshots, it ties to a csi driver
+volumesnapshots.snapshot.storage.k8s.io							-		a user submits this resource to the cluster - think of it as a request for a snapshot of a volume (like pvc)
+volumesnapshotcontents.snapshot.storage.k8s.io					-		think of this as the pv
 
 volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io
 volumegroupsnapshots.groupsnapshot.storage.k8s.io
@@ -300,18 +327,18 @@ volumegroupsnapshotcontents.groupsnapshot.storage.k8s.io
 
 Components:
 
-1. snapshot controller (aka common snapshot controller)
+1. Snapshot Controller (aka common snapshot controller)
+
+deployment/snapshot-controller		-		k8s.gcr.io/sig-storage/snapshot-controller
 
 watches for create/update/delete on volumesnapshot, volumesnapshotcontent, volumegroupsnapshot, volumegroupsnapshotcontent
-
-k8s.gcr.io/sig-storage/snapshot-controller
 
 
 2. csi snapshotter (aka external-snapshotter)
 
-watches for create/update/delete only for volumesnapshotcontent and volumegroupsnapshotcontent
+a container part of the CSI Driver controller component		-	k8s.gcr.io/sig-storage/csi-snapshotter
 
-k8s.gcr.io/sig-storage/csi-snapshotter						
+watches for create/update/delete only for volumesnapshotcontent and volumegroupsnapshotcontent
 
 CSI external-snapshotter sidecar talks to CSI over socket (/run/csi/socket)
 
@@ -327,6 +354,8 @@ k8s.gcr.io/sig-storage/snapshot-conversion-webhook
 4. CSI Endpoint
 
 
+5. VolumeSnapshotClass
+
 
 Process:
 
@@ -341,22 +370,22 @@ CSI Driver ---- informs ----> csi-snapshotter ------ which informs ---> Snapshot
 
 ### Commands
 
-I want to see the available csi drivers
+```shell
+# I want to see the available csi drivers
 kubectl get csidrivers
 
-
-What nodes have csi drivers and which csi drivers
+# What nodes have csi drivers and which csi drivers
 k get csinode
 k get csinode <name> -o yaml
 
 
-I want to see the available storage classes
+# I want to see the available storage classes
 kubectl get storageclass 
 
 
-The available volumesnapshotclasses
+# The available volumesnapshotclasses
 kubectl get volumesnapshotclass
-
+```
 
 
 
@@ -411,9 +440,18 @@ Pod = IPC Linux Namespace { Network Namespace { CGroup { PID of container }, CGr
 Pod = PID Namespace + network namespace + IPC namespace + cgroup namespace + mnt namespace + user namespace
 
 
+### Network NS
+The network namespace of a pod will have at least
+- loopback interface - containers talk to each other using this loopback
+  of course every interface must have on top of it
+	sockets
+	tcp/ip
+	network encapsulation
+- veth interface - traffic into an out of a pod with whatever is the other interface in the veth pair in the host nns
 
 
-
+For all interfaces (loopback, veth in pod, veth in host nns)
+the TCP/IP stack is provided by the kernel
 
 
 ## CONTAINERS
@@ -1042,3 +1080,18 @@ Use go-template when .......
 
 
 Use custom-columns when .....
+
+
+
+# PART IX - CUSTOM RESOURCE DEFINITIONS
+
+## Schema Changes
+
+Adding new fields
+
+Removing fields/changing types
+
+
+# API Version Changes
+
+Change storage version

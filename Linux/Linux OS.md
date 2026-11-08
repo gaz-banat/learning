@@ -54,7 +54,7 @@ hostnamectl
 # GRUB2 (GRand Unified Bootloader)
 
 What:
-GRUB is the program on Linux systems that manages (boot manager) the boot process and loads (bootloader) the kernel
+GRUB is the program on Linux systems that manages the boot process (boot manager) and loads the kernel (bootloader)
 The boot manager 	is part of GRUB and is the menu that allows you to select different operating system kernels to load.
 The boot loader 	is the part of GRUB that loads the kernel of the operating system into memory (from /boot/vmlinuz*)
 
@@ -62,6 +62,7 @@ The boot loader 	is the part of GRUB that loads the kernel of the operating syst
 
 GRUB2 stage1:
 
+GRUB2 stage1.5:
 
 GRUB2 stage 2:
 Stage 2 provides 
@@ -106,12 +107,12 @@ grubby --update-kernel=/boot/vmlinuz-<kernel_verision> --remove-args=<NEW_PARAME
 
 # KERNEL
 
-Configuration			-	the overall setting of the kernels features and modules (sometimes available at /proc/config.gz)
+Configuration				-	the overall setting of the kernels features and modules (sometimes available at /proc/config.gz)
 Command line Parameters		-	specific arguments passed to the kernel during boot (the way to control the kernels behaviour at boot time) 
-Parameters			-	can configure linux kernel with all options (the way to control the kernels behaviour at run time)
+Parameters					-	can configure linux kernel with all options (the way to control the kernels behaviour at run time)
 
 
-Some Kernel Command Line Parameters:
+## Some Kernel Command Line Parameters:
 root=<device_file>
 ro
 resume=<device_file>		-	i think this one is about SWAP
@@ -125,7 +126,7 @@ emergency
 noapic
 
 
-System Calls:
+## System Calls
 ioctl
 						_________________________________
 						| Linux Kernel 			|
@@ -137,18 +138,11 @@ ioctl
 
 
 
-Kernel Technologies: (THIS NEEDS IMPROVEMENT)
-routing and routing table
-netfilter
-eBPF
-device mapper
-
-
-Kernel Subsystems
+## Kernel Subsystems
 kernel.org/doc/html/<version>/subsystem-apis.html
 
 
-Locations:
+## Locations
 /boot/vmlinuz*				-	kernel binary file
 /etc/sysctl.conf			-	kernel parameters at boot time	
 /etc/sysctl.d/*.conf			-	more kernel parameters at boot time
@@ -159,33 +153,34 @@ Locations:
 /proc/sys
 
 
-Binaries:
+## Programs
 sysctl					-	utility for modifying kernel parameters at runtime
 
 
 
-Solutions:
+## Solutions
 
-I want to see the kernel configuration
+```shell
+# I want to see the kernel configuration
 cat /boot/config-$(uname -r)
-or
+# or
 cat /proc/config.gz | zgrep -E “<PATTERN>”		# but not always available, only available if kernel built with CONFIG_IKCONFIG_PROC
 
 
-I want to see the kernel command line parameters
+# I want to see the kernel command line parameters
 cat /proc/cmdline
 
 
-Show the kernel logs
+# Show the kernel logs
 sudo journalctl -k
 
 
-I want to see if a kernel component is built-in to the kernel or a module or not there
+# I want to see if a kernel component is built-in to the kernel or a module or not there
 cat /boot/config-$(uname -r) | grep -i <component>
 y - it is built into the kernel, part of the kernel image file (vmlinuz), available from boot
 m - it is a loadable kernel module, in a separate module file (.ko)
 n - it is not there
-
+```
 
 
 
@@ -802,7 +797,7 @@ echo PID > /sys/fs/cgroup/memory/<cgroup>/tasks
 
 # SYSTEMD
 
---SystemD--
+## SystemD
 
 What systemd does 				-	it is a ‘system and service’ manager, it is the fundamental init system in the operating system.
 
@@ -830,6 +825,16 @@ e.g. sshd.service in /usr/lib/systemd/system
 e.g. podman.socket in /usr/lib/systemd/system
 e.g. halt.target in /usr/lib/systemd/system
 
+
+Systemd can be thought of as being made up of components
+system
+journald
+user
+logind
+network
+udevd
+
+
 Templates
 <basename>@.service				-	 this is a template. An instance from this template will be created as a service when there is a connection to it
 systemtctl start <basename>@<instancename>.service (i found instancename needs to be an integer ??)
@@ -838,12 +843,12 @@ e.g. systemctl start foo@0.service
 
 Locations:
 
-/etc/systemd/					-	configuration directory for systemd itself and its components, like journald, bootchart, system, user, login
+/etc/systemd/				-	configuration directory for systemd itself and its components, like journald, bootchart, system, user, login
 	system/					-	custom configurations of units that apply to the whole system 
 		<unit>
 		<unit.d>/			-	looks like override config for a unit (aka drop-in config). The directory is scanned for .conf files in alphabetical order and merged into the base file
-		<target>.wants/			-	directory for a particular target, contains symlinks to unit files that need to be activated
-							e.g. Created symlink from /etc/systemd/system/multi-user.target.wants/ntpd.service to /usr/lib/systemd/system/ntpd.service.
+		<target>.wants/		-	directory for a particular target, contains symlinks to unit files that need to be activated
+								e.g. Created symlink from /etc/systemd/system/multi-user.target.wants/ntpd.service to /usr/lib/systemd/system/ntpd.service.
 	user/
 
 /run/systemd/
@@ -856,7 +861,7 @@ Locations:
 
 	user/
 
-/usr/lib/systemd/				-	the unit file resides here, (usually used by the package manager for additional packages you install)
+/usr/lib/systemd/			-	the unit file resides here, (usually used by the package manager for additional packages you install)
 	system/
 
 	user/
@@ -869,7 +874,7 @@ NOTE: get the full list of directories for units and the search order here - htt
 
 
 
-User overrides for systemctl units:
+### User overrides for systemctl units
 It is possible to have per user overrides for systemctl units
 
 Run this command
@@ -889,15 +894,22 @@ The file ~/config/systemd/user/podman.service.d/override.conf will now contain t
 Commands:
 
 systemctl 
-	mask <service>			-	service will be linked to /dev/null, so other services wont be able to start it
-	cat <unit>			- 	will display the unit file
+	mask <service>				-	service will be linked to /dev/null, so other services wont be able to start it
+	cat <unit>					- 	will display the unit file
 	list-dependencies <unit>
-	daemon-reload			-	read all unit files again
-	enable	<unit>			-	make the unit start on boot (dont forget the unit can be a service, socket, mount, etc.)
+	daemon-reload				-	read all unit files again
+	enable	<unit>				-	make the unit start on boot (dont forget the unit can be a service, socket, mount, etc.)
 
 
 
---JournalD--
+FIT THIS SOMEWHERE
+
+systemd-modules-load.service
+
+systemd-run
+
+
+## JournalD
 
 systemd-journald
 
@@ -914,7 +926,7 @@ journalctl
 
 
 
---LoginD--
+## LoginD
 
 systemd-logind
 
@@ -931,19 +943,19 @@ loginctl				-	manage the systemd-logind service
 
 
 
---UdevD--
+## UdevD
 
 systemd-udevd
 
 
 
 
---MachineD--
+## MachineD
 
 
 
 
---Systemd and CGroups--
+## Systemd and CGroups
 
 systemd heavily relies on cgroups (but systemd codebase and cgroups code base are different)
 
@@ -1382,11 +1394,11 @@ sudo su -l <user> -s /bin/bash
 # PACKAGE MANAGEMENT/YUM
 
 
-RHEL8/9
+## RHEL8/9
 
    Mirror 1
 
-	Repo/BaseOS (rhel-8-for-x86_64-baseos-rpms)				provides parts of the distribution that give you a running userspace on physical/virtual/cloud instance/container
+	Repo/BaseOS (rhel-8-for-x86_64-baseos-rpms)					provides parts of the distribution that give you a running userspace on physical/virtual/cloud instance/container
 	
 	  Traditional Content
 	
@@ -1487,7 +1499,7 @@ Locations:
 
 
 
-RHEL 10 
+## RHEL 10 
 
 	Formats for Application Streams
 		RPMs
@@ -1499,6 +1511,51 @@ RHEL 10
 
 
 	Rolling Streams
+
+
+
+Commands:
+
+
+Using errata
+```shell
+# Get the package you are interested in
+$ rpm -qa | grep kernel
+kernel-modules-core-5.14.0-687.24.1.el9_8.x86_64
+kernel-core-5.14.0-687.24.1.el9_8.x86_64
+kernel-modules-5.14.0-687.24.1.el9_8.x86_64
+kernel-5.14.0-687.24.1.el9_8.x86_64
+kernel-modules-core-5.14.0-687.25.1.el9_8.x86_64
+kernel-core-5.14.0-687.25.1.el9_8.x86_64
+kernel-modules-5.14.0-687.25.1.el9_8.x86_64
+kernel-5.14.0-687.25.1.el9_8.x86_64
+kernel-modules-core-5.14.0-687.26.1.el9_8.x86_64
+kernel-core-5.14.0-687.26.1.el9_8.x86_64
+kernel-modules-5.14.0-687.26.1.el9_8.x86_64
+kernel-tools-libs-5.14.0-687.26.1.el9_8.x86_64
+kernel-tools-5.14.0-687.26.1.el9_8.x86_64
+kernel-5.14.0-687.26.1.el9_8.x86_64
+
+# Check the update information
+$ dnf updateinfo list | grep kernel		# dnf updateinfo --list also works
+RHBA-2026:39332 bugfix kernel-5.14.0-687.26.1.el9_8.x86_64
+RHBA-2026:39332 bugfix kernel-core-5.14.0-687.26.1.el9_8.x86_64
+RHBA-2026:39332 bugfix kernel-modules-5.14.0-687.26.1.el9_8.x86_64
+RHBA-2026:39332 bugfix kernel-modules-core-5.14.0-687.26.1.el9_8.x86_64
+
+```
+
+Count pending advisories by type
+dnf updateinfo summary
+
+
+See detailed description of every applicable advisory
+dnf updateinfo info 
+
+
+dnf list updates
+
+dnf updateinfo list security --installed
 
 
 
@@ -1724,7 +1781,7 @@ sudo journalctl SYSLOG_IDENTIFIER=sudo
 
 
 
-CERTIFICATE AUTHORITY
+# PKI/CERTIFICATE AUTHORITY
 
 NOTE: The Shared System Certificates storage allows NSS, GnuTLS, OpenSSL, and Java to share a default source for retrieving system certificate anchors and black list information
 
@@ -1784,7 +1841,7 @@ trust list --filter=ca-anchors | grep <ca name> -A 2 -B 3
 
 
 
-ALTERNATIVES
+# ALTERNATIVES
 
 
 
@@ -1792,41 +1849,68 @@ ALTERNATIVES
 
 
 
-AUDITING
+# AUDITING
 
-Files					-	/etc/audit/auditd.conf for configuring the auditd daemon and /etc/audit/rules.d/audit.rules for adding rules
-temporary rule adding			-	auditctl -w /etc/ssh/sshd_config -p rwxa -k sshconfigchange
-tools					-	ausyscall, ausearch, aureport, autrace
+There are 2 parts:
+- the kernels audit subsystem ([kauditd]) - collects audit events and sends them to the daemon
+- the userspace daemon /sbin/auditd - it receives audit events from the kernel subsystem and writes them to disk
 
-audit entry
-		TYPE 			= 	AUDIT MESSAGE
- 
-		syscall entries
-		msg-audit 		=	the time stamp:id
-		arch			=	the architecture of the system
-		syscall			=	the type of syscall (ausyscall <number> or ausyscall —dump)
-		success			= 	did the syscall succeed or fail
-		ppid			=	the parent process id
-		pid			=	the process id
-		auid			=	audit ID or original ID of the user who triggered this audit entry (the id that ran the su or sudo command)
-		uid			=	the user ID of the user who started the process
-		comm			=	the command that triggered this audit message
-		exe			=	the command with full path
-		key			=	user defined string associated with the audit rule, helps to search
 
-		CWD entries (regarding the current working directory)
-		msg-audit 		=	the time stamp:id
-		cwd			=	the directory from which the above system call was invoked
+Audit Entry:
+type=SYSCALL (a system call) 		
+msg=audit 				=	the time stamp:id
+arch					=	the architecture of the system
+syscall					=	the type of syscall (ausyscall <number> or ausyscall —dump)
+success					= 	did the syscall succeed or fail
+ppid					=	the parent process id
+pid						=	the process id
+auid					=	audit ID or original ID of the user who triggered this audit entry (the id that ran the su or sudo command)
+uid						=	the user ID of the user who started the process
+comm					=	the command that triggered this audit message
+exe						=	the command with full path
+key						=	user defined string associated with the audit rule, helps to search
 
-		PATH entries
-		msg-audit 		=	the time stamp:id
-		name			=	the path that was passed as an argument to the system call
-		ouid and ogid		=	owner user and owner group of the object (the object being the argument that was passed to the system call)
+type=CWD entries (regarding the current working directory)
+msg-audit 				=	the time stamp:id
+cwd						=	the directory from which the above system call was invoke
+
+type=PATH entries
+msg-audit 				=	the time stamp:id
+name					=	the path that was passed as an argument to the system call
+ouid and ogid			=	owner user and owner group of the object (the object being the argument that was passed to the system call)
+
+type=AVC (selinux access vector cache)
+msg=audit				-	timestamp
+avc						-	the message regarding what happened with access vector cache
+comm
+name					-	the target context
+dev						-	the target is on this device	
+ino						-	inode of target
+scontext
+tcontext
+
+type=PROCTITLE
+
+type=EOE
+
+
+
+Files							
+/etc/audit/auditd.conf for configuring the auditd daemon
+/etc/audit/rules.d/audit.rules for adding rules
+
+Commands:						
+ausyscall
+ausearch
+aureport
+autrace
 
 
 To trace a binary, for e.g. /bin/date 
 autrace /bin/date  and then ausearch -p <event_id> | aureport -f -i
 
+To add a temporary rule
+auditctl -w /etc/ssh/sshd_config -p rwxa -k sshconfigchange
 
 
 
@@ -1838,7 +1922,7 @@ autrace /bin/date  and then ausearch -p <event_id> | aureport -f -i
 
 
 
-RHSM
+# RHSM
 
 /etc/yum.repos.d/redhat.repo				-	the repo file managed by RHSM
 
@@ -1860,7 +1944,9 @@ RHSM
 
 
 
-SELINUX
+# SELINUX
+
+## Overview
 
 First understand this:
 
@@ -1876,38 +1962,60 @@ Security-Enhanced Linux (SELinux) is a Linux MAC kernel mechanism that
  - the Linux kernel enforces the rules.
 
 
+## Components
 
-Security Label/Context
-  Components
-    user
-    role
-    type			-	most important for targeted policy
-					Type enforcement is the part of an SELinux policy that defines whether a process running with a certain type can access a file labeled with a certain type.
+1. Security Label/Context
+    user (_u)
+    role (_r)
+    type (_t)				-	most important for targeted policy
+								Type enforcement is the part of an SELinux policy that defines whether a process running with a certain type 
+								can access a file labeled with a certain type.
  
-    level
+    level/sensitivity
 
-user:role:type:level
+format - user:role:type:level
 
-
-
-
-subject				-	process
-object				-	file, directory, socket, port, etc
-access vector cache		-	a cache of permissions for subjects and objects
+2. Key terms
+subject						-	process
+object						-	file, directory, socket, port, etc
+access vector cache			-	a cache of permissions for subjects and objects
 SELinux policy database
-booleans			-	on/off settings for for functions (capabilities) in SELinux
+booleans					-	on/off settings for functions (capabilities) in SELinux
 
 
-Configuration methods for SELinux (aka policy name):
+3. Configuration methods for SELinux (aka policy name):
 targeted policy
 multi-level security (MLS)
 
 
-Modes:
+4. Modes:
 enforcing
 permissive
 disabled
 
+
+Examples:
+
+1. HTTPD process
+system_u:object_r:httpd_sys_content_t:s0
+
+system_u 				-		the SELinux user identity (NOT Linux UID!)
+object_r 				-		the SELinux role (object mostly indicates a file or directory)
+httpd_sys_content_t		-		the SELinux type
+s0						-		the SELinux level, in this case an MLS, s0 means lowest level of sensitivity (think unclassified or public)
+
+
+2. SSH Daemon Process
+system_u:system_r:sshd_t:s0-s0:c0.c1023 	-	A process label showing a range of levels.
+
+3. User Home Directory File
+unconfined_u:object_r:user_home_t:s0		-	A standard file owned by a regular user.
+
+4. Shadow Password File
+system_u:object_r:shadow_t:s0 				-	A highly restricted system file.
+
+
+5. system_u:system_r:pod_containerd_t:s0
 
 
 Commands:
@@ -1920,10 +2028,30 @@ setenforce
 getsebool -a		-	get the capabilities of SELinux and show if they are turned on or off
 
 
+Looking at an audit event for SELinux (from auditd)
+
+```shell
+ type=AVC msg=audit(1786065561.243:16764606): avc:  denied  { write } for  pid=4863 comm="flb-pipeline" name="tcp.0" dev="dm-0" ino=201347196 scontext=system_u:system_r:pod_containerd_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=1
+ ```
+
+type=AVC											-	Access Vector Cache. This indicates an SELinux permission check event.
+msg=audit(1786065561.243:16764606)					-	The timestamp and unique ID of the audit event.
+denied { write }									-	The action the process tried to take. It tried to write data.
+pid=4863											-	The Process ID triggering the event.
+comm="flb-pipeline"									-	The command name. This is Fluent Bit (flb), a common logging agent.
+name="tcp.0"										-	The target file or directory name the process tried to access.
+dev="dm-0"											-	The storage device where the target lives (Device Mapper 0, usually a logical volume).
+ino=201347196										-	The inode number of the target file or directory.
+scontext=system_u:system_r:pod_containerd_t:s0		-	The Source Context. This is the security label of the Fluent Bit container process running under containerd.
+tcontext=system_u:object_r:unlabeled_t:s0			-	The Target Context. This is the security label of the tcp.0 directory. 
+														unlabeled_t means the system does not recognize or has not assigned a proper SELinux label to this path.
+tclass=dir											-	The Target Class. The target object is a directory.
+permissive=1										-	Permissive mode is active. The system logged the error but did not stop the write operation.
 
 
 
-TRACING
+
+# TRACING
 
 strace
 systemtap
@@ -1934,7 +2062,7 @@ systemtap
 
 
 
-X SERVER/X11 SERVER
+# X SERVER/X11 SERVER
 
 The client-server relationship is inverted, the user interacts with the server directly and sees the output in the X client application.
 
@@ -1983,7 +2111,7 @@ Run ‘startx’ if X is installed
 
 
 
-KEY SEQUENCES
+# KEY SEQUENCES
 
 
 CTRL-d 		-	pressing this on an empty line stops the current stdin from the terminal with an EOF
@@ -1993,7 +2121,7 @@ CTRL-c		-	killswitch for a process
 
 
 
-SYSTEM TOOLCHAIN
+# SYSTEM TOOLCHAIN
 
 GCC 14.2
 glibc 2.39
@@ -2001,7 +2129,9 @@ Annbin 12.55
 binutils 2.41
 
 
-----GENERAL-----
+
+
+# GENERAL
 
 
 What are the File Types that a Linux system knows about:
@@ -2022,7 +2152,7 @@ So exactly how does the login process work:
 
 
 
-Good commands to know:
+# COMMANDS
 
 lsof
   <file or dir>

@@ -1,76 +1,54 @@
-Fit this somewhere
-
-Talos node stages
-- Maintenance
-- Rebooting
-- Running
 
 ---
-# TALOS CONFIGURATION DOCUMENTS
-
-START HERE - https://www.talos.dev/<version>/reference/configuration/
-
-v1alpha1                                -       The talos machine and cluster configuration 
-                                                https://www.talos.dev/v1.9/reference/configuration/v1alpha1/config/
-
-NetworkRuleConfig                       -       for a network firewall rule on a talos node
-                                                https://www.talos.dev/v1.9/reference/configuration/network/networkruleconfig/
-
-TrustedRootsConfig                      -       for additional trusted CA roots for talos
-                                                https://www.talos.dev/v1.9/reference/configuration/security/trustedrootsconfig/
-
-NetworkDefaultActionConfig              -   
-
-
-VolumeConfig                            -       for a volume on a talos node (Ephemeral, State, Meta, etc.)
-                                                https://www.talos.dev/v1.9/reference/configuration/block/volumeconfig/
-
-UserVolumeConfig                        -       for configuring an additional volume/partition on disk
-
-
-ExtensionServiceConfig
-
-
-and so on, follow the URLs
-
-
-# BOOTING AND INSTALLING AND UPGRADING
+# BOOTING AND INSTALLING AND CONFIGURING AND UPGRADING
 
 You have to boot the node in some way
 Then you have to install the Talos OS onto the node with a configuration
 You also have to someday upgrade the Talos OS to a newer version 
 
 
-# BOOT ASSETS
+Think about a Talos OS node in 2 parts
+1. What makes the Talos OS                      - kernel + initramfs + binaries + libraries (this applies to an update to the OS)
+2. What makes the Talos configuration           - v1alpha1 + other config documents (this applies to apply-config)
+
+
+# PRE-REQ - BOOT ASSETS
 
 ## First understand what is a boot asset
 
 a boot asset could be 
-- an image (iso file, a disk image)
-- a kernel + initramfs image
+- an image (iso file, a raw disk image, a qcow2 disk image, a container image)
+- a kernel + initramfs
 - an iPXE script
 More at https://www.talos.dev/v1.10/talos-guides/install/boot-assets/
 
 
 ### about images
-An image can be
-
-used for 
-    booting                         -       you could be booting a metal system, a vm in a cloud provider, a vm on a hypervisor, a vm on a local hypervisor
-    or 
-    installing                      -       specified by .machine.install.image in v1alpha1 configuration (generally an installer image) after Talos has booted
-    or
-    upgrading                       -       specified by the talosctl upgrade command to a running Talos system
+An image can be used for:
+booting                         -       you could be booting a metal system, a vm in a cloud provider, a vm on a hypervisor, a vm on a local hypervisor
+or 
+installing                      -       specified by .machine.install.image in v1alpha1 configuration (generally an installer image) after Talos has booted
+or
+upgrading                       -       specified by the talosctl upgrade command to a running Talos system
 
 
-got from
-    image factory service           -       https://factory.talos.dev                   only for official Talos Linux Releases, official Talos Linux system extensions, official Talos Overlays (booting and installing images can be obtained)
-    OR
-    imager container                -       ghcr.io/siderolabs/imager:v1.10.3           to build for your local changes with custom system extensions
+An image can be got from:
+installer image                 -       the base installer image available from ghcr.io/siderolabs/installer:<version> 
+                                        look at the release page - Images, this is an OCI container image
+OR
+image factory service           -       https://factory.talos.dev                   
+                                        only for official Talos Linux Releases, official Talos Linux system extensions, official Talos Overlays (booting and installing images can be obtained)
+OR
+imager container                -       ghcr.io/siderolabs/imager:<version>           
+                                        to build for your local changes with custom system extensions
 
 
-### about kernel + initramfs image
+### about kernel + initramfs
 this is used just for booting, very handy for kvm virtual machines
+
+
+### about iPXE script
+
 
 
 ## Second understand what is a platform
@@ -82,20 +60,165 @@ https://www.talos.dev/<version>/introduction/support-matrix/, e.g. https://www.t
 Platforms are in these categories
 
 cloud                               -       aws, gcp, azure, openstack, akamai, digital ocean, hetzner, nocloud, exoscale, etc.
-bare metal                          -       x86 - BIOS, UEFI, SecureBoot; arm64 - UEFI, SecureBoot
+metal (bare metal)                  -       x86 - BIOS, UEFI, SecureBoot
+                                            arm64 - UEFI, SecureBoot
 virtualized                         -       vmware, hyper-v, kvm, proxmox, vagrant+libvirt, xen, opennebula 
 sbc                                 -       raspberry pi, banana pi, turing rk1, pine64, etc.
 local                               -       qemu, docker, virtualbox
 
+## Third understand what is a schematic
+
+A schematic is a hash
+The hash is unique for a combination of 2 things (COULD BE MORE, THIS IS INCOMPLETE)
+1. System Extensions
+2. Command Line arguments to a kernel
+
+
+## Generic Boot Assets
+
+If you are not customizing anything then you can obtain a boot asset directly from the Github release page for a particular version of Talos
+
+https://github.com/siderolabs/talos/releases/tag/<version> and look at Assets section
+e.g. https://github.com/siderolabs/talos/releases/tag/v1.11.3 
+
+For example you could get the base installer image for a version of Talos
+The base installer image    -   kernel + initramfs with Talos init + installer binary
+
+
+## Talos Image factory service
+
+Factory service is used to build an image based on a schematic and then return that image
+
+### Considerations for building an image using Factory Service
+
+Hardware Types
+
+    1. Bare Metal           -       suitable for x86-64 and arm64 bare metal AS WELL AS generic VM's.
+    2. Cloud Server         -       AWS, GCP, Azure, VMWare, Equinix Metal, Proxmox, OpenStack, Digital Ocean, Hetzner and many others
+    3. Single Board         -       Raspberry Pi, Pine64, Jetson Nano and similar
+
+Talos Version
+
+Machine architecture
+    amd64
+    arm64
+
+SecureBoot image (the image is signed with a key and the hardware is pre-configured)
+
+System Extensions needed
+
+Customization
+    kernel command line arguments, e.g. 'console=tty0,115200'                           # https://docs.siderolabs.com/talos/v1.12/reference/kernel/
+    any embedded machine configuration that needs to be added, e.g. HostNameConfig
+    Bootloader type, e.g. BIOS, UEFI, Dual Boot, Auto
+
+
+### HOW
+
+1. Use the GUI at https://factory.talos.dev
+
+Follow the prompts
+
+
+2. Use an api call
+
+the process is very simple 
+- submit a file (aka schematic) with a customization to the factory service /schematics endpoint 
+- and it will return an id that matches the customization.
+The id can be used to obtain the boot assets from the image factory service.
+
+```shell
+# Create a schematic YAML and get the schematic ID
+cat > schematic.yaml << 'EOF'
+customization:
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/nvidia-container-toolkit
+      - siderolabs/iscsi-tools
+      - siderolabs/qemu-guest-agent
+EOF
+
+SCHEMATIC_ID=$(curl -s -X POST --data-binary @schematic.yaml https://factory.talos.dev/schematics | jq -r '.id')
+
+# Declare the version
+VERSION=v1.12.10
+
+# THE EXAMPLES BELOW ARE FOR HARDWARE TYPE - BARE METAL (good for bare metal and generic VM's)
+
+# Get assets for booting
+https://factory.talos.dev/image/${SCHEMATIC_ID}/${VERSION}/metal-amd64.iso
+# OR
+https://factory.talos.dev/image/${SCHEMATIC_ID}/${VERSION}/metal-amd64.raw.zst
+# OR
+https://factory.talos.dev/image/${SCHEMATIC_ID}/${VERSION}/metal-amd64.qcow2
+# OR
+https://pxe.factory.talos.dev/pxe/${SCHEMATIC_ID}$/${VERSION}$/metal-amd64
+# OR
+https://factory.talos.dev/image/${SCHEMATIC_ID}/${VERSION}/kernel-amd64
+https://factory.talos.dev/image/${SCHEMATIC_ID}/${VERSION}/initramfs-amd64.xz
+
+
+# Get asset for Installing
+https://factory.talos.dev/metal-installer/${SCHEMATIC_ID}:${VERSION}
+
+
+# Use the schematic directly in upgrading
+talosctl upgrade --image factory.talos.dev/metal-installer/${SCHEMATIC_ID}:${VERSION} -n <node>
+```
+
+Look at the document to know all the possible end points for factory image service
+
+
+## Imager container
+
+Obtain the imager container itself from - ghcr.io/siderolabs/imager:<version> e.g. ghcr.io/siderolabs/imager:v1.10.7
+
+"base profile"/"image kind" options to the imager container:
+
+NOTE: A BASE PROFILE (aka Image Kind) OPTION BUILDS FOR A SPECIFIC PLATFORM AND ITS TYPE - eg. 'aws' profile option builds for cloud/aws
+
+    iso                                             -   iso                 builds a Talos ISO image (see ISO)
+    secureboot-iso                                  -   iso                 builds a Talos ISO image with SecureBoot (see SecureBoot)
+    
+    metal                                           -   disk image          builds a generic disk image for bare-metal machines
+    secureboot-metal                                -   disk image          builds a generic disk image for bare-metal machines with SecureBoot
+    aws                                             -   disk image          builds a disk image for the specific cloud platform
+    gcp                                             -   disk image          builds a disk image for the specific cloud platform
+    azure                                           -   disk image          builds a disk image for the specific cloud platform
+    openstack                                       -   disk image          builds a disk image for the specific cloud platform
+    nocloud                                         -   disk image          builds a disk image for the specific cloud platform
+
+    secureboot-installer                            -   container image     builds an installer container image with SecureBoot (see SecureBoot)
+    image                                           -   i saw this in the documentation at https://www.talos.dev/v1.11/talos-guides/install/bare-metal-platforms/network-config/
+
+The base profile can be customized with the additional flags to the imager:
+    --arch                                          -   specifies the architecture of the image to be generated (default: host architecture)
+    --meta                                          -   allows to set initial META values (metal network configuration)
+    --extra-kernel-arg                              -   allows to customize the kernel command line arguments.
+                                                        Default kernel arg can be removed by prefixing the argument with a -. 
+                                                        For example -console removes all console=<value> arguments, whereas -console=tty0 removes the console=tty0 default argument.
+    --system-extension-image                        -   allows to install a system extension into the image
+    --image-cache                                   -   allows to use a local image cache
+
+```shell
+docker run --rm -t -v /tmp/out:/out \
+  ghcr.io/siderolabs/imager:v1.12.10 \
+  iso \
+  --arch=amd64 \
+  --extra-kernel-arg=-console \
+  --extra-kernel-arg=console=tty0 \
+  --system-extension-image ghcr.io/siderolabs/nvidia-container-toolkit:535.54.03-v1.13.5 \
+  --system-extension-image ghcr.io/siderolabs/iscsi-tools:v0.1.4 \
+  --system-extension-image ghcr.io/siderolabs/qemu-guest-agent:8.2.2
+```
+
+
+
 
 ### Considerations for Bare Metal platform
 
-Bootloader - Talos uses either 
-    GRUB Bootloader                 -       bios based systems on x86_64                        
-    systemd-boot                    -       UEFI based systems on x86_64 and arm64
-
-
-    1. GRUB Bootloader
+Bootloader - Talos uses either
+    1. GRUB Bootloader (bios based systems on x86_64)
 
     uses vmlinuz + initramfs + kernel arguments stored in configuration file ( derived from .machine.install.extraKernelArgs)
 
@@ -106,10 +229,10 @@ Bootloader - Talos uses either
         BOOT        -       grub configuration file (contains kernel arguments) and Talos boot assets (vmlinux, initramfs)
 
 
-    2. systemd-boot
+    2. systemd-boot (UEFI based systems on x86_64 and arm64)
 
 
-Boot with
+Boot Asset
 
     ISO
 
@@ -133,70 +256,50 @@ Matchbox based bare metal
 
 
 
+# PRE-REQ - TALOS CONFIGURATION DOCUMENTS
+
+START HERE - https://www.talos.dev/<version>/reference/configuration/
+
+A machineconfig is a yaml document, in the .spec field are many sub documents that make up various configuration aspects
+
+NOTE: when applying config (apply-config) you apply the sub documents directly
+
+v1alpha1                                -       The talos machine and cluster configuration
+                                                VERSION=v1.13 # only major and minor version, not patch version
+                                                https://www.talos.dev/${VERSION}$/reference/configuration/v1alpha1/config/
+
+NetworkRuleConfig                       -       for a network firewall rule on a talos node
+                                                https://www.talos.dev/${VERSION}/reference/configuration/network/networkruleconfig/
+
+TrustedRootsConfig                      -       for additional trusted CA roots for talos
+                                                https://www.talos.dev/${VERSION}/reference/configuration/security/trustedrootsconfig/
+
+NetworkDefaultActionConfig              -   
 
 
-## Talos Image factory service
+VolumeConfig                            -       for a volume on a talos node (Ephemeral, State, Meta, etc.)
+                                                https://www.talos.dev/${VERSION}/reference/configuration/block/volumeconfig/
 
-the process is very simple - submit a file (aka schematic) with a customization to the factory service /schematics endpoint and it will return an id that matches the customization.
-
-The id can be used to obtain the boot assets from the image factory service.
-
-### booting
-https://factory.talos.dev/image/<image_id>/<version>/metal-amd64.iso
-OR
-https://factory.talos.dev/pxe/<image_id>/<version>/metal-amd64.iso
-OR
-https://factory.talos.dev/image/<image_id>/<version>/kernel-amd64
-https://factory.talos.dev/image/<image_id>/<version>/initramfs-amd64.xz
+UserVolumeConfig                        -       for configuring an additional volume/partition on disk
 
 
-### installing
-factory.talos.dev/metal-installer/<image_id>:<version>
+HostNameConfig
+
+ExtensionServiceConfig
 
 
-### upgrading
-talosctl upgrade --image factory.talos.dev/metal-installer/<image_id>:<version> -n <node>
-
-Look at the document to know all the possible end points for factory image service
+and so on, follow the URLs
 
 
-## Imager container
 
-obtain the imager container itself from - ghcr.io/siderolabs/imager:<version> e.g. ghcr.io/siderolabs/imager:v1.10.7
+a node configuration file is always made up of Talos Configuration manifests
 
-"base profile"/"image kind" options to the imager container:
-
-NOTE: A BASE PROFILE (aka Image Kind) OPTION BUILDS FOR A SPECIFIC PLATFORM AND ITS TYPE - eg. 'aws' profile option builds for cloud/aws
-
-    iso                                             -   iso                 builds a Talos ISO image (see ISO)
-    secureboot-iso                                  -   iso                 builds a Talos ISO image with SecureBoot (see SecureBoot)
-    metal                                           -   disk image          builds a generic disk image for bare-metal machines
-    secureboot-metal                                -   disk image          builds a generic disk image for bare-metal machines with SecureBoot
-    aws                                             -   disk image          builds a disk image for the specific cloud platform
-    gcp                                             -   disk image          builds a disk image for the specific cloud platform
-    azure                                           -   disk image          builds a disk image for the specific cloud platform
-    openstack                                       -   disk image          builds a disk image for the specific cloud platform
-    nocloud                                         -   disk image          builds a disk image for the specific cloud platform
-
-    secureboot-installer                            -   container image     builds an installer container image with SecureBoot (see SecureBoot)
-    image                                           -   i saw this in the documentation at https://www.talos.dev/v1.11/talos-guides/install/bare-metal-platforms/network-config/
-
-The base profile can be customized with the additional flags to the imager:
-    --arch                                          -   specifies the architecture of the image to be generated (default: host architecture)
-    --meta                                          -   allows to set initial META values (metal network configuration)
-    --extra-kernel-arg                              -   allows to customize the kernel command line arguments.
-                                                        Default kernel arg can be removed by prefixing the argument with a -. 
-                                                        For example -console removes all console=<value> arguments, whereas -console=tty0 removes the console=tty0 default argument.
-    --system-extension-image                        -   allows to install a system extension into the image
-    --image-cache                                   -   allows to use a local image cache
-
-
-## Github releases
-
-If you are not customizing anything then you can obtain a boot asset directly from the Github release page for a particular version of Talos
-
-https://github.com/siderolabs/talos/releases/tag/<version> and look at Assets section
-e.g. https://github.com/siderolabs/talos/releases/tag/v1.11.3 
+v1alpha1
+v1alpha1/ExtensionServiceConfig
+v1alpha1/TrustedRootsConfig
+v1alpha1/NetworkDefaultActionConfig
+v1alpha1/NetworkRuleConfig
+and so on
 
 
 
@@ -232,20 +335,34 @@ patches/<patch>													# either a patch of a talos machine config file (car
 
 ### method
 ```shell
+# Construct a talconfig.yaml file
+vi talconfig.yaml
+
+# Generate secrets for a Talos cluster using talhelper
 talhelper gensecret > talsecret.sops.yaml		
-# sops needs to be configured first and if using vault then make sure VAULT_TOKEN is exported in the environment
-sops -e -i talsecret.sops.yaml									# sops does an encryption of the talsecret.sops.yaml											    CAN GO IN GIT
-talhelper genconfig												# expects to read a talconfig.yaml file
-																# generates node files as ./clusterconfig/<node>												    DO NOT PUT ./clusterconfig IN GIT
-																# generates a ./clusterconfig/talosconfig 
-# then Either
-talosctl apply-config -n <node_ip> --insecure --file ./clusterconfig/<node>		# apply config to a VM booted with a talos image or kernel/initramfs
-# OR
-talhelper gencommand apply --extra-flags '--insecure'                           # gives the commands that are needed to be applied 
-then apply the above commands
 
+# Configure sops - if using vault then make sure VAULT_TOKEN is exported in the environment
+vi .sops.yaml
 
-talosctl config merge ./clusterconfig/talosconfig				                # to merge the clusters config into your existing config file for talos - mostly ~/.talos/config
+# Encrypt talsecret.sops.yaml with sops in place
+sops -e -i talsecret.sops.yaml		# CAN GO IN GIT
+
+# Generate config for cluster based on talconfig.yaml and talsecrets.sops.yaml (encrypted file) 
+talhelper genconfig
+
+# you will get a clusterconfig/ directory with a machineconfig for each node and the equivalent talosconfig
+ls clusterconfig/<nodeconfig>
+ls clusterconfig/talosconfig
+
+# DO NOT PUT ./clusterconfig IN GIT
+
+# EITHER apply config to a VM booted with a talos image or kernel/initramfs
+talosctl apply-config -n <node_ip> --insecure --file ./clusterconfig/<nodeconfig>		
+# OR use talhelper gencommand
+talhelper gencommand apply --extra-flags '--insecure'
+
+ # to merge the clusters config into your existing config file for talos - mostly ~/.talos/config
+talosctl config merge ./clusterconfig/talosconfig				               
 ```
 
 
@@ -268,7 +385,7 @@ os crt and key
 
 
 
-# CONTROL PLANE COMPONENTS IN TALOS
+# KUBERNETES CONTROL PLANE COMPONENTS IN TALOS
 
 ## apiserver, controller-manager and scheduler components run as static pods
 
@@ -299,12 +416,12 @@ nsw-etca-opsk8stest-ctrl1   runtime     Service   kubelet   2         true      
 
 # SERVICES ON ANY TALOS NODE
 
-## The following run as services on a node
+## The following run as services on a node (some are related to Talos OS and others to K8s)
 
 ```shell
 talosctl -n nsw-etca-opsk8stest-ctrl1 get services
 
-NODE                                      NAMESPACE   TYPE      ID                     VERSION   RUNNING   HEALTHY   HEALTH UNKNOWN
+NODE                        NAMESPACE   TYPE      ID                     VERSION   RUNNING   HEALTHY   HEALTH UNKNOWN
 nsw-etca-opsk8stest-ctrl1   runtime     Service   apid                   2         true      true      false
 nsw-etca-opsk8stest-ctrl1   runtime     Service   auditd                 2         true      true      false
 nsw-etca-opsk8stest-ctrl1   runtime     Service   containerd             2         true      true      false
@@ -323,10 +440,10 @@ nsw-etca-opsk8stest-ctrl1   runtime     Service   udevd                  2      
 
 talosctl -n nsw-etca-opsk8stest-ctrl1 containers
 
-NODE                                      NAMESPACE   ID                     IMAGE   PID    STATUS
-nsw-etca-opsk8stest-ctrl1   system      apid                           2369   RUNNING
-nsw-etca-opsk8stest-ctrl1   system      ext-qemu-guest-agent           2287   RUNNING
-nsw-etca-opsk8stest-ctrl1   system      trustd                         2565   RUNNING
+NODE                        NAMESPACE   ID                     IMAGE        PID    STATUS
+nsw-etca-opsk8stest-ctrl1   system      apid                                2369   RUNNING
+nsw-etca-opsk8stest-ctrl1   system      ext-qemu-guest-agent                2287   RUNNING
+nsw-etca-opsk8stest-ctrl1   system      trustd                              2565   RUNNING
 
 
 ## Get more information about a service
@@ -355,7 +472,7 @@ talosctl logs <service> -n <node>
 
 EFI                 -   the partition used for storing the bootloader files for UEFI based systems
 BIOS                -   the partition used for storing the bootloader files for legacy bios systems
-BOOT                -   contains the kernel, initramfs and other boot related data (Talos OS)
+BOOT                -   contains the kernel, initramfs, grub config and other boot related data (Talos OS) {I think only for GRUB bootloader based systems}
 META                -   the volume used for storing Talos metadata
 STATE               -   the volume used for storing system state including machine configuration and PKI data
 EPHEMERAL           -   the volume for /var
@@ -368,9 +485,11 @@ EPHEMERAL           -   the volume for /var
 
 Installing
 
-Booting
+Rebooting
 
-Running
+Running             -   Talos booted up, found configuration in STATE, running with that configuration
+
+Maintenance         -   Talos booted up, no configuration was found in STATE, waiting for configuration to be applied
 
 
 ## Resetting a Talos node
@@ -413,8 +532,12 @@ A place to hold keys used for encryption, e.g. the key that encrypts the disk at
 
 ## What
 Extensions allow for additional functionality on top of the default Talos Linux capabilities.
+kernel modules
+firmware
+user-space tools
 e.g. guest agents for talos vm running on qemu
 
+The base installer image does not have system extensions (i think)
 
 ## Where are the extensions available
 https://github.com/siderolabs/extensions
@@ -423,10 +546,6 @@ https://github.com/siderolabs/extensions
 ## Installing extensions
 https://github.com/siderolabs/extensions#installing-extensions
 
-
-
-## Get the current extensions
-talosctl get extensions -n <node>
 
 
 
@@ -468,8 +587,10 @@ Kubernetes resources live in namespaces.
 here is a list of namespaces i have come across with examples of configuration items
 
 hardware            -       SystemInformations.hardware.talos.dev
-runtime             -       MetaKeys.runtime.talos.dev, SystemDisks.block.talos.dev
+runtime             -       MetaKeys.runtime.talos.dev, SystemDisks.block.talos.dev, MachineStatuses.runtime.talos.dev
+                            SecurityStates.talos.dev
 config              -       Machineconfigs.config.talos.dev/v1alpha1
+k8s
 
 
 i saw pods and their containers running in a k8s.io namespace on a talos node
@@ -480,9 +601,9 @@ talosctl container --kubernetes -n <node>
 containers not part of kubernetes but part of talos os run in the 'system' namespace
 
 
-# IMAGES
+# IMAGES FOR A RELEASE OF TALOS
 
-Each version of Talos has a set of default images it will use for the kubernetes control plane components
+Each version of Talos has a set of default images it will use either for installaing or for the kubernetes control plane components
 
 ## Registries
 
@@ -494,7 +615,7 @@ registry.k8s.io
 ```shell
 $ talosctl images default
 
-ghcr.io/siderolabs/installer:v1.10.7                # I THINK this one contains the installer program to install Talos onto a VM
+ghcr.io/siderolabs/installer:v1.10.7
 ghcr.io/siderolabs/flannel:v0.26.7
 ghcr.io/siderolabs/kubelet:v1.33.4
 
@@ -521,6 +642,12 @@ node=nsw-etca-opsk8stest-ctrl1
 # get the machine status of a node, i.e. the talos view of a node
 talosctl -n $node get machinestatus  -o yaml
 
+# get systeminformation
+talosctl -n $node get systeminformation
+talosctl -n $node get systemdisk
+
+talosctl -n $node get securitystate -o yaml
+
 
 # get the machine configuration of a node
 talosctl -n $node get machineconfig
@@ -531,17 +658,8 @@ talosctl -n $node get machineconfig [ID] -o yaml
 talosctl -n nsw-etca-opsk8stest-ctr1l get machineconfig v1alpha1 -o yaml | grep 'image:'
 
 
-# get the running processes on a node (this stupid command does not use get)
-talosctl -n $node processes
-
-
 # devices (meaing PCI bus)
 talosctl -n $node get devices 
-
-
-# get systeminformation
-talosctl -n $node get systeminformation
-talosctl -n $node get systemdisk
 
 
 # disk information and volume information
@@ -552,9 +670,9 @@ talosctl -n $node ls -l /dev/disk/by-label
 talosctl -n $node ls -l /dev/disk/by-uuid
 
 
-talosctl -n $node get blockdevices
+talosctl -n $node get blockdevices              # disks and partitions
 
-talosctl -n $node get discoveredvolumes
+talosctl -n $node get discoveredvolumes         # a volume is on a blockdevice of some sort
 
 
 # volumeconfiguration information (still dont understand what this means)
@@ -563,28 +681,36 @@ talosctl -n $node get volumeconfigs STATE -o yaml
 
 
 # mount information
+talosctl -n $node mountstatus
 talosctl -n $node mounts
 ## looking at the /var mount
 talosctl -n $node mounts | awk 'NR == 1 { print; next; }  $2~/dev\//&&$2!~/rbd/{ print }'
 ## show mounts from kubelet into the pods
 talosctl -n $node  mounts | awk 'NR == 1 { print; next; }  $7~/\/var\/lib\/kubelet\/pods/ { print }'
 
+
+
+# get the running processes on a node (this stupid command does not use get)
+talosctl -n $node processes
+
 # usage information
 talosctl -n $node usage <mount_point>, e.g. talosctl -n $node usage /var
 
 
 # network information
-talosctl -n $node get links
-talosctl -n $node get link <link> -o yaml
+talosctl -n $node get linkstatus                            # the status of a link, aliased to link, links, ls
+talosctl -n $node get linkstatus <linkstatus> -o yaml
 talosctl -n $node get addresses
 talosctl -n $node get routes
 talosctl -n $node get resolver
 talosctl -n $node get hostname
 talosctl -n $node get timeserver
 
+
 # kernel configuration
 ## e.g. looking for libceph compilation
 talosctl -n $node cat /proc/config.gz | zgrep -E "^CONFIG.*_(RBD|CEPH)"
+
 
 # get meta information (this only applies to bare-metal nodes)
 talosctl -n nsw-etca-opsk8s-osd1 get meta 0x0a -o yaml
@@ -643,7 +769,32 @@ talosctl -n $node etcd remove-member <member-id>
 
 # Logs for a service
 talosctl -n $node logs <service> # talosctl -n $node get services
-talos
+
+
+# There about 161 resource definitions that you can retrieve for a node
+talosctl -n $node get rd 
+
+# within these categories
+$ talosctl -n nsw-etca-ossk8sdev-swrk7 get rd  | sed '/NODE/d' | awk '{ print $4 }' | while read rd; do echo "${rd#*.}"; done | sort | uniq
+block.talos.dev
+cluster.talos.dev
+config.talos.dev
+cri.talos.dev
+etcd.talos.dev
+files.talos.dev
+hardware.talos.dev
+k8s.talos.dev
+kubernetes.talos.dev
+kubespan.talos.dev
+meta.cosi.dev
+net.talos.dev
+perf.talos.dev
+runtime.talos.dev
+secrets.talos.dev
+siderolink.talos.dev
+talos.dev
+v1alpha1.talos.dev
+
 ```
 
 

@@ -3,38 +3,52 @@
 
 Think of Rook as composed of 3 parts
 1. The CRD's
-2. The rook-ceph operator                   -   operator pod, csi-cephfsplugin-provsioner pods, csi-cephfsplugin pods, 
-                                                csi-rbdplugin-provisioner pods, csi-rbdplugin pods, rook-discover pods, 
-3. The rook-ceph cluster                    -   toolbox pod,  mon pods, mgr pods, rgw pods, prep osd pods, osd pods
-                                                resources for monitoring, dashboard, ingress
-                                                cephblockpools + storage classes for the cephblockpools
-                                                cephfilesystems + storage classes for the cephfilesystems
-                                                cephobjectstores + storage classes for the cephobjectstores + ingresses for cephobjectstores
 
+2. The rook-ceph operator                   
+- operator pod (and its associated config via cm/rook-ceph-operator-config)
+- csi-cephfsplugin-provsioner pods, csi-cephfsplugin pods, csi-rbdplugin-provisioner pods, csi-rbdplugin pods
+- rook-discover pods
+
+3. The rook-ceph cluster                    
+- toolbox pod
+- mon pods, mgr pods, rgw pods, 
+- prep osd pods, osd pods
+- resources for monitoring, dashboard, ingress
+- cephblockpools + storage classes for the cephblockpools
+- cephfilesystems + storage classes for the cephfilesystems
+- cephobjectstores + storage classes for the cephobjectstores + ingresses for cephobjectstores
+- crash-collector
+- ceph-exporter
+
+Where do the following components fit?
+job/rook-ceph-detect-version  
+job/ceph-file-controller-detect-version 
+job/ceph-object-controller-detect-version 
+rbdMirrorPeer
 
 
 # CRD's
 
-Documentation for CRD's                                 -       https://rook.io/docs/rook/latest-release/CRDs/Cluster/ceph-cluster-crd/ (and then find your way accordingly)
+Documentation for CRD's                           -       https://rook.io/docs/rook/latest-release/CRDs/Cluster/ceph-cluster-crd/ (and then find your way accordingly)
 
 
 ## The following CRDs come from the crds bundle in deploy/examples/crds.yaml:
 
 cephclusters.ceph.rook.io
 
-cephblockpools.ceph.rook.io                             -    a pool to be used for rados block devices
-cephblockpoolradosnamespaces.ceph.rook.io               -    think of it as a segregation in a cephblockpool
+cephblockpools.ceph.rook.io                       -    a pool to be used for rados block devices
+cephblockpoolradosnamespaces.ceph.rook.io         -    think of it as a segregation in a cephblockpool
 
 cephrbdmirrors.ceph.rook.io
 
-
-cephfilesystems.ceph.rook.io                            -    a cr for creating a ceph filesystem (remember that a ceph filesystem is represented as a volume - `k rook-ceph ceph fs volums ls`)
-                                                             (underlying data and metadata pools are created automatically)
-cephfilesystemsubvolumegroups.ceph.rook.io              -    think of this as a group, into which cephfs subvolumes will be put, the group resource will be used for policies
+cephfilesystems.ceph.rook.io                      -   a cr for creating a ceph filesystem 
+                                                      (remember that a ceph filesystem is represented as a volume - `k rook-ceph ceph fs volums ls`)
+                                                      (underlying data and metadata pools are created automatically)
+cephfilesystemsubvolumegroups.ceph.rook.io        -    think of this as a group, into which cephfs subvolumes will be put, the group resource will be used for policies
 cephfilesystemmirrors.ceph.rook.io
 
 
-cephobjectstores.ceph.rook.io                           -   Object storage exposes an S3 API and or a Swift API to the storage cluster for applications to put and get data
+cephobjectstores.ceph.rook.io                     -   Object storage exposes an S3 API and or a Swift API to the storage cluster for applications to put and get data
 cephobjectrealms.ceph.rook.io
 cephobjectstoreusers.ceph.rook.io
 cephobjectzonegroups.ceph.rook.io
@@ -55,6 +69,7 @@ cephcosidrivers.ceph.rook.io
 ## The following CRDs come from the installation of the operator:
 
 cephconnections.csi.ceph.io
+
 clientprofilemappings.csi.ceph.io
 clientprofiles.csi.ceph.io
 drivers.csi.ceph.io
@@ -62,17 +77,8 @@ operatorconfigs.csi.ceph.io
 
 
 
+
 # ROOK-CEPH (the operator)
-
-## What is with the rook-ceph (operator)
-
-operator
-  csi cephgsplugin provisioner
-  csi cephfsplugin
-  csi rbdplugin provisioner
-  csi rbdplugin
-  rook-discover                       -       automatically detect available raw disks, partitions, and NVMe drives so the Rook Operator can use them to create persistent storage
-
 
 ## Helm chart for rook operator
 
@@ -82,7 +88,7 @@ https://charts.rook.io/release repo and rook-ceph chart (source code is in rook 
 The rook-ceph (operator) helm chart provides (amongst many other things like ConfigMap, ServiceAccount, ClusterRole, ClusterRoleBinding, RoleBinding, etc.):
 
 Deployment/rook-ceph-operator           -       docker.io/rook/ceph image, the operator pod  
-Deployment/ceph-csi-controller-manager  -       quay.io/cephcsi/ceph-csi-operator, CSI Drive.  (WE DONT SEEM TO USE THIS IN AARNET)
+Deployment/ceph-csi-controller-manager  -       quay.io/cephcsi/ceph-csi-operator, CSI Driver  (WE DONT SEEM TO USE THIS IN AARNET)
 
 
 Command - ```helm template rooky rook-release/rook-ceph --dry-run | yq (.kind)```
@@ -97,10 +103,17 @@ The rook-ceph-operator then creates the csidriver and rook-discover workloads:
 
 ## Components in the rook-ceph operator (think software components not containers)
 
-controller
+cluster-controller
 ceph-operator-config-controller
 ceph-object-store-user-controller
 clusterdisruption-controller
+op-mon
+op-mgr
+op-mds
+op-osd
+object-controller
+file-controller
+ceph-csi
 
 
 ## Configuration for the operator
@@ -110,9 +123,9 @@ k get cm rook-ceph-operator-config -o yaml -n rook-ceph
 ```
 
 
-## How are the csidrivers structured
+## How are the csidriver deployments and pods structured
 
-`the main driver is this (providing controller service and identity service) - quay.io/cephcsi/cephcsi`
+NOTE: the main driver (providing controller service and identity service) is this image - quay.io/cephcsi/cephcsi
 
 deployment/csi-cephfsplugin-provisioner                       -   the controller component
     pod/xxx-yyy-zzz
@@ -159,8 +172,8 @@ https://charts.rook.io/release repo and rook-ceph-cluster chart (source code is 
 
 
 The rook-ceph-cluster helm chart provides (amongst other things): 
-StorageClasses
 CephCluster
+StorageClasses
 CephBlockPool
 CephFilesystem
 CephFilesystemSubVolumeGroup
@@ -168,6 +181,7 @@ CephObjectStore
 
 Command - ```helm template rooky rook-release/rook-ceph-cluster --dry-run | yq '. | (.kind, .metadata.name)'```
 
+## The operator reads the above resources and provisions these workloads and configmap:
 rook-ceph-mon
 rook-ceph-mgr
 rook-ceph-mds
@@ -185,22 +199,143 @@ rook-ceph-tools
 rook-ceph-rgw-ceph-objectstore-a (x N)
 
 
+configmap/rook-ceph-csi-config        
+- configuration for the CSI driver
+- a list of ceph clusters and their connection details
+  so when kubelet calls the csi driver using a storageclass, the csi driver knows how to get to that cluster
+
+  
 
 # WORKINGS
+
+## Daemons
+
+Traditional services of Ceph (aka daemons) continue to be daemons in rook
+Some others are added
+the total list is:
+Mgr
+Mon
+Osd
+rbdMirrorPeer
+crashcollector
+cephexporter
+
+
+## Authentication (cephx)
+
+### Entities
+
+Client      -   client entities (those which start with client.)
+  admin
+  ceph-exporter
+  crash collector
+  any csi
+  any osd-lockbox
+  rbd-mirror-peer
+  rgw
+Service     -   service entities (those that dont start with client.)
+  mds
+  osd
+  mgr
+
+
+### Rook for configuration purposes divides keys into 2 types
+
+Daemons                   
+  Core Daemons (Services) -   mon, mgr, osd, mds
+  Child resource daemons  -   client.admin, client.ceph-exporter, client.crash (crash collector)
+  gateways                -   client.rgw.* 
+
+Non Daemons               -   csi, cephclient, rbd mirror peer
+
+
+
+### Key Locations
+
+within ceph (think server side):
+
+There are 2 places where keys are located
+1. The mon auth dbx (ceph auth ls) - all keys except the mon key
+2. A filesystem path on each mon node for mon key - 
+e.g. ```talosctl read /var/lib/rook/mon-b/data/keyring -n nsw-mcqm-opsk8sdev-mon1```
+  
+within namespace (think client side):
+
+In the namespace there will be keys
+1. either to be accessed by pods that run as daemons (usually with 'keyring' in the name)
+2. or for the storage class parameters
+
+
+
+### For client.admin
+
+Rook operator sets up a client for admin in the cluster
+```shell
+k rook-ceph ceph auth get client.admin
+```
+
+Then the operator sets up a secret in rook-ceph namespace
+```shell
+k get secret rook-ceph-admin-keyring -n rook-ceph -o yaml
+```
+The operator uses this client identity to talk to the ceph cluster
+
+
+### For CSI pods
+
+Rook sets up a client for the CSI components
+```shell
+$ k rook-ceph ceph auth ls | grep csi
+client.csi-cephfs-node.1
+client.csi-cephfs-provisioner.1
+client.csi-rbd-node.1
+client.csi-rbd-provisioner.1
+```
+
+Rook sets up secrets in rook-ceph namespace
+```shell
+$ k get secret -n rook-ceph | grep csi
+rook-csi-cephfs-node                             kubernetes.io/rook   2      3d21h
+rook-csi-cephfs-provisioner                      kubernetes.io/rook   2      3d21h
+rook-csi-rbd-node                                kubernetes.io/rook   2      3d21h
+rook-csi-rbd-provisioner                         kubernetes.io/rook   2      3d21h
+```
+
+Rook populates the secretnames into the storage class that the csi provisioner and nodes will use
+```shell
+$ k get sc ceph-filesystem -o yaml | yq .parameters | grep secret
+csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+```
+
+The CSI plugin pods (provisioner and node) will read the storage class and 
+use the clients name/key in the secret to authenticate with the ceph cluster
+and then take pvc/pv related actions
+
+
 
 ## This is where rook meets ceph
 
 ### cephfs
-When you create a cephfilesystem resource:
- - a cephfs volume is created (```k rook-ceph ceph fs volume ls```) at least 
+When you create a CephFilesystem resource:
+ - a cephfs volume is created (```k rook-ceph ceph fs volume ls```) at least
  - 2 pools are created in the ceph cluster - the metadata pool, the data pool (```k rook-ceph ceph osd lspools```)
 
-then a pvc in a namespace referring the ceph-filesystem storage class,
-gives birth to a pv in the kubernetes system,
-which creates a subvolumegroup in the cephfs volume created above,
-and then creates a subvolume in the subvolume group
+When you create a CephFilesystemSubVolumeGroup resource
+- a subvolume group is created in the referenced CephFilesystem (```k rook-ceph ceph fs subvolumegroup ls <volume>```)
 
-SO - THE PV IS A SUBVOLUME
+Then at some stage you create a PVC
+- the pvc in a namespace refers to let's say the 'ceph-filesystem' storage class,
+- kubernetes gives birth to a pv,
+- the pv is a subvolume in the subvolumegroup 
+(```k rook-ceph ceph fs subvolume ls <volume> <subvolumegroup>```)
+(```k rook-ceph ceph fs subvolume info <volume>  <subvolume> <subvolumegroup>```)
+
+SO - THE PV IS REALLY A SUBVOLUME IN A SUBVOLUMEGROUP OF A CEPH FS VOLUME
 
 
 ### rbd
@@ -227,10 +362,7 @@ CRUSH rules come into play by marking nodes with labels - topology.kubernetes.io
 
 
 
-## The Operator reads the CephCluster resource and provides:
 
-confgimap/rook-ceph-csi-config        -       configuration for the CSI driver, a list of ceph clusters and their connection details
-                                              so when a storageclass calls the csi driver with a particular cluster, the csi driver knows how to get to that cluster
 
 
 
@@ -239,7 +371,7 @@ confgimap/rook-ceph-csi-config        -       configuration for the CSI driver, 
 
 ### Understanding CephFS Subvolumegroups
 
-The SC provides some key pieces of information for the kubelet when it is invoking the CSI Driver
+The SC provides some key pieces of information for the kubelet when the kubelet is invoking the CSI Driver
 - which ceph cluster to talk to
 - what are the parameters to use when talking to the ceph cluster
 - which ceph filesystem to use when talking to the cluster
@@ -277,42 +409,6 @@ When you provision an S3 bucket into rook-ceph using an objectbucketclaim then
 
 
 # HOW TO
-
-## REMOVE A CEPH CLUSTER
-
-https://rook.io/docs/rook/v1.10/Getting-Started/ceph-teardown/ AND https://www.talos.dev/v1.9/kubernetes-guides/configuration/ceph-with-rook/
-
-```shell
-kubectl -n rook-ceph patch cephcluster opsk8stest --type merge -p '{"spec":{"cleanupPolicy":{"confirmation":"yes-really-destroy-data"}}}'
-
-kbeh overlays/opsk8stest | k delete -f -
-
-might have to patch the finalizer
-
-kubectl -n rook-ceph get cephcluster
-
-
-for node in `kubectl get nodes --no-headers | awk '{print $1}'`; do echo $node; kubectl debug node/${node} --image=alpine -it -- rm -rf /host/var/lib/rook; echo; echo; done
-for node in `kubectl get nodes --no-headers | awk '{print $1}'`; do echo $node; kubectl debug node/${node} --image=alpine -it -- ls -l /host/var/lib/rook; echo; echo; done
-k get pods -o name | grep node-debugger | sed -e 's|^pod/||' | xargs -n 1 kubectl delete pod 
-
-
-export node=<node>  # for the OSD nodes
-
-talosctl -n ${node} get volumestatus # note the disk on which the volumes state,meta,ephemeral are located. This disk should be absent in the --user-disks-to-wipe
-
-k drain $node --ignore-daemonsets
-
-talosctl -n ${node}$ reset \
-  --user-disks-to-wipe "/dev/nvme0n1,/dev/nvme1n1,/dev/nvme2n1,/dev/nvme3n1,/dev/nvme4n1,/dev/nvme5n1,/dev/nvme7n1,/dev/nvme8n1,/dev/nvme9n1" \
-  --wipe-mode user-disks \
-  --reboot
-
-# talosctl reboot -n $node
-
-k uncordon $node
-```
-
 
 
 ## CREATE A BUCKET WITH A CUSTOM USER, ACCESS KEY AND SECRET ACCESS KEY
